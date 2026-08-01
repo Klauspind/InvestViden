@@ -1,0 +1,54 @@
+{
+  "schema_version": "0.1",
+  "source_id": "erstattes-af-demoen",
+  "provider": "manual_demo",
+  "model": null,
+  "extracted_at": "2026-07-31T12:00:00+00:00",
+  "claims": [
+    {
+      "claim_type": "company_view",
+      "summary": "Eksempel Energi er en langsigtet observationscase, men ikke en aktuel købsanbefaling.",
+      "speaker": "Anna Analytiker",
+      "sentiment": "positive",
+      "action": "watch",
+      "time_horizon": "long_term",
+      "discussion_depth": "detailed",
+      "confidence": 0.96,
+      "review_status": "ai_extracted",
+      "companies": [{"name": "Eksempel Energi", "ticker": null, "role": "primary"}],
+      "themes": ["Energieffektivisering"],
+      "thesis": ["Strukturel efterspørgsel efter energieffektivisering", "Robust ordrebog"],
+      "risks": ["Byggeaktivitet", "Energipriser"],
+      "catalysts": [],
+      "conditions": ["Køb overvejes først ved en lavere værdiansættelse"],
+      "evidence": {
+        "excerpt": "Jeg vil først købe, hvis værdiansættelsen falder. Det er altså en observationscase, ikke en købsanbefaling.",
+        "start_ref": "00:05:18",
+        "end_ref": "00:06:01"
+      }
+    },
+    {
+      "claim_type": "theme",
+      "summary": "Datacentres strømforbrug gør elnetudbygning og effektiv køling til langsigtede temaer.",
+      "speaker": "Vært",
+      "sentiment": "positive",
+      "action": "none",
+      "time_horizon": "long_term",
+      "discussion_depth": "brief",
+      "confidence": 0.91,
+      "review_status": "ai_extracted",
+      "companies": [],
+      "themes": ["Datacentre", "Elnet", "Køling"],
+      "thesis": ["Stigende strømforbrug kræver netudbygning og effektiv køling"],
+      "risks": [],
+      "catalysts": ["Fortsat datacenterudbygning"],
+      "conditions": [],
+      "evidence": {
+        "excerpt": "Datacentre trækker også et stort strømforbrug. Det gør både elnetudbygning og effektiv køling til vigtige temaer de næste mange år.",
+        "start_ref": "00:06:02",
+        "end_ref": "00:06:19"
+      }
+    }
+  ]
+}
+

@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/investkb/extraction-v0.1.schema.json",
+  "title": "InvestKB extraction 0.1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "source_id", "provider", "extracted_at", "claims"],
+  "properties": {
+    "schema_version": {"const": "0.1"},
+    "source_id": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "model": {"type": ["string", "null"]},
+    "extracted_at": {"type": "string", "minLength": 1},
+    "claims": {
+      "type": "array",
+      "items": {"$ref": "#/$defs/claim"}
+    }
+  },
+  "$defs": {
+    "company": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "role"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "ticker": {"type": ["string", "null"]},
+        "role": {"enum": ["primary", "discussed", "comparison", "mention"]}
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "excerpt": {"type": ["string", "null"]},
+        "start_ref": {"type": ["string", "null"]},
+        "end_ref": {"type": ["string", "null"]}
+      },
+      "anyOf": [
+        {"required": ["excerpt"]}, {"required": ["start_ref"]}, {"required": ["end_ref"]}
+      ]
+    },
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["claim_type", "summary", "sentiment", "action", "time_horizon",
+        "discussion_depth", "confidence", "review_status", "companies", "themes",
+        "thesis", "risks", "catalysts", "conditions", "evidence"],
+      "properties": {
+        "claim_id": {"type": "string"},
+        "claim_type": {"enum": ["company_view", "theme", "macroeconomic", "forecast", "risk", "mention"]},
+        "summary": {"type": "string", "minLength": 1},
+        "speaker": {"type": ["string", "null"]},
+        "sentiment": {"enum": ["positive", "neutral", "negative", "mixed", "unclear"]},
+        "action": {"enum": ["owns", "buying", "hold", "reduce", "sold", "watch", "avoid", "none", "unclear"]},
+        "time_horizon": {"enum": ["short_term", "medium_term", "long_term", "unspecified"]},
+        "discussion_depth": {"enum": ["brief", "moderate", "detailed"]},
+        "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+        "review_status": {"enum": ["ai_extracted", "approved", "corrected", "uncertain", "rejected"]},
+        "companies": {"type": "array", "items": {"$ref": "#/$defs/company"}},
+        "themes": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "thesis": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "risks": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "catalysts": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "conditions": {"type": "array", "items": {"type": "string", "minLength": 1}},
+        "evidence": {"$ref": "#/$defs/evidence"}
+      }
+    }
+  }
+}
+
