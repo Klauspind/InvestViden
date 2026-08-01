@@ -1,5 +1,12 @@
 # InvestViden – et kildebaseret system til investeringsviden
 
+[![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](https://opensource.org/licenses/MIT)
+[![GitHub Issues](https://img.shields.io/github/issues/Klauspind/InvestViden)](https://github.com/Klauspind/InvestViden/issues)
+[![GitHub Stars](https://img.shields.io/github/stars/Klauspind/InvestViden?style=social)](https://github.com/Klauspind/InvestViden/stargazers)
+
+---
+
 InvestViden er en lokal, AI-uafhængig pipeline til at omsætte podcasttransskriptioner,
 nyhedsbreve og rapporter til sporbar investeringsviden.
 
