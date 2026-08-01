@@ -40,11 +40,10 @@ htmlcov/
 .tox/
 .nox/
 
-# SQLite Database
+# Local databases and copied source material
 *.sqlite
 *.db
-data/knowledgebase.sqlite
-data/demo.sqlite
+data/
 backups/
 
 # Output files
