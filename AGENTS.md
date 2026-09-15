@@ -2,70 +2,87 @@
 
 ## Formål
 
-InvestViden er et privat, local-first system, der omsætter podcasttransskriptioner,
-nyhedsbreve og rapporter til kildebaseret investeringsviden. AI må foreslå
-udsagnskandidater, men kun individuelt menneskeligt godkendte eller korrigerede
-udsagn er aktiv viden. Systemet må ikke handle værdipapirer eller give rå
-AI-resultater status som godkendt viden.
+InvestViden er et privat, local-first og kildebaseret system til investeringsviden. AI må foreslå udsagnskandidater, relationer og strukturerede data, men kun individuelt menneskeligt godkendte eller korrigerede udsagn er aktiv viden. Systemet må ikke handle værdipapirer eller tilgå en broker.
 
-## Teknisk miljø
+Kerneflow:
 
-- Windows og Python 3.10+; produktkoden bruger kun standardbiblioteket.
-- `run.cmd` finder system-Python eller Codex' medfølgende Python-runtime.
-- SQLite er den autoritative database.
-- Den aktive `data/knowledgebase.sqlite` er fortsat schema 2.
-- UI-udvikling og migrationstest foregår på schema-4-kopier under `output/`.
+`Kilde -> AI-forslag -> menneskelig kontrol -> aktiv viden`
 
-## Central struktur
+## Start altid her
 
-- `src/investkb/` — produktkode, migrationer, database og lokal web-UI.
-- `tests/` — automatiske workflow- og reviewtests.
-- `schemas/` — kontrakt for strukturerede AI-udtræk.
-- `docs/adr/` — bindende arkitekturbeslutninger.
-- `CONTEXT.md` — projektets fælles domænesprog.
-- `docs/ROADMAP.md` — faser og produktretning.
-- `todo.md` — én aktiv udviklingsopgave og den nærmeste kø.
-- `handover.md` — kort, aktuelt snapshot; `PROJECT_HANDOVER.md` er den detaljerede historik.
+Læs ved begyndelsen af en ny chat eller større opgave i denne rækkefølge:
 
-## Verificerede kommandoer
+1. `AGENTS.md`
+2. `docs/todo.md`
+3. `docs/handover.md`
+4. `docs/decisions.md`
+5. relevante ADR'er og designfiler
+6. relevante schemafiler
+7. kun derefter kodefilerne for den aktive opgave
 
-```powershell
-.\run.cmd --help
-.\START_INVESTVIDEN_UI_PREVIEW.cmd --check
-& "$env:USERPROFILE\.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe" -m unittest discover -s tests -v
-```
+Hvis root-filer som `todo.md`, `handover.md`, `CONTEXT.md` eller `PROJECT_HANDOVER.md` afviger fra dokumenterne under `docs/`, skal forskellen identificeres og den aktuelle status samles i `docs/`.
 
-Start den isolerede UI-forhåndsvisning med
-`START_INVESTVIDEN_UI_PREVIEW.cmd`. Brug ikke den aktive database med den nye kode,
-før migration og rollback er verificeret på en frisk kopi og godkendt af ejeren.
+## Teknisk miljø og datagrænse
 
-## Arbejdsregler
+- Windows og Python 3.10+; produktkoden bruger primært standardbiblioteket.
+- SQLite er den autoritative sandhedskilde for kilder, hashes, provenance, claimversioner, reviewhistorik og AI-jobstatus.
+- Den aktive lokale `data/knowledgebase.sqlite` er ifølge desktop-handoveren schema 2.
+- Aktiv database må ikke migreres, erstattes eller bruges til eksperimenterende skriveoperationer uden ny, udtrykkelig godkendelse fra ejeren.
+- Schema-4-udvikling og migrationstest sker kun på friske kopier under `output/` eller midlertidige testdatabaser.
+- SQLite må ikke placeres i OneDrive.
+- UI må kun lytte på localhost, medmindre en ny arkitekturbeslutning træffes.
 
-- Læs `todo.md` og `handover.md` før en ny opgave fortsættes.
-- Arbejd i små, sammenhængende ændringer og bevar eksisterende brugerdata.
-- Test altid migrationer og skriveflows på kopier eller midlertidige databaser først.
-- Migrér eller erstat aldrig `data/knowledgebase.sqlite` uden ny, udtrykkelig godkendelse.
-- Bevar kildehashes, provenance, claimversioner og append-only reviewhistorik.
-- Håndhæv kildens AI-tilladelse før eksterne API-kald; brug ingen automatisk fallback.
-- Menneskelig godkendelse må aldrig automatiseres eller udføres som massegodkendelse
-  uden individuel kontrol.
-- Originale inputfiler må ikke flyttes, ændres eller slettes af intakeflowet.
-- Gem aldrig API-nøgler, persondata eller private kilder i Git eller testfixtures.
-- Brug syntetiske eller anonymiserede testdata.
-- Markér usikre antagelser `ANTAGELSE` og nødvendige valg `AFKLARING`.
-- Opdatér kun den dokumentation, som ændringen faktisk påvirker.
+## Arbejdsform
 
-## Projektgrænser
+Arbejd på ét aktivt todo-punkt ad gangen. Før implementering skal mål, berørte filer, acceptkriterier, datarisiko, testplan og eventuelle ukendte forhold være tydelige.
 
-- SQLite er lokal og må ikke placeres i OneDrive.
-- UI må kun lytte på localhost, medmindre der træffes en ny arkitekturbeslutning.
-- AI-resultater starter som `ai_extracted` eller `uncertain`, aldrig `approved`.
-- Aktiv viden er `approved` eller `corrected`; uafklaret legacy forbliver i arkivet.
-- PDF/Word-ekstraktion, markedsdata, RAG, porteføljestyring og alarmer er senere faser.
+Brug statusmarkørerne præcist:
 
-## Definition of Done
+- `VERIFICERET`
+- `IKKE TESTET`
+- `KRÆVER BRUGERTEST`
+- `ANTAGELSE`
+- `AFKLARING`
 
-En opgave er færdig, når acceptkriteriet i `todo.md` er opfyldt, relevante tests
-består, databeskyttelsesgrænserne er bevaret, nødvendig dokumentation er opdateret,
-og `todo.md` samt ved en milepæl `handover.md` afspejler resultatet. Brug
-`VERIFICERET`, `IKKE TESTET` og `KRÆVER BRUGERTEST` præcist.
+Arbejd i små, reversible ændringer. Bevar eksisterende fungerende kode og datakompatibilitet. Foretag ikke store refaktoreringer som sideeffekt af en mindre opgave.
+
+## AI-sikkerhedsmodel
+
+Kilder kan have AI-politikken `allow`, `ask`, `local_only` eller `blocked`. Politikken skal håndhæves før tekst forlader den lokale maskine. Der må ikke være automatisk provider-fallback.
+
+Eksterne AI-job kræver synligt kildevalg, korrekt kildeversion/hash, prisestimat, prisloft og særskilt menneskelig bekræftelse. Det dokumenterede Mistral-loft er højst fem kilder pr. job og lokalt estimeret USD 0,10.
+
+Brug falsk/mock transport i automatiske tests. Foretag aldrig et rigtigt API-kald uden udtrykkelig brugeranmodning og accept af kilde og økonomisk konsekvens.
+
+AI-resultater starter som kandidater (`ai_extracted` eller `uncertain`) og må aldrig automatisk blive `approved`.
+
+## Kilder og GitHub
+
+Originale inputfiler må som udgangspunkt ikke ændres, flyttes eller slettes af intakeflowet. Importerede kilder skal have reproducerbar provenance og SHA-256.
+
+GitHub-repository `Klauspind/InvestViden` er det vedvarende lager for kode og projektdokumentation. Følgende må normalt ikke pushes:
+
+- `*.sqlite`, `*.db`
+- private kilder
+- backups og runtime-output
+- `.env`
+- API-nøgler
+- personlige `settings.json`
+- lokale AI-resultater med privat indhold
+
+## Tests og Definition of Done
+
+En opgave er først færdig, når:
+
+1. acceptkriterierne er opfyldt
+2. relevante automatiske tests består
+3. sikkerheds- og databeskyttelsesgrænser er kontrolleret
+4. regressionsrisici er vurderet
+5. `docs/todo.md` er opdateret
+6. `docs/changes.md` er opdateret
+7. `docs/handover.md` opdateres ved milepæle eller væsentlige arkitekturændringer
+8. relevante ADR'er opdateres ved egentlige designbeslutninger
+9. ændringerne er gemt i GitHub
+10. det tydeligt fremgår, hvad der er verificeret, og hvad der fortsat kræver brugertest
+
+Den aktive lokale database, localhost-UI, Windows Opgavestyring og lokale miljøvariabler kan ikke verificeres fra browsermiljøet uden konkret brugerleveret evidens. Sådanne forhold skal markeres `KRÆVER BRUGERTEST` eller som historisk desktop-verificeret status.
