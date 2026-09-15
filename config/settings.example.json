@@ -1,0 +1,40 @@
+{
+  "portfolio": {
+    "stocks": [],
+    "etfs": [],
+    "funds": [],
+    "bonds": [],
+    "watchlist": []
+  },
+  "focus_topics": [],
+  "sectors_of_interest": [],
+  "extraction_priorities": {
+    "financial_metrics": [],
+    "events": [],
+    "market_signals": []
+  },
+  "inbox": {
+    "podcast_publishers": {},
+    "podcast_languages": {}
+  },
+  "podcast_import": {
+    "source_root": "C:\\sti\\til\\podcast-output",
+    "target_root": "inbox/transskriptioner"
+  },
+  "mistral": {
+    "model": "mistral-large-2512",
+    "temperature": 0.0,
+    "max_output_tokens": 16000,
+    "timeout_seconds": 600
+  },
+  "openai": {
+    "model": "gpt-5.6-terra",
+    "reasoning_effort": "low",
+    "max_output_tokens": 16000,
+    "timeout_seconds": 600
+  },
+  "report": {
+    "include_pending": true,
+    "low_confidence_threshold": 0.8
+  }
+}
