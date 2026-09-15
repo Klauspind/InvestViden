@@ -1,75 +1,102 @@
 # Handover – InvestViden
 
 **Statusdato:** 2026-09-15  
-**Browserrepo:** `Klauspind/InvestViden`  
-**Browserbranch:** `browser/projectfundament-2026-09-15`
+**Repository:** `Klauspind/InvestViden`  
+**Aktuel restore-branch:** `browser/restore-desktop-2026-09-15`
 
 ## Projektets formål
 
-InvestViden er et privat, local-first system til kildebaseret investeringsviden. Private kilder importeres og bevares med provenance. AI kan foreslå strukturerede udsagn, men kun individuelt menneskeligt godkendte eller korrigerede udsagn bliver aktiv viden.
+InvestViden er et privat, local-first og kildebaseret system til investeringsviden.
 
 Kerneflow:
 
 `Kilde -> AI-forslag -> menneskelig kontrol -> aktiv viden`
 
-## Sikkerhedsgrænse
+AI-output er kandidater. Aktiv viden kræver individuel menneskelig godkendelse eller korrektion.
 
-Desktop-handoveren fra 2026-09-15 oplyser:
+## Sikkerhedsgrænser
 
-- Aktiv lokal database: `data/knowledgebase.sqlite`.
-- Applikationsschema: 2.
-- Schema-4-udvikling sker kun på kopier under `output/` eller i midlertidige testdatabaser.
-- Aktiv database må ikke migreres, erstattes eller skrives til uden ny, udtrykkelig ejergodkendelse.
+- SQLite er autoritativ for kilder, kildeversioner, hashes, provenance, claims, claimversioner, reviewhistorik og AI-jobstatus.
+- Den aktive lokale `data/knowledgebase.sqlite` er ifølge desktop-handoveren schema 2.
+- Den aktive database må ikke migreres, erstattes eller bruges til eksperimenterende skriveoperationer uden ny, udtrykkelig godkendelse fra ejeren.
+- Schema-4-udvikling og migrationstest sker på isolerede kopier eller midlertidige databaser.
 - UI skal være localhost-only.
-- Eksterne AI-kald skal respektere kildepolitik, prisestimat, kildevalg og særskilt bekræftelse.
-- Ingen secrets, persondata eller private kilder i GitHub.
+- Kildepolitikkerne `allow`, `ask`, `local_only` og `blocked` håndhæves før tekst må forlade den lokale maskine.
+- Der må ikke være automatisk provider-fallback.
+- Eksterne AI-job kræver synligt kildevalg, korrekt kildeversion/hash, prisestimat, prisloft og særskilt bekræftelse.
+- Ingen private kilder, databaser, backups, API-nøgler eller personlige settings i GitHub.
 
-## Verificeret i desktop-handover
+## IV-001 — browserverificeret synkronisering
 
-Følgende er `VERIFICERET` i den medbragte handover, men ikke genkørt i browsermiljøet:
+**VERIFICERET 2026-09-15:** Den sanitiserede desktop-snapshot `InvestViden-kode-snapshot-2026-09-15.zip` er tilgængelig og er brugt til at rekonstruere den aktuelle desktopkode i GitHub.
 
-- 50 automatiske tests bestod 2026-09-15.
-- Preview-starterens `--check` bestod uden brug af aktiv database.
-- Aktiv database blev læst skrivebeskyttet og havde integrity `ok`.
+Restore-branchen indeholder nu bl.a.:
+
+- `src/investkb/intake.py`
+- `src/investkb/content_quality.py`
+- `src/investkb/mistral_jobs.py`
+- `src/investkb/review_evidence.py`
+- den udbyggede `repository.py`, `cli.py` og `web_app.py`
+- schema-/migrationskode og migrationsverifier
+- tests for intake, reklamefilter, legacy-review, Mistral-job og workflow
+- ADR'er, roadmap, UI-accepttest og Windows-startscripts
+
+Git-blob-hashes for kode- og testfiler matcher snapshotten. `README.md` og `LICENSE` matcher efter CRLF -> LF-normalisering.
+
+Den automatiske snapshot-suite er genkørt i det isolerede browser-runtime med:
+
+`PYTHONPATH=src python -m unittest discover -s tests -v`
+
+Resultat: **50/50 tests består**.
+
+Snapshotten er kontrolleret for runtime/private artefakter. Der er ikke fundet `*.sqlite`, `*.db`, `.env`, personlige `settings.json`, private inputkilder eller backups.
+
+Ingen rigtig Mistral/OpenAI-transport blev brugt, og den aktive lokale database blev ikke åbnet eller ændret.
+
+## Desktop-verificeret historisk status
+
+Følgende stammer fra desktop-handoveren og er ikke nyverificeret mod brugerens lokale maskine i browseren:
+
+- Aktiv database: schema 2.
+- Integrity check: `ok`.
 - 66 kilder og 4.074 udsagn.
-- Statusfordeling: 402 `approved`, 10 `ai_extracted`, 3.662 `uncertain`.
-- Dokumenteret SHA-256: `199176c803bb8817446287adead863c7e1b2844ebc290dc45f9a8a74d825588e`.
+- 402 `approved`, 10 `ai_extracted`, 3.662 `uncertain`.
+- SHA-256: `199176c803bb8817446287adead863c7e1b2844ebc290dc45f9a8a74d825588e`.
+- Preview-starterens `--check` bestod på desktop.
 
-I browserarbejdet skal disse værdier omtales som **desktop-verificeret 2026-09-15**, ikke som ny browserverifikation.
-
-## Verificeret i browsermiljøet
-
-- GitHub-repository `Klauspind/InvestViden` findes og browserforbindelsen har push/admin-adgang.
-- Default branch er `main`.
-- `main` indeholder en ældre baseline med bl.a. README, BRUGERVEJLEDNING, `src/`, `tests/` og schemafiler.
-- Desktop-handoverens branch `codex/investviden-ui-foundation` er ikke tilgængelig som en pushet GitHub-branch.
-- Browserbranch `browser/projectfundament-2026-09-15` er oprettet fra `main`.
-
-## Kritisk synkroniseringsgab
-
-Desktop-handoveren beskriver omfattende ikke-committede ændringer, herunder nye moduler for intake, content quality, Mistral jobs og legacy review samt nye tests og dokumenter. Disse filer er ikke verificeret på GitHub `main`.
-
-Derfor er browserens første aktive opgave at få den aktuelle desktopkode over i GitHub i en sanitiseret form. Indtil dette er sket, må GitHub `main` ikke omtales som den fulde aktuelle løsning.
+Disse værdier må omtales som **desktop-verificeret 2026-09-15**, ikke som aktuelle browserverificerede lokale værdier.
 
 ## Aktiv opgave
 
 Se `docs/todo.md`.
 
-1. **IV-001:** Genskab/synkronisér den aktuelle desktopkode i GitHub uden private data.
-2. **IV-002:** Implementér den idempotente ugentlige runner på det synkroniserede kodegrundlag.
+**IV-002 — idempotent ugentlig runner** er næste kodeopgave.
 
-## Ugentlig runner – arvet acceptkriterium
+Runneren skal:
 
-Runneren skal være idempotent pr. ISO-uge, respektere AI-politikker og Mistral-sikkerhedsværn, skrive lokal log uden kildetekst/secrets, tage verificeret backup, beholde 30 relevante backups og kunne fortsætte efter delvise fejl. Windows Opgavestyring er ikke en del af første leverance.
+- være idempotent pr. ISO-uge
+- respektere kildepolitik og Mistral-sikkerhedsværn
+- skrive lokal log uden secrets eller privat kildetekst
+- tage verificeret SQLite-backup efter ændringer
+- beholde de seneste 30 relevante backups
+- kunne fortsætte efter delvise fejl uden at genkøre succesfulde kilder
+- ikke konfigurere Windows Opgavestyring i første leverance
 
-## Statusord
+**ANTAGELSE, som skal bekræftes før adfærden låses:** den automatiske ugentlige kørsel bør kun behandle nye, ubehandlede `allow`-kilder. `ask` bør fortsat kræve manuel bekræftelse.
 
-- `VERIFICERET`: observeret i det aktuelle miljø eller tydeligt angivet som desktop-verificeret med dato.
-- `IKKE TESTET`: ikke kørt/observeret i det aktuelle miljø.
-- `KRÆVER BRUGERTEST`: automatiseret kontrol er tilstrækkelig, men brugerflow mangler.
-- `ANTAGELSE`: usikker forudsætning.
-- `AFKLARING`: valg, som kun ejeren kan træffe.
+## Kendt brugertest
 
-## Næste chat skal starte sådan
+Følgende er fortsat `KRÆVER BRUGERTEST` på den lokale maskine:
 
-Læs `AGENTS.md`, `docs/todo.md`, `docs/handover.md` og `docs/decisions.md`. Arbejd på ét aktivt punkt ad gangen. Antag ikke adgang til lokal database eller ikke-pushet desktopkode. Brug GitHub som vedvarende lager for kode og dokumentation, men hold private kilder, databaser, output og secrets udenfor repoet.
+- reklame-/introfilterets UI-visning
+- Mistral-jobkøens gratis kladde-/bekræftelsesflow
+- senere Windows Opgavestyring
+- den afsluttende schema-4 migrations-/rollback- og version-1-accepttest
+
+## Dokumentationsregel
+
+`docs/todo.md`, `docs/handover.md`, `docs/decisions.md` og `docs/changes.md` er browserprojektets levende projektfundament. Root-filer fra desktop-snapshotten bruges som historisk/referencekilde. Ved uoverensstemmelse skal den faktiske kode og seneste verificerede evidens afgøre status, og `docs/` skal opdateres.
+
+## Næste chat
+
+Læs `AGENTS.md`, `docs/todo.md`, `docs/handover.md` og `docs/decisions.md` før kode. Arbejd på ét aktivt todo-punkt ad gangen, og gem relevante kode- og dokumentændringer i GitHub.
