@@ -20,6 +20,18 @@ CREATE TABLE IF NOT EXISTS sources (
     imported_at TEXT NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS source_provenance (
+    source_id TEXT PRIMARY KEY REFERENCES sources(id) ON DELETE CASCADE,
+    episode_key TEXT NOT NULL,
+    upstream_path TEXT NOT NULL,
+    upstream_sha256 TEXT NOT NULL,
+    upstream_episode_id TEXT,
+    upstream_schema_version TEXT,
+    renderer_version TEXT NOT NULL,
+    metadata_json TEXT NOT NULL,
+    recorded_at TEXT NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS extraction_runs (
     id TEXT PRIMARY KEY,
     source_id TEXT NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
@@ -102,5 +114,5 @@ CREATE TABLE IF NOT EXISTS evidence (
 CREATE INDEX IF NOT EXISTS idx_claims_source ON claims(source_id);
 CREATE INDEX IF NOT EXISTS idx_claims_review ON claims(review_status, confidence);
 CREATE INDEX IF NOT EXISTS idx_claim_points_claim ON claim_points(claim_id);
+CREATE INDEX IF NOT EXISTS idx_source_provenance_episode ON source_provenance(episode_key);
 """
-

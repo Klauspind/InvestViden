@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import re
 from dataclasses import dataclass
 from datetime import date
@@ -29,6 +30,7 @@ class Candidate:
     published_at: str | None
     language: str
     folder_label: str | None
+    provenance: dict[str, Any] | None
 
 
 def _mapped(mapping: dict[str, Any], key: str, fallback: str) -> str:
@@ -52,11 +54,11 @@ def _date_and_title(path: Path) -> tuple[str | None, str]:
     return published_at, title
 
 
-def _candidate(path: Path, inbox_root: Path, settings: dict[str, Any]) -> Candidate | None:
+def _candidate(path: Path, inbox_root: Path, settings: dict[str, Any], defaults: dict[str, Any] | None = None) -> Candidate | None:
     relative = path.relative_to(inbox_root)
-    if len(relative.parts) < 2:
+    if defaults is None and len(relative.parts) < 2:
         return None
-    source_type = SOURCE_FOLDERS.get(relative.parts[0].casefold())
+    source_type = defaults["source_type"] if defaults is not None else SOURCE_FOLDERS.get(relative.parts[0].casefold())
     if not source_type:
         return None
     published_at, title = _date_and_title(path)
@@ -68,6 +70,48 @@ def _candidate(path: Path, inbox_root: Path, settings: dict[str, Any]) -> Candid
     else:
         publisher = None
         language = "da"
+    if defaults is not None:
+        publisher = defaults.get("publisher") or None
+        language = defaults.get("language") or "da"
+    provenance = None
+    sidecar = path.with_suffix(".source.json")
+    if sidecar.exists():
+        loaded = json.loads(sidecar.read_text(encoding="utf-8-sig"))
+        if not isinstance(loaded, dict):
+            raise ValueError(f"Provenance-sidecar skal være et JSON-objekt: {sidecar}")
+        if loaded.get("kind") != "investviden_podcast_source":
+            raise ValueError(f"Ukendt provenance-kind: {sidecar}")
+        upstream = loaded.get("upstream")
+        render = loaded.get("render")
+        episode = loaded.get("episode")
+        if not all(isinstance(value, dict) for value in (upstream, render, episode)):
+            raise ValueError(f"Ufuldstændig podcast-provenance: {sidecar}")
+        required = [loaded.get("episode_key"), upstream.get("path"), upstream.get("sha256"), render.get("renderer_version")]
+        if not all(isinstance(value, str) and value for value in required):
+            raise ValueError(f"Podcast-provenance mangler obligatoriske felter: {sidecar}")
+        expected_hash = render.get("sha256")
+        if expected_hash != file_sha256(path):
+            raise ValueError(f"Provenance-sidecar matcher ikke tekstfilens SHA-256: {sidecar}")
+        sidecar_title = episode.get("title")
+        sidecar_publisher = episode.get("publisher")
+        sidecar_published_at = episode.get("published_at")
+        sidecar_language = episode.get("language")
+        if not all(
+            isinstance(value, str) and value.strip()
+            for value in (sidecar_title, sidecar_publisher, sidecar_published_at, sidecar_language)
+        ):
+            raise ValueError(f"Podcast-provenance mangler kildemetadata: {sidecar}")
+        try:
+            normalized_sidecar_date = date.fromisoformat(sidecar_published_at).isoformat()
+        except ValueError as exc:
+            raise ValueError(f"Ugyldig dato i podcast-provenance: {sidecar}") from exc
+        if published_at and normalized_sidecar_date != published_at:
+            raise ValueError(f"Datoen i filnavn og podcast-provenance er forskellig: {sidecar}")
+        title = sidecar_title.strip()
+        publisher = sidecar_publisher.strip()
+        published_at = normalized_sidecar_date
+        language = sidecar_language.strip()
+        provenance = loaded
     return Candidate(
         path=path,
         sha256=file_sha256(path),
@@ -77,6 +121,7 @@ def _candidate(path: Path, inbox_root: Path, settings: dict[str, Any]) -> Candid
         published_at=published_at,
         language=language,
         folder_label=folder_label,
+        provenance=provenance,
     )
 
 
@@ -137,6 +182,8 @@ def scan_inbox(
         existing = kb.source_by_hash(content_hash)
         if existing:
             report["existing"] += 1
+            if chosen.provenance and not dry_run:
+                kb.record_source_provenance(str(existing["id"]), chosen.provenance)
             continue
         report["new"] += 1
         if dry_run:
@@ -152,8 +199,9 @@ def scan_inbox(
                 chosen.language,
                 source_store,
             )
+            if chosen.provenance:
+                kb.record_source_provenance(source_id, chosen.provenance)
             report["imports"].append({"path": str(chosen.path), "source_id": source_id, "title": chosen.title})
         except (OSError, ValueError) as exc:
             report["errors"].append(f"{chosen.path}: {exc}")
     return report
-

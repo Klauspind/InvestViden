@@ -10,21 +10,84 @@
 InvestViden er en lokal, AI-uafhængig pipeline til at omsætte podcasttransskriptioner,
 nyhedsbreve og rapporter til sporbar investeringsviden.
 
+## Vend tilbage til projektet
+
+Læs først [`handover.md`](handover.md) for det aktuelle snapshot og
+[`todo.md`](todo.md) for den ene aktive udviklingsopgave. Den lange
+[`PROJECT_HANDOVER.md`](PROJECT_HANDOVER.md) er detaljeret historik og opslagsværk,
+ikke den daglige opgaveliste. Projektspecifikke arbejds- og sikkerhedsregler står i
+[`AGENTS.md`](AGENTS.md).
+
+**Aktuel udviklingsstatus 2026-09-14:** Den nye UI og schema 4 er kun i drift på
+den isolerede forhåndskopi. Den aktive database er fortsat schema 2. Derfor stopper
+den almindelige starter med migrationsværnet og skal ikke bruges til daglig drift,
+før en frisk migrations-/rollbackprøve og ejerens udtrykkelige accept foreligger.
+Brug `START_INVESTVIDEN_UI_PREVIEW.cmd` til den sikre UI-forhåndsvisning. Guidet
+intake fra registrerede private mapper er implementeret og dækket af otte
+målrettede tests og er brugeraccepteret. Sammen med reklamefilter og Mistral-jobkø
+består hele suiten nu med 50 tests.
+
+Mistral-jobkøen er også implementeret i UI og CLI. Den opretter først en lokal
+kladde med højst fem valgte kilder og et bufferet prisestimat under USD 0,10.
+Kilder og pris skal bekræftes særskilt, før en tredje handling kan sende tekst.
+Tilstand, forsøg og faktisk rapporteret tokenforbrug gemmes pr. kilde; kun fejlede
+kilder kan genkøres. Automatiske tests bruger falsk transport, så intet rigtigt
+API-kald er foretaget under udviklingen.
+
 Den praktiske daglige arbejdsgang findes i
 [`BRUGERVEJLEDNING.md`](BRUGERVEJLEDNING.md).
+Den korte, leverandøruafhængige AI-rutine findes i
+[`AI-ARBEJDSGANG.md`](AI-ARBEJDSGANG.md).
+Det fælles domænesprog findes i [`CONTEXT.md`](CONTEXT.md), og den bekræftede
+udviklingsrækkefølge findes i [`docs/ROADMAP.md`](docs/ROADMAP.md). Begrundelser
+for svært reversible arkitekturvalg ligger kortfattet under `docs/adr/`.
 
 Version 0.1 beviser hele kerneflowet:
 
 1. Originalkilden importeres og bevares med SHA-256-hash.
 2. Der kan genereres JSONL-opgaver til en vilkårlig AI-model.
-3. Modellens strukturerede svar valideres og indlæses i SQLite.
-4. Usikre udtræk kan kontrolleres og godkendes.
-5. Markdown-rapport, kontroloversigt og JSONL-eksport genereres fra databasen.
+3. Mistral er standard-API, og OpenAI er et valgfrit alternativ; begge sender
+   højst én pilotkilde ad gangen som standard.
+4. Modellens strukturerede svar valideres og indlæses i SQLite.
+5. Usikre udtræk kan kontrolleres og godkendes.
+6. Markdown-rapport, kontroloversigt og JSONL-eksport genereres fra databasen.
 
 SQLite-filen er den autoritative sandhedskilde. AI-modellen er et udskifteligt
 behandlingsled og kan være ChatGPT, Claude, Mistral, Copilot eller manuel kodning.
 
+## UI-forhåndsvisning på udviklingsbranchen
+
+Den nye lokale brugerflade kan afprøves med
+[`START_INVESTVIDEN_UI_PREVIEW.cmd`](START_INVESTVIDEN_UI_PREVIEW.cmd). Den åbner
+kun på `127.0.0.1` og bruger den kontrollerede schema-4-kopi
+`output/investviden-ui-preview-schema4.sqlite`. Den aktive
+`data/knowledgebase.sqlite` forbliver schema 2 og ændres ikke under testen.
+
+Forhåndsvisningen viser overblik, de nye Mistral-signaler med kildeevidens,
+godkendelse/afvisning/afklaring, rettelser med versionshistorik og SQLite-FTS5-
+søgning. Beslutninger foretaget i forhåndsvisningen gælder kun databasekopien.
+Legacyudsagn kan nu afklares direkte fra arkivsøgningen. `Kræver originalkilde`
+gemmer et obligatorisk notat og en reviewhændelse og har sin egen afklaringsliste.
+Individuelt godkendte eller rettede legacyudsagn hører til aktiv viden og bevarer
+mærket `Legacy-oprindelse`. Utilstrækkelig evidens blokerer godkendelse; dato- og
+kildeproblemer vises på detaljesiden. Ingen ny schema-migration er nødvendig.
+Den almindelige starter skal først kobles til schema 4, når migreringen er
+accepteret efter UI-testen. Den korte testliste findes i
+[`docs/UI_ACCEPTTEST.md`](docs/UI_ACCEPTTEST.md).
+
 ## Hurtig start
+
+Når schema-4-overgangen er accepteret, er den planlagte daglige Windows-indgang
+[`START_INVESTVIDEN.cmd`](START_INVESTVIDEN.cmd). **I den nuværende
+udviklingstilstand må den ikke bruges mod den aktive schema-2-database.** Den
+sikre, verificerede start er [`START_INVESTVIDEN_UI_PREVIEW.cmd`](START_INVESTVIDEN_UI_PREVIEW.cmd),
+som kun bruger en kopi under `output/`.
+
+Mistral-integrationen sættes op én gang med menupunkt 8. API-nøglen gemmes som en
+personlig Windows-miljøvariabel og må aldrig skrives i projektfiler eller chats.
+Menupunkt 3 viser altid en gratis, lokal forhåndsvisning, før en kildetekst kan
+sendes. AI-svaret lægges i kontrolkøen og bliver aldrig menneskeligt godkendt
+automatisk.
 
 Der kræves kun Python 3.10 eller nyere. På denne maskine kan Codex' medfølgende
 Python-runtime bruges automatisk via CMD-starteren. Den virker også, når Windows
@@ -124,6 +187,38 @@ Når downloaderen eller Whisper har lagt nye `.txt`-filer i podcastmapperne:
 Scanningen er rekursiv, læser datoen fra et indledende `YYYY-MM-DD` i filnavnet
 og bruger podcastmappen som udgiver. Den flytter eller sletter aldrig filer.
 
+### Komplette, tidskodede podcastkilder fra episode-JSON
+
+Når transskriberingssystemet har produceret de komplette v2-episodefiler, bruges
+`sync-podcasts` i stedet for at importere `cleaned`, `moderate`, `aggressive`,
+`knowledge` og `chunks` som parallelle kilder:
+
+```powershell
+# Skrivebeskyttet forhåndsvisning; ændrer ingen podcast- eller indbakkefiler
+.\run.cmd sync-podcasts
+
+# Klargør kun nye episoder som fuld, renset og tidskodet tekst i inbox
+.\run.cmd sync-podcasts --apply
+
+# Kontrollér derefter den almindelige databaseimport
+.\run.cmd scan-inbox --dry-run
+
+# Importér efter gennemgang
+.\run.cmd scan-inbox
+```
+
+Kildemappen og den lokale målmappe konfigureres under `podcast_import` i
+`config/settings.json` og kan tilsidesættes med `--source` og `--target`.
+Kommandoen læser kun de store episode-JSON-filer i podcastmapperne og skriver
+aldrig til upstream-/OneDrive-mappen.
+
+Hver genereret tekst får segmentvise `[HH:MM:SS–HH:MM:SS]`-henvisninger og en
+`.source.json`-sidecar med upstream-sti og -hash, episode-ID, rendererversion og
+teksthash. Ved `scan-inbox` registreres denne afledningsrelation i SQLite-tabellen
+`source_provenance`. En episode med samme podcast og dato, men andet indhold,
+blokeres som `KRÆVER BESLUTNING` i stedet for automatisk at blive overskrevet eller
+dobbeltimporteret.
+
 ## Personlig prioritering
 
 [`config/settings.json`](config/settings.json) indeholder kun de stabile valg fra
@@ -145,6 +240,12 @@ Eksempel:
   },
   "focus_topics": ["AI og datacentre", "Energieffektivisering"],
   "sectors_of_interest": ["Industrial Automation", "Energy"],
+  "mistral": {
+    "model": "mistral-large-2512",
+    "temperature": 0.0,
+    "max_output_tokens": 16000,
+    "timeout_seconds": 600
+  },
   "report": {
     "include_pending": true,
     "low_confidence_threshold": 0.8
@@ -175,15 +276,20 @@ med en anbefaling.
 
 ## Datamodel
 
-Databasen normaliserer kilder, påstande, selskaber, temaer, argumenter og evidens.
+Databasen normaliserer kilder, kildeprovenance, påstande, selskaber, temaer,
+argumenter og evidens.
 Alle rapporter og eksporter kan derfor genskabes. DDL ligger i
 [`src/investkb/schema.py`](src/investkb/schema.py).
 
 ## Afgrænsning i 0.1
 
-Denne version sender ikke selv tekst til en betalt AI-API. `prepare` og `ingest`
-udgør den stabile grænse til modellerne. Direkte OpenAI-, Anthropic- eller
-Mistral-adaptere kan tilføjes uden at ændre databasen.
+Denne version bruger Mistral Chat Completions API som standard og bevarer OpenAI
+Responses API som valgfrit alternativ. `run-mistral` uden `--apply` er en gratis
+dry-run; kun `run-mistral --apply` sender tekst, og standardgrænsen er én kilde.
+API-svaret valideres og gemmes i `extractions/incoming/`, men indlæses først med
+`process-ai` og godkendes aldrig automatisk. Den manuelle, leverandøruafhængige
+`prepare-ai`/`process-ai`-arbejdsgang er fortsat bevaret. Andre AI-udbydere er
+endnu ikke integreret direkte.
 
 PDF/Word-rapport, automatisk transskribering, entity resolution mod markedsdata,
 RAG og SharePoint-synkronisering er bevidst udskudt, til datamodellen er prøvet

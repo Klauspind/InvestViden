@@ -1,11 +1,13 @@
 from __future__ import annotations
 
 import html
+import hashlib
 import json
 from collections import Counter
 from pathlib import Path
 
-from .repository import KnowledgeBase, now_iso
+from .repository import KnowledgeBase, now_iso, slug
+from .validation import ValidationError
 
 
 LABELS = {
@@ -20,12 +22,14 @@ def write_tasks(
     output: Path,
     all_sources: bool = False,
     preferences: dict | None = None,
+    approvals: dict[str, str] | None = None,
 ) -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
-    rows = kb.sources_for_extraction(all_sources)
+    rows = [row for row in kb.sources_for_extraction(all_sources)
+            if kb.external_ai_allowed(row["id"], row["sha256"], approvals)]
     with output.open("w", encoding="utf-8", newline="\n") as handle:
         for source in rows:
-            content = Path(source["stored_path"]).read_text(encoding="utf-8-sig", errors="replace")
+            content = _permitted_content(kb, source, approvals)
             priorities = (preferences or {}).get("extraction_priorities", {})
             task = {
                 "task_version": "0.1",
@@ -47,6 +51,121 @@ def write_tasks(
     return len(rows)
 
 
+def write_ai_package(
+    kb: KnowledgeBase,
+    output_dir: Path,
+    schema_path: Path,
+    all_sources: bool = False,
+    preferences: dict | None = None,
+    approvals: dict[str, str] | None = None,
+) -> list[Path]:
+    """Write one self-contained, upload-ready Markdown task per source."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    for old_task in output_dir.glob("opgave-*.md"):
+        old_task.unlink()
+
+    schema_text = schema_path.read_text(encoding="utf-8-sig")
+    rows = [row for row in kb.sources_for_extraction(all_sources)
+            if kb.external_ai_allowed(row["id"], row["sha256"], approvals)]
+    written: list[Path] = []
+    for source in rows:
+        content = _permitted_content(kb, source, approvals)
+        priorities = (preferences or {}).get("extraction_priorities", {})
+        date = source["published_at"] or "uden-dato"
+        filename = f"opgave-{date}-{slug(source['title'])[:70]}-{source['id'][-8:]}.md"
+        path = output_dir / filename
+        lines = [
+            "# AI-opgave til InvestViden",
+            "",
+            "Følg denne opgave uden at bede brugeren om flere oplysninger.",
+            "Returnér udelukkende ét gyldigt JSON-objekt. Brug ikke Markdown-kodeblok, forklaring eller indledning.",
+            "",
+            "## Obligatoriske topfelter",
+            "",
+            f'- `source_id`: `{source["id"]}`',
+            '- `schema_version`: `0.1`',
+            "- `provider`: navnet på den anvendte AI-tjeneste",
+            "- `model`: modelnavn, eller `null` hvis det er ukendt",
+            "- `extracted_at`: aktuelt tidspunkt i ISO 8601-format",
+            "- `claims`: de kildebelagte investeringsudsagn",
+            "",
+            "## Udtræksregler",
+            "",
+            "- Udelad smalltalk, reklamer, introduktioner og fyldord.",
+            "- Bevar uenighed, betingelser, ejerskab, ændrede holdninger, kursniveauer og usikkerhed.",
+            "- Skeln mellem en omtale og en egentlig vurdering eller anbefaling.",
+            "- Medtag ordret evidens fra kilden for hvert udsagn.",
+            "- Gæt ikke på taler, ticker, tal eller anbefalinger. Brug `null`, `unclear` eller udelad udsagnet ved tvivl.",
+            "- Nye udsagn skal have `review_status` sat til `ai_extracted`.",
+            "",
+            "## Prioriteter",
+            "",
+            "```json",
+            json.dumps(priorities, ensure_ascii=False, indent=2),
+            "```",
+            "",
+            "## Krævet JSON-schema",
+            "",
+            "```json",
+            schema_text,
+            "```",
+            "",
+            "## Kildemetadata",
+            "",
+            f'- Titel: {source["title"]}',
+            f'- Udgiver: {source["publisher"] or "Ukendt"}',
+            f'- Dato: {source["published_at"] or "Ukendt"}',
+            f'- Sprog: {source["language"] or "Ukendt"}',
+            f'- Kildetype: {source["source_type"]}',
+            "",
+            "## Kildetekst",
+            "",
+            "<source_text>",
+            content,
+            "</source_text>",
+            "",
+        ]
+        path.write_text("\n".join(lines), encoding="utf-8")
+        written.append(path)
+
+    start = output_dir / "START-HER.md"
+    if written:
+        task_lines = [f"- `{path.name}`" for path in written]
+        body = [
+            "# Start her – AI-pakke fra InvestViden",
+            "",
+            f"Pakken indeholder {len(written)} ny(e) opgave(r). Behandl én fil ad gangen.",
+            "",
+            "1. Upload en `opgave-*.md`-fil til den AI, du vil bruge.",
+            '2. Skriv: **“Følg instruktionerne i den vedhæftede fil og returnér kun JSON.”**',
+            "3. Gem AI'ens rå svar som en `.json`-fil i `extractions/incoming/`.",
+            "4. Når alle svar er gemt, kør `.\\run.cmd process-ai` fra projektmappen.",
+            "5. Gennemse `output/kontroloversigt.html` før godkendelse.",
+            "",
+            "## Opgaver",
+            "",
+            *task_lines,
+            "",
+        ]
+    else:
+        body = [
+            "# Start her – AI-pakke fra InvestViden",
+            "",
+            "Der er ingen kilder klar med tilladelse til ekstern AI. Kontrollér kildepolitikker og eventuelle engangsgodkendelser.",
+            "",
+        ]
+    start.write_text("\n".join(body), encoding="utf-8")
+    return written
+
+
+def _permitted_content(kb: KnowledgeBase, source, approvals: dict[str, str] | None) -> str:
+    kb.require_external_ai(source["id"], source["sha256"], approvals)
+    raw = Path(source["stored_path"]).read_bytes()
+    if hashlib.sha256(raw).hexdigest() != source["sha256"]:
+        raise ValidationError(f"Kildekopiens SHA-256 er ændret: {source['id']}")
+    return raw.decode("utf-8-sig", errors="replace")
+
+
 def write_export(kb: KnowledgeBase, output: Path) -> int:
     output.parent.mkdir(parents=True, exist_ok=True)
     claims = kb.claims()
@@ -65,10 +184,13 @@ def write_report(
     output: Path,
     include_pending: bool = True,
     preferences: dict | None = None,
+    review_statuses: set[str] | None = None,
 ) -> int:
     claims = kb.claims()
     if not include_pending:
         claims = [claim for claim in claims if claim["review_status"] in {"approved", "corrected"}]
+    if review_statuses is not None:
+        claims = [claim for claim in claims if claim["review_status"] in review_statuses]
     output.parent.mkdir(parents=True, exist_ok=True)
     lines = ["# InvestViden – investeringsrapport", "", f"Genereret: {now_iso()}", ""]
     if not claims:
