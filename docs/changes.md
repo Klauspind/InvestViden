@@ -1,5 +1,24 @@
 # Ændringslog – InvestViden
 
+## 2026-09-19 — IV-002 etape A: sikker ugentlig kladdegenerering
+
+### VERIFICERET i afgrænset offline-test
+
+- Ny kode i `src/investkb/weekly_runner.py` med read-only preview som standard, og separat `apply=True`, der udelukkende opretter ubekræftede AI-jobkladder.
+- Kilder med andre politikker end `allow`, eksisterende AI-job eller ventende extraction-output udvælges ikke. Eksisterende SHA- og Mistral-priskontrol genbruges.
+- ISO-uge-markør og eksklusiv lås; ufuldstændig uge stopper for manuel afstemning.
+- Backup efter ændringer valideres med hash og SQLite integrity check, inden ældre relevante backups slettes; retention 30.
+- Seks syntetiske offline-tests bestået med stub-moduler, der dækker preview, gentagen uge, politik, reserverede kilder, crash-marker, retention og forkert backup-hash.
+- Kode og tests gemt på `feature/iv-002-weekly-drafts`; ingen API-kald eller adgang til aktiv database.
+
+### IKKE TESTET / resterende
+
+- Fuld repository-testsuite og faktisk schema-4-databaseintegration, herunder runtime-miljø.
+- Eksplicit schema-/path-guard ved `apply=True`, flere batches, recovery efter commit, backup-fejl og sikker CLI-launcher.
+- Ingen merge til `main`, ingen Windows Opgavestyring, ingen rigtig AI-transport.
+
+Se `docs/iv-002-weekly-runner.md` og `docs/todo.md`. IV-002 er **ikke afsluttet**.
+
 ## 2026-09-15 — Desktop-snapshot genskabt i browser/GitHub
 
 ### VERIFICERET
