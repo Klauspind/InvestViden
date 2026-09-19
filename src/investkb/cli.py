@@ -40,6 +40,11 @@ from .podcast_sync import apply_podcast_sync, plan_podcast_sync
 from .repository import KnowledgeBase, read_extractions
 from .validation import ValidationError
 from .web_app import serve
+from .weekly_runner import (
+    inspect_weekly_recovery,
+    require_isolated_schema4_database,
+    run_weekly_drafts,
+)
 
 
 SOURCE_TYPES = ["podcast_transcript", "newsletter", "report", "article", "note", "other"]
@@ -224,6 +229,27 @@ def parser() -> argparse.ArgumentParser:
     ui = sub.add_parser("ui", help="Start den lokale InvestViden-brugerflade")
     ui.add_argument("--port", type=int, default=8765, help="Lokal port; standard 8765")
     ui.add_argument("--no-browser", action="store_true", help="Åbn ikke browseren automatisk")
+    weekly = sub.add_parser(
+        "weekly-drafts",
+        help="Forhåndsvis eller opret ugentlige, ubekræftede Mistral-jobkladder",
+    )
+    weekly.add_argument("--database", type=Path, required=True,
+                        help="Eksisterende, isoleret schema-4-database; ingen standardsti")
+    weekly.add_argument("--incoming", type=Path, default=Path("extractions/incoming"))
+    weekly.add_argument("--state-dir", type=Path, default=Path("output/weekly-runner/state"))
+    weekly.add_argument("--backup-dir", type=Path, default=Path("backups/weekly-runner"))
+    weekly.add_argument("--max-jobs", type=int, default=5)
+    weekly.add_argument(
+        "--apply", action="store_true",
+        help="Opret kun ubekræftede kladder; uden flaget er kommandoen read-only preview",
+    )
+    recovery = sub.add_parser(
+        "weekly-recovery",
+        help="Afstem ugejournal og jobdatabase skrivebeskyttet",
+    )
+    recovery.add_argument("--database", type=Path, required=True,
+                          help="Eksisterende, isoleret schema-4-database; ingen standardsti")
+    recovery.add_argument("--state-dir", type=Path, default=Path("output/weekly-runner/state"))
     return result
 
 
@@ -247,6 +273,24 @@ def _demo(kb: KnowledgeBase) -> None:
 
 
 def run(args: argparse.Namespace) -> int:
+    if args.command in {"weekly-drafts", "weekly-recovery"}:
+        database = args.database.resolve()
+        if not database.is_file():
+            raise FileNotFoundError(
+                f"Den valgte database findes ikke: {database}. "
+                "Runneren opretter eller migrerer ikke en database."
+            )
+        with KnowledgeBase(database) as kb:
+            require_isolated_schema4_database(kb)
+            if args.command == "weekly-recovery":
+                result = inspect_weekly_recovery(kb, args.state_dir)
+            else:
+                result = run_weekly_drafts(
+                    kb, args.incoming, args.state_dir, args.backup_dir,
+                    max_jobs=args.max_jobs, apply=args.apply,
+                )
+        print(json.dumps(result, ensure_ascii=False, indent=2, sort_keys=True))
+        return 0
     if args.command == "ui":
         if not 0 <= args.port <= 65535:
             raise ValidationError("--port skal være mellem 0 og 65535")

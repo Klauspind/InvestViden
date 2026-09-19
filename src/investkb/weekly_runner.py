@@ -38,7 +38,7 @@ def _flatten_batches(batches: list[list[str]]) -> list[str]:
     return [source_id for batch in batches for source_id in batch]
 
 
-def _require_isolated_schema4_database(kb: KnowledgeBase) -> None:
+def require_isolated_schema4_database(kb: KnowledgeBase) -> None:
     """Refuse writes unless the caller supplied a non-active schema-4 copy.
 
     The weekly runner is intentionally not a migration mechanism.  In
@@ -185,7 +185,7 @@ def run_weekly_drafts(kb: KnowledgeBase, incoming_dir: Path, state_dir: Path,
     if not 1 <= max_jobs <= 20:
         raise ValidationError('max_jobs must be 1..20')
     if apply:
-        _require_isolated_schema4_database(kb)
+        require_isolated_schema4_database(kb)
     week = _week(today or datetime.now(timezone.utc).date())
     state_dir = Path(state_dir)
     marker = state_dir / f'weekly-{week}.json'
