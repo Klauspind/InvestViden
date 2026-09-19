@@ -34,6 +34,10 @@ def _week(value: date) -> str:
     return f'{year}-W{number:02d}'
 
 
+def _flatten_batches(batches: list[list[str]]) -> list[str]:
+    return [source_id for batch in batches for source_id in batch]
+
+
 def _require_isolated_schema4_database(kb: KnowledgeBase) -> None:
     """Refuse writes unless the caller supplied a non-active schema-4 copy.
 
@@ -116,6 +120,59 @@ def _verified_backup(kb: KnowledgeBase, backup_dir: Path, keep: int = 30) -> dic
     return {'name': path.name, 'sha256': info['sha256'], 'integrity': 'ok', 'removed': len(removed)}
 
 
+def inspect_weekly_recovery(kb: KnowledgeBase, state_dir: Path,
+                            *, today: date | None = None) -> dict[str, Any]:
+    """Reconcile an interrupted marker with SQLite without changing either.
+
+    The report deliberately exposes only local identifiers and counts.  It does
+    not clear locks, retry sources, confirm jobs, or call an AI provider.
+    """
+    week = _week(today or datetime.now(timezone.utc).date())
+    state_dir = Path(state_dir)
+    marker = state_dir / f'weekly-{week}.json'
+    lock = state_dir / 'weekly.lock'
+    if not marker.exists():
+        return {
+            'week': week,
+            'status': 'no_marker',
+            'lock_present': lock.exists(),
+            'recorded_jobs': [],
+            'database_jobs': [],
+            'planned_sources': 0,
+            'reserved_sources': 0,
+            'missing_sources': [],
+        }
+    state = json.loads(marker.read_text(encoding='utf-8'))
+    planned = _flatten_batches(state.get('planned_batches', []))
+    recorded_jobs = [str(job_id) for job_id in state.get('jobs', [])]
+    database_jobs: list[str] = []
+    reserved: set[str] = set()
+    if planned:
+        placeholders = ','.join('?' for _ in planned)
+        rows = kb.conn.execute(
+            f"""SELECT DISTINCT j.id, i.source_version_id
+                FROM ai_job_items i JOIN ai_jobs j ON j.id=i.job_id
+                WHERE i.source_version_id IN ({placeholders})
+                ORDER BY j.id, i.source_version_id""",
+            planned,
+        )
+        for row in rows:
+            database_jobs.append(str(row[0]))
+            reserved.add(str(row[1]))
+    database_jobs = sorted(set(database_jobs))
+    missing = [source_id for source_id in planned if source_id not in reserved]
+    return {
+        'week': week,
+        'status': str(state.get('status', 'unknown')),
+        'lock_present': lock.exists(),
+        'recorded_jobs': recorded_jobs,
+        'database_jobs': database_jobs,
+        'planned_sources': len(planned),
+        'reserved_sources': len(reserved),
+        'missing_sources': missing,
+    }
+
+
 def run_weekly_drafts(kb: KnowledgeBase, incoming_dir: Path, state_dir: Path,
                       backup_dir: Path, *, today: date | None = None,
                       max_jobs: int = 5, apply: bool = False) -> dict[str, Any]:
@@ -153,7 +210,12 @@ def run_weekly_drafts(kb: KnowledgeBase, incoming_dir: Path, state_dir: Path,
         # Recheck while holding the lock, before any database writes.
         if marker.exists():
             return {'week': week, 'status': 'manual_recovery_required', 'jobs': 0}
-        state: dict[str, Any] = {'week': week, 'status': 'started', 'jobs': []}
+        state: dict[str, Any] = {
+            'week': week,
+            'status': 'started',
+            'planned_batches': batches,
+            'jobs': [],
+        }
         _atomic_json(marker, state)
         try:
             for ids in batches:

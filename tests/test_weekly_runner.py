@@ -19,7 +19,8 @@ class FakeKB:
         self.db_path = self.path
         self.conn.execute('CREATE TABLE schema_version(version INTEGER PRIMARY KEY, applied_at TEXT NOT NULL)')
         self.conn.execute("INSERT INTO schema_version VALUES (4, '2026-09-19T00:00:00Z')")
-        self.conn.execute('CREATE TABLE ai_job_items(source_version_id TEXT)')
+        self.conn.execute('CREATE TABLE ai_jobs(id TEXT PRIMARY KEY)')
+        self.conn.execute('CREATE TABLE ai_job_items(job_id TEXT, source_version_id TEXT)')
         self.conn.execute('CREATE TABLE synthetic(value TEXT)')
         self.conn.commit()
         self.rows = []
@@ -62,10 +63,12 @@ class WeeklyRunnerTests(unittest.TestCase):
 
     def _create(self, kb, incoming, source_ids=None, **kwargs):
         kb.job_count += 1
+        job_id = f'draft-{kb.job_count}'
         with kb.conn:
+            kb.conn.execute('INSERT INTO ai_jobs VALUES (?)', (job_id,))
             for source_id in source_ids:
-                kb.conn.execute('INSERT INTO ai_job_items VALUES (?)', (source_id,))
-        return {'id': f'draft-{kb.job_count}', 'status': 'draft'}
+                kb.conn.execute('INSERT INTO ai_job_items VALUES (?, ?)', (job_id, source_id))
+        return {'id': job_id, 'status': 'draft'}
 
     def _runner(self, **kwargs):
         return weekly.run_weekly_drafts(self.kb, self.incoming, self.state,
@@ -98,7 +101,7 @@ class WeeklyRunnerTests(unittest.TestCase):
         self.assertEqual(len(list(self.backups.glob('*.sqlite'))), 1)
 
     def test_existing_job_not_queued_again(self):
-        self.kb.conn.execute('INSERT INTO ai_job_items VALUES (?)', ('allow-1',))
+        self.kb.conn.execute('INSERT INTO ai_job_items VALUES (?, ?)', ('existing-job', 'allow-1'))
         self.kb.conn.commit()
         with patch.object(weekly, '_pending_source_ids', return_value=set()):
             result = self._runner()
@@ -178,6 +181,110 @@ class WeeklyRunnerTests(unittest.TestCase):
             self.assertEqual(jobs[0]['items'][0]['source_version_id'], source_id)
         with sqlite3.connect(database_path) as check:
             self.assertEqual(check.execute('PRAGMA integrity_check').fetchone()[0], 'ok')
+
+    def test_six_sources_are_split_into_jobs_of_at_most_five(self):
+        self.kb.rows = [
+            {'id': f'allow-{index}', 'sha256': f'hash-{index}', 'ai_permission': 'allow'}
+            for index in range(6)
+        ]
+        created_batches = []
+
+        def create(kb, incoming, source_ids=None, **kwargs):
+            created_batches.append(list(source_ids))
+            return self._create(kb, incoming, source_ids=source_ids, **kwargs)
+
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', return_value=.015), \
+             patch.object(weekly, 'create_mistral_job', side_effect=create):
+            result = self._runner(apply=True)
+        self.assertEqual(result['status'], 'completed')
+        self.assertEqual(list(map(len, created_batches)), [5, 1])
+        self.assertTrue(all(len(batch) <= 5 for batch in created_batches))
+
+    def test_aggregate_cost_splits_batches_and_individual_over_limit_is_skipped(self):
+        self.kb.rows = [
+            {'id': f'allow-{index}', 'sha256': f'hash-{index}', 'ai_permission': 'allow'}
+            for index in range(4)
+        ]
+        costs = {'allow-0': .06, 'allow-1': .04, 'allow-2': .01, 'allow-3': .101}
+
+        def estimate(task):
+            return costs[task.source_id]
+
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', side_effect=estimate):
+            batches, skipped = weekly._batches(self.kb, self.incoming, max_jobs=5)
+        self.assertEqual(batches, [['allow-0', 'allow-1'], ['allow-2']])
+        self.assertEqual(skipped, 1)
+        self.assertTrue(all(sum(costs[source_id] for source_id in batch) <= .10 for batch in batches))
+
+    def test_crash_after_database_commit_is_reconciled_without_retry(self):
+        def commit_then_crash(kb, incoming, source_ids=None, **kwargs):
+            self._create(kb, incoming, source_ids=source_ids, **kwargs)
+            raise RuntimeError('synthetic crash after commit')
+
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', return_value=.03), \
+             patch.object(weekly, 'create_mistral_job', side_effect=commit_then_crash):
+            with self.assertRaisesRegex(RuntimeError, 'synthetic crash'):
+                self._runner(apply=True)
+        report = weekly.inspect_weekly_recovery(
+            self.kb, self.state, today=date(2026, 9, 19),
+        )
+        self.assertEqual(report['status'], 'manual_recovery_required')
+        self.assertEqual(report['planned_sources'], 1)
+        self.assertEqual(report['reserved_sources'], 1)
+        self.assertEqual(report['missing_sources'], [])
+        self.assertEqual(len(report['database_jobs']), 1)
+        self.assertEqual(self._runner(apply=True)['status'], 'manual_recovery_required')
+        self.assertEqual(self.kb.job_count, 1)
+
+    def test_backup_failure_preserves_draft_and_fail_closed_marker(self):
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', return_value=.03), \
+             patch.object(weekly, 'create_mistral_job', side_effect=self._create), \
+             patch.object(weekly, '_verified_backup', side_effect=RuntimeError('backup failed')):
+            with self.assertRaisesRegex(RuntimeError, 'backup failed'):
+                self._runner(apply=True)
+        marker = json.loads((self.state / 'weekly-2026-W38.json').read_text(encoding='utf-8'))
+        self.assertEqual(marker['status'], 'manual_recovery_required')
+        self.assertEqual(len(marker['jobs']), 1)
+        self.assertEqual(self.kb.conn.execute('SELECT count(*) FROM ai_job_items').fetchone()[0], 1)
+        self.assertFalse((self.state / 'weekly.lock').exists())
+
+    def test_stale_lock_is_reported_and_never_cleared_automatically(self):
+        self.state.mkdir()
+        lock = self.state / 'weekly.lock'
+        lock.write_text('', encoding='utf-8')
+        report = weekly.inspect_weekly_recovery(
+            self.kb, self.state, today=date(2026, 9, 19),
+        )
+        self.assertEqual(report['status'], 'no_marker')
+        self.assertTrue(report['lock_present'])
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', return_value=.03):
+            with self.assertRaisesRegex(RuntimeError, 'locked'):
+                self._runner(apply=True)
+        self.assertTrue(lock.exists())
+
+    def test_new_source_version_remains_eligible_when_old_version_is_reserved(self):
+        self.kb.rows = [
+            {'id': 'source-old', 'sha256': 'old-hash', 'ai_permission': 'allow'},
+            {'id': 'source-new', 'sha256': 'new-hash', 'ai_permission': 'allow'},
+        ]
+        self.kb.conn.execute('INSERT INTO ai_job_items VALUES (?, ?)', ('existing-job', 'source-old'))
+        self.kb.conn.commit()
+        with patch.object(weekly, '_pending_source_ids', return_value=set()), \
+             patch.object(weekly, 'plan_openai_extractions', side_effect=self._plan), \
+             patch.object(weekly, 'estimate_task_cost', return_value=.03):
+            batches, skipped = weekly._batches(self.kb, self.incoming, max_jobs=5)
+        self.assertEqual(batches, [['source-new']])
+        self.assertEqual(skipped, 1)
 
 
 if __name__ == '__main__':
