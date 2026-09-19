@@ -4,11 +4,13 @@
 
 ### IV-002 — Implementér idempotent ugentlig runner
 
-**Status 2026-09-19: DELVIST IMPLEMENTERET og merged til `main`; IKKE driftsklar.** Se `docs/iv-002-weekly-runner.md`.
+**Status 2026-09-19: ETAPE A-B IMPLEMENTERET; IKKE driftsklar før sikker launcher og lokal brugertest.** Se `docs/iv-002-weekly-runner.md`.
 
 **Gennemført etape A (kode):** Ugentlig preview som standard og eksplicit oprettelse af *ubekræftede* Mistral-jobkladder for `allow`-kilder; udelukker øvrige politikker, allerede reserverede kilder og ventende extraction-output. ISO-uge-markør, eksklusiv lås, stop ved ufuldstændig uge, eksisterende prisloft og kilde-hashkontrol genbruges. Verificeret SQLite-backup med hash/integritet før retention til 30 backups. Ingen transport, API-kald, godkendelse eller planlagt Windows-opgave.
 
 **VERIFICERET 2026-09-19:** Standardstien `data/knowledgebase.sqlite` og alle ikke-schema-4-databaser afvises før `apply=True` kan skrive. Hele repository-suiten består med 59/59 tests, herunder integration på en frisk, midlertidig schema-4-database. Koden er ikke anvendt mod aktiv database og foretager ingen API-kald.
+
+**VERIFICERET etape B:** Skrivebeskyttet recovery-afstemning, planlagte kilde-id'er før databasecommit samt test af 6+ kilder, job-/prisgrænser, ny kildeversion, stale lock, crash efter commit og backupfejl. Samlet suite: **65/65 tests**. Ingen automatisk retry, jobbekræftelse eller låserydning.
 
 **Mål:** Byg den kontrollerede ugentlige runner fra desktop-handoveren på det nu synkroniserede kodegrundlag.
 
@@ -20,7 +22,7 @@
 - Verificeret SQLite-backup efter ændringer; 30 relevante backups beholdes.
 - Delvise fejl kan fortsættes uden at genkøre succesfulde kilder, men recovery må ikke ske automatisk før dokumenteret afstemning.
 - Windows Opgavestyring konfigureres ikke i første leverance.
-- **Mangler:** crash/recovery-forsøg i flere skrivefaser samt sikker launcher. Se den detaljerede afgrænsning i `docs/iv-002-weekly-runner.md`.
+- **Mangler:** sikker CLI/Windows-launcher med eksplicit databasevalg og preview som standard samt lokal brugertest. Se den detaljerede afgrænsning i `docs/iv-002-weekly-runner.md`.
 
 **Datarisiko:** Ingen skrivning mod aktiv `data/knowledgebase.sqlite`. Udvikling og test på midlertidig schema-4-database eller frisk isoleret kopi. Ingen rigtige API-kald i automatiske tests.
 

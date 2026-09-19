@@ -1,6 +1,6 @@
 # IV-002 — ugentlig runner, etape A: kontrollerede jobkladder
 
-Status 2026-09-19: **DELVIST IMPLEMENTERET** og merged til `main`. Ikke driftsklar. Aktiv database er ikke berørt.
+Status 2026-09-19: **ETAPE A-B IMPLEMENTERET**. Ikke driftsklar før sikker launcher/recovery-kommando og lokal brugertest. Aktiv database er ikke berørt.
 
 ## Beslutningsgrænse
 
@@ -24,12 +24,25 @@ Den eksisterende jobkø kræver udtrykkelig bekræftelse pr. Mistral-job. Den au
 
 Den samlede suite er kørt i et isoleret runtime med `PYTHONPATH=src python -W error::ResourceWarning -m unittest discover -s tests -v`: **59/59 tests består**. Den omfatter offline-tests for preview uden writes, kildepolitik, idempotens, allerede reserveret kilde, ufuldstændig uge, verificeret backup/retention, ingen retention ved forkert hash samt de nye databaseværn. En integrationstest opretter en frisk schema-4-database i en midlertidig mappe, importerer én syntetisk kilde og verificerer, at runneren kun opretter en ubekræftet `draft` samt en intakt backup. Ingen rigtig API-transport eller aktiv database blev brugt.
 
+## Etape B — recovery og grænser
+
+**VERIFICERET 2026-09-19:** Runneren gemmer planlagte kilde-id'er i ugejournalen før første databasecommit. `inspect_weekly_recovery(...)` afstemmer derefter skrivebeskyttet journalen mod `ai_jobs`/`ai_job_items` og viser optagne og manglende kilder uden at rydde låse, genkøre kilder, bekræfte jobs eller kontakte en AI-udbyder.
+
+Suiten består nu med **65/65 tests**. De seks nye scenarier dækker mere end fem kilder, fem-kilders jobgrænse, samlet og individuelt USD 0,10-loft, ny kildeversion efter reserveret gammel version, stale lock, crash efter databasecommit og backupfejl. Crash og backupfejl efterlader ugejournalen i `manual_recovery_required`; allerede oprettede kladder genkøres ikke automatisk.
+
+### Manuel recovery-grænse
+
+1. Bevar ugejournal, låsefil og database uændret, indtil afstemningen er kørt.
+2. Sammenhold `planned_sources`, `reserved_sources`, `missing_sources`, `recorded_jobs` og `database_jobs`.
+3. Genkør ikke reserverede kilder, og bekræft ikke kladder som del af recovery.
+4. Hvis journal og database ikke stemmer, stop og bevar evidensen. En senere sikker recovery-kommando skal håndtere afslutning eller eksplicit genoptagelse; manuel redigering af journalen er ikke den normale arbejdsgang.
+
 ## Resterende før IV-002 kan afsluttes
 
-1. Test 6+ kilder, samlet og individuel pris, budgetoverskridelse, efterfølgende kildeversioner, stale locks, crash lige efter databasecommit og backupfejl i de relevante faser.
-2. Afklar og dokumentér manuel recovery, initial import/indlæsning, periodisk ekstern backup og eventuel senere udførsel af *på forhånd bekræftede* AI-jobs.
-3. Tilføj en sikker CLI/Windows CMD-launcher, hvis databasen kan udpeges eksplicit og preview er standard. Ingen Opgavestyring i første leverance.
-4. Opdater TODO/handover ved næste verificerede milepæl.
+1. Tilføj en sikker CLI/Windows CMD-launcher, hvor databasen skal udpeges eksplicit, preview er standard, og recovery-afstemning er tilgængelig uden writes.
+2. Gennemfør lokal brugertest på en isoleret schema-4-kopi.
+3. Afklar initial import/indlæsning, periodisk ekstern backup og eventuel senere udførsel af *på forhånd bekræftede* AI-jobs.
+4. Opret ingen Windows Opgavestyring før særskilt accept.
 
 ## Databeskyttelse
 

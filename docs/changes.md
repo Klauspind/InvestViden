@@ -1,5 +1,12 @@
 # Ændringslog – InvestViden
 
+## 2026-09-19 — IV-002 etape B: recovery og grænsetests
+
+- Ugejournalen gemmer planlagte kilde-id'er før første databasecommit, så et crash-vindue kan afstemmes bagefter.
+- Ny skrivebeskyttet `inspect_weekly_recovery(...)` sammenholder journalen med SQLite uden retry, jobbekræftelse, låserydning eller netværkskald.
+- Seks nye tests dækker 6+ kilder, job-/prisgrænser, ny kildeversion, stale lock, crash efter databasecommit og backupfejl.
+- Samlet suite kørt med `ResourceWarning` som fejl: **65/65 tests består**. Aktiv database og rigtige API-kald er ikke anvendt.
+
 ## 2026-09-19 — IV-002 databaseværn og samlet regression
 
 - Ugentlig runner afviser før alle skrivehandlinger standardstien `data/knowledgebase.sqlite` og databaser, der ikke bruger schema 4.
