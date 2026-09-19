@@ -1,5 +1,13 @@
 # Ændringslog – InvestViden
 
+## 2026-09-19 — IV-002 etape C: sikker CLI og Windows-testpakke
+
+- Tilføjet `weekly-drafts` og `weekly-recovery` med obligatorisk, eksisterende schema-4-database og uden database-default.
+- Preview er standard og read-only; recovery er read-only; apply skaber kun ubekræftede kladder og verificeret backup.
+- Tilføjet `START_UGENTLIG_INVESTVIDEN.cmd`, som kræver eksplicit database og teksten `OPRET KLADDER` før apply.
+- Tilføjet `VERIFICER_UGENTLIG_RUNNER.ps1` og `docs/IV-002_LOCAL_TEST.md` til samlet Windows-test uden administratorrettigheder.
+- Fem nye tests bringer suiten til **70/70 beståede**. Aktiv database og rigtige API-kald er ikke anvendt.
+
 ## 2026-09-19 — IV-002 etape B: recovery og grænsetests
 
 - Ugejournalen gemmer planlagte kilde-id'er før første databasecommit, så et crash-vindue kan afstemmes bagefter.

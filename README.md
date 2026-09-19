@@ -75,6 +75,12 @@ Den almindelige starter skal først kobles til schema 4, når migreringen er
 accepteret efter UI-testen. Den korte testliste findes i
 [`docs/UI_ACCEPTTEST.md`](docs/UI_ACCEPTTEST.md).
 
+Den ugentlige runner er automatisk verificeret, men endnu ikke driftsaktiveret.
+Den kræver altid en eksplicit, eksisterende schema-4-kopi og bruger preview som
+standard. Windows-testen findes i
+[`docs/IV-002_LOCAL_TEST.md`](docs/IV-002_LOCAL_TEST.md); den aktive
+`data/knowledgebase.sqlite` må ikke bruges.
+
 ## Hurtig start
 
 Når schema-4-overgangen er accepteret, er den planlagte daglige Windows-indgang

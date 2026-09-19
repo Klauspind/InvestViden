@@ -1,6 +1,6 @@
 # IV-002 — ugentlig runner, etape A: kontrollerede jobkladder
 
-Status 2026-09-19: **ETAPE A-B IMPLEMENTERET**. Ikke driftsklar før sikker launcher/recovery-kommando og lokal brugertest. Aktiv database er ikke berørt.
+Status 2026-09-19: **ETAPE A-C IMPLEMENTERET**. Automatisk verificeret; lokal Windows-test mangler. Aktiv database er ikke berørt.
 
 ## Beslutningsgrænse
 
@@ -37,10 +37,18 @@ Suiten består nu med **65/65 tests**. De seks nye scenarier dækker mere end fe
 3. Genkør ikke reserverede kilder, og bekræft ikke kladder som del af recovery.
 4. Hvis journal og database ikke stemmer, stop og bevar evidensen. En senere sikker recovery-kommando skal håndtere afslutning eller eksplicit genoptagelse; manuel redigering af journalen er ikke den normale arbejdsgang.
 
+## Etape C — CLI og Windows-launcher
+
+**VERIFICERET 2026-09-19:** `weekly-drafts` og `weekly-recovery` kræver en eksplicit, eksisterende databasefil. Begge afviser aktiv standarddatabase og schema under 4. Preview er standard og read-only; recovery er altid read-only. `--apply` opretter kun ubekræftede kladder og backup.
+
+`START_UGENTLIG_INVESTVIDEN.cmd` kræver database som første argument, bruger preview som standard og kræver den præcise tekst `OPRET KLADDER` før apply. `VERIFICER_UGENTLIG_RUNNER.ps1` samler recovery og preview i én read-only Windows-test og kan køres med eksplicit script- og databasepath uden administratorrettigheder.
+
+Fem nye CLI-/launcher-tests bringer den samlede suite til **70/70 tests**. Manglende database oprettes ikke, preview/recovery skaber ingen runtime-mapper, og apply-integration skaber kun en `draft` og verificeret backup.
+
 ## Resterende før IV-002 kan afsluttes
 
-1. Tilføj en sikker CLI/Windows CMD-launcher, hvor databasen skal udpeges eksplicit, preview er standard, og recovery-afstemning er tilgængelig uden writes.
-2. Gennemfør lokal brugertest på en isoleret schema-4-kopi.
+1. Gennemfør Test A i `docs/IV-002_LOCAL_TEST.md` på en eksisterende, isoleret schema-4-kopi.
+2. Gennemfør kun Test B efter gennemgang af Test A.
 3. Afklar initial import/indlæsning, periodisk ekstern backup og eventuel senere udførsel af *på forhånd bekræftede* AI-jobs.
 4. Opret ingen Windows Opgavestyring før særskilt accept.
 
