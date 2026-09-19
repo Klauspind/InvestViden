@@ -1,102 +1,51 @@
 # Handover – InvestViden
 
-**Statusdato:** 2026-09-15  
+**Statusdato:** 2026-09-19  
 **Repository:** `Klauspind/InvestViden`  
-**Aktuel restore-branch:** `browser/restore-desktop-2026-09-15`
+**Aktuel feature-branch:** `feature/iv-002-weekly-drafts` (ikke merged)  
+**Seneste genskabte desktopkode:** `main` og restore-branch fra 2026-09-15.
 
 ## Projektets formål
 
 InvestViden er et privat, local-first og kildebaseret system til investeringsviden.
 
-Kerneflow:
-
 `Kilde -> AI-forslag -> menneskelig kontrol -> aktiv viden`
 
 AI-output er kandidater. Aktiv viden kræver individuel menneskelig godkendelse eller korrektion.
 
+## IV-002 — status 2026-09-19
+
+**DELVIST IMPLEMENTERET, ikke klar til drift:** `src/investkb/weekly_runner.py` og `tests/test_weekly_runner.py` ligger på feature-branchen. Der er også oprettet `docs/iv-002-weekly-runner.md`, som beskriver acceptkrav og begrænsninger. Koden er ikke merged eller aktiveret på brugerens pc.
+
+Etape A tilbyder read-only preview som standard; `apply=True` opretter kun *ubekræftede* Mistral-jobkladder. Automatisk ugentlig eksekvering af eksterne AI-kald implementeres ikke, fordi eksisterende sikkerhedsdesign kræver særskilt bekræftelse. ISO-uge-idempotens, lås, fail-closed recovery, SHA-/prischeck og valideret backup/retention er tilføjet.
+
+**Foreløbigt VERIFICERET:** seks syntetiske unit tests bestod i isoleret lokal udviklingsruntime med stub-moduler; ingen netværkskald eller aktiv databaseadgang. **IKKE TESTET:** fuld repo-suite og faktisk schema-4-databaseintegration. Der mangler eksplicit schema-/path-guard, crash-/recovery-gennemgang, flere batch-/prisgrænsetests og CLI. IV-002 må ikke lukkes eller merges, før disse gates er bestået.
+
 ## Sikkerhedsgrænser
 
-- SQLite er autoritativ for kilder, kildeversioner, hashes, provenance, claims, claimversioner, reviewhistorik og AI-jobstatus.
-- Den aktive lokale `data/knowledgebase.sqlite` er ifølge desktop-handoveren schema 2.
-- Den aktive database må ikke migreres, erstattes eller bruges til eksperimenterende skriveoperationer uden ny, udtrykkelig godkendelse fra ejeren.
-- Schema-4-udvikling og migrationstest sker på isolerede kopier eller midlertidige databaser.
-- UI skal være localhost-only.
-- Kildepolitikkerne `allow`, `ask`, `local_only` og `blocked` håndhæves før tekst må forlade den lokale maskine.
-- Der må ikke være automatisk provider-fallback.
-- Eksterne AI-job kræver synligt kildevalg, korrekt kildeversion/hash, prisestimat, prisloft og særskilt bekræftelse.
+- SQLite er autoritativ for kilder, versioner, hashes, provenance, claims, review og AI-jobstatus.
+- Den aktive lokale `data/knowledgebase.sqlite` er ifølge historisk desktop-handover schema 2. Den må ikke migreres eller ændres uden ny, udtrykkelig ejergodkendelse.
+- Schema-4-udvikling og tests sker på isolerede kopier eller midlertidige databaser.
+- UI må kun lytte på localhost.
+- Kildepolitikkerne `allow`, `ask`, `local_only` og `blocked` håndhæves før tekst forlader pc'en.
+- Ingen automatisk provider-fallback. Eksterne AI-jobs kræver synligt kildevalg, præcist source hash, prisestimat/-loft og særskilt bekræftelse.
 - Ingen private kilder, databaser, backups, API-nøgler eller personlige settings i GitHub.
 
-## IV-001 — browserverificeret synkronisering
+## IV-001 — browserverificeret synkronisering 2026-09-15
 
-**VERIFICERET 2026-09-15:** Den sanitiserede desktop-snapshot `InvestViden-kode-snapshot-2026-09-15.zip` er tilgængelig og er brugt til at rekonstruere den aktuelle desktopkode i GitHub.
+Den sanitiserede desktop-snapshot blev genskabt i GitHub. Produktkode, tests, migrationskode, intake, Mistral-jobkø og UI blev genskabt. Git-blobs for kode og tests matchede snapshotten. `README.md` og `LICENSE` matchede efter LF-normalisering. Snapshot-suiten bestod **50/50 tests** i isoleret browser-runtime; den aktive database blev ikke åbnet eller ændret, og ingen rigtige API-kald blev foretaget.
 
-Restore-branchen indeholder nu bl.a.:
+## Historisk desktopstatus (ikke aktuelt verificeret)
 
-- `src/investkb/intake.py`
-- `src/investkb/content_quality.py`
-- `src/investkb/mistral_jobs.py`
-- `src/investkb/review_evidence.py`
-- den udbyggede `repository.py`, `cli.py` og `web_app.py`
-- schema-/migrationskode og migrationsverifier
-- tests for intake, reklamefilter, legacy-review, Mistral-job og workflow
-- ADR'er, roadmap, UI-accepttest og Windows-startscripts
-
-Git-blob-hashes for kode- og testfiler matcher snapshotten. `README.md` og `LICENSE` matcher efter CRLF -> LF-normalisering.
-
-Den automatiske snapshot-suite er genkørt i det isolerede browser-runtime med:
-
-`PYTHONPATH=src python -m unittest discover -s tests -v`
-
-Resultat: **50/50 tests består**.
-
-Snapshotten er kontrolleret for runtime/private artefakter. Der er ikke fundet `*.sqlite`, `*.db`, `.env`, personlige `settings.json`, private inputkilder eller backups.
-
-Ingen rigtig Mistral/OpenAI-transport blev brugt, og den aktive lokale database blev ikke åbnet eller ændret.
-
-## Desktop-verificeret historisk status
-
-Følgende stammer fra desktop-handoveren og er ikke nyverificeret mod brugerens lokale maskine i browseren:
-
-- Aktiv database: schema 2.
-- Integrity check: `ok`.
-- 66 kilder og 4.074 udsagn.
-- 402 `approved`, 10 `ai_extracted`, 3.662 `uncertain`.
+- Aktiv database: schema 2; integrity check `ok`.
+- 66 kilder og 4.074 udsagn; 402 `approved`, 10 `ai_extracted`, 3.662 `uncertain`.
 - SHA-256: `199176c803bb8817446287adead863c7e1b2844ebc290dc45f9a8a74d825588e`.
 - Preview-starterens `--check` bestod på desktop.
 
-Disse værdier må omtales som **desktop-verificeret 2026-09-15**, ikke som aktuelle browserverificerede lokale værdier.
+Ovenstående er en historisk rapport fra 2026-09-15, ikke en ny test af den lokale maskine.
 
-## Aktiv opgave
+## Næste trin
 
-Se `docs/todo.md`.
+Læs `AGENTS.md`, `docs/todo.md`, `docs/decisions.md` og `docs/iv-002-weekly-runner.md`. Færdiggør IV-002 på feature-branchen: eksplicit DB/schema-guard, fuld testpakke, schema-4-integration og recovery. Opret ingen Windows-opgave, og rør ikke aktiv database. Test kun med mock/falsk AI-transport. Når dette er dokumenteret og reviewet, kan branchen merges.
 
-**IV-002 — idempotent ugentlig runner** er næste kodeopgave.
-
-Runneren skal:
-
-- være idempotent pr. ISO-uge
-- respektere kildepolitik og Mistral-sikkerhedsværn
-- skrive lokal log uden secrets eller privat kildetekst
-- tage verificeret SQLite-backup efter ændringer
-- beholde de seneste 30 relevante backups
-- kunne fortsætte efter delvise fejl uden at genkøre succesfulde kilder
-- ikke konfigurere Windows Opgavestyring i første leverance
-
-**ANTAGELSE, som skal bekræftes før adfærden låses:** den automatiske ugentlige kørsel bør kun behandle nye, ubehandlede `allow`-kilder. `ask` bør fortsat kræve manuel bekræftelse.
-
-## Kendt brugertest
-
-Følgende er fortsat `KRÆVER BRUGERTEST` på den lokale maskine:
-
-- reklame-/introfilterets UI-visning
-- Mistral-jobkøens gratis kladde-/bekræftelsesflow
-- senere Windows Opgavestyring
-- den afsluttende schema-4 migrations-/rollback- og version-1-accepttest
-
-## Dokumentationsregel
-
-`docs/todo.md`, `docs/handover.md`, `docs/decisions.md` og `docs/changes.md` er browserprojektets levende projektfundament. Root-filer fra desktop-snapshotten bruges som historisk/referencekilde. Ved uoverensstemmelse skal den faktiske kode og seneste verificerede evidens afgøre status, og `docs/` skal opdateres.
-
-## Næste chat
-
-Læs `AGENTS.md`, `docs/todo.md`, `docs/handover.md` og `docs/decisions.md` før kode. Arbejd på ét aktivt todo-punkt ad gangen, og gem relevante kode- og dokumentændringer i GitHub.
+`docs/` er autoritativ for levende browserstatus. Root-handover fra desktop er historisk reference; faktiske kode- og testresultater har forrang ved uoverensstemmelse.
