@@ -4,23 +4,27 @@
 
 ### IV-002 — Implementér idempotent ugentlig runner
 
+**Status 2026-09-19: DELVIST IMPLEMENTERET på feature-branch; IKKE driftsklar.** Se `docs/iv-002-weekly-runner.md`.
+
+**Gennemført etape A (kode):** Ugentlig preview som standard og eksplicit oprettelse af *ubekræftede* Mistral-jobkladder for `allow`-kilder; udelukker øvrige politikker, allerede reserverede kilder og ventende extraction-output. ISO-uge-markør, eksklusiv lås, stop ved ufuldstændig uge, eksisterende prisloft og kilde-hashkontrol genbruges. Verificeret SQLite-backup med hash/integritet før retention til 30 backups. Ingen transport, API-kald, godkendelse eller planlagt Windows-opgave.
+
+**Foreløbig verifikation:** Seks syntetiske offline-tests er bestået i isoleret udviklingsmiljø med dependencies/stubs; fuld repository-suite og integration med ægte schema-4-testdatabase er endnu IKKE TESTET. Koden er ikke merged eller anvendt mod aktiv database.
+
 **Mål:** Byg den kontrollerede ugentlige runner fra desktop-handoveren på det nu synkroniserede kodegrundlag.
 
-**Acceptkriterier:**
-- Genkørsel i samme ISO-uge dublerer ikke et allerede afsluttet ugentligt job.
-- Runneren respekterer kildens AI-politik.
+**Acceptkriterier, herunder resterende:**
+- Genkørsel i samme ISO-uge dublerer ikke et allerede afsluttet ugentligt job; afbrudt uge kræver sikker manuel recovery.
+- Runneren respekterer kildens AI-politik og særskilt menneskelig godkendelse; eksterne kald er ikke del af draft-runneren.
 - Mistral-jobkøens prisloft og øvrige sikkerhedsværn genbruges.
-- Der skrives lokal, forståelig log uden secrets eller privat kildetekst.
-- Efter ændringer oprettes en verificeret SQLite-backup.
-- Kun de seneste 30 relevante backups beholdes.
-- Delvise fejl kan fortsættes uden at genkøre succesfulde kilder.
+- Lokal log uden secrets eller privat kildetekst.
+- Verificeret SQLite-backup efter ændringer; 30 relevante backups beholdes.
+- Delvise fejl kan fortsættes uden at genkøre succesfulde kilder, men recovery må ikke ske automatisk før dokumenteret afstemning.
 - Windows Opgavestyring konfigureres ikke i første leverance.
+- **Mangler:** schema-4/path-guard, fuld testsuite, ægte isoleret DB-integration, crash/recovery-forsøg og sikker launcher.
 
-**Datarisiko:** Ingen skrivning mod den aktive `data/knowledgebase.sqlite`. Udvikling og test skal ske på midlertidig schema-4-database eller frisk isoleret kopi. Ingen rigtige API-kald i automatiske tests.
+**Datarisiko:** Ingen skrivning mod aktiv `data/knowledgebase.sqlite`. Udvikling og test på midlertidig schema-4-database eller frisk isoleret kopi. Ingen rigtige API-kald i automatiske tests.
 
-**Verifikation:** Falsk Mistral-transport, to kørsler i samme ISO-uge, delvis fejl og retry, backupintegritet/hash, retention over 30 syntetiske backups samt kontrol af at aktiv database ikke berøres.
-
-**AFKLARING:** Handoveren antager, at automatisk ugentlig behandling kun omfatter nye, ubehandlede `allow`-kilder; `ask` skal fortsat kræve manuel bekræftelse. Bekræft eksisterende design før adfærden låses.
+**AFKLARING:** Handoveren antager, at automatisk ugentlig behandling kun omfatter nye, ubehandlede `allow`-kilder; `ask` kræver manuel bekræftelse. Etape A laver alene kladder og låser ikke designet for senere automation.
 
 ## Næste
 
@@ -50,11 +54,9 @@ Verificér kæden import -> AI -> review -> søgning -> backup og dokumentér ro
 
 **VERIFICERET 2026-09-15:**
 - Den sanitiserede `InvestViden-kode-snapshot-2026-09-15.zip` er sammenholdt med restore-branchen.
-- Produktkode, tests, migrationskode, ADR'er, UI, intake, Mistral-jobkø, content-quality-filter og relevante scripts er genskabt på `browser/restore-desktop-2026-09-15`.
-- Git-blob-hashes matcher snapshotten for kode- og testfiler; `README.md` og `LICENSE` afviger kun ved CRLF/LF-normalisering.
-- Snapshotens automatiske testpakke er kørt i isoleret browser-runtime: 50/50 tests består.
-- Snapshotten indeholder ingen `*.sqlite`, `*.db`, `.env`, personlige `settings.json`, private kilder eller backups.
-- Den aktive lokale database er ikke åbnet eller ændret, og der er ikke foretaget rigtige API-kald.
-- Projektfundamentet er etableret med `AGENTS.md`, `docs/todo.md`, `docs/handover.md`, `docs/decisions.md` og `docs/changes.md`.
-
-Den detaljerede historiske desktop-handover er bevaret som kildemateriale fra snapshotten; den levende browserstatus vedligeholdes under `docs/`.
+- Produktkode, tests, migrationskode, ADR'er, UI, intake, Mistral-jobkø, content-quality-filter og relevante scripts er genskabt.
+- Git-blob-hashes matcher snapshotten for kode og tests; README og LICENSE afviger kun ved LF-normalisering.
+- Snapshotens automatiske testpakke: 50/50 tests består i isoleret browser-runtime.
+- Ingen private databaser, secrets, inputkilder eller backups i snapshotten.
+- Den aktive lokale database er ikke åbnet eller ændret; ingen rigtige API-kald.
+- Projektfundamentet er etableret med AGENTS, TODO, HANDOVER, decisions og changes.
