@@ -1,5 +1,11 @@
 # Ændringslog – InvestViden
 
+## 2026-09-22 — Faktisk isoleret consumer-accept bestået
+
+- `VERIFICERET` fra brugerens PowerShell-output på workstationen: én virkelig episode blev importeret i en frisk midlertidig SQLite-database. `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt i SQLite; gentaget scanning genkendte kilden uden dublet, og episodefilen var uændret. Regnskab: `input=1373`, `kept=1371`, `removed=2`.
+- Originalmediets og canonical-pakkens hashes blev videreført som producentoplysninger; de blev ikke genberegnet i consumer-testen. Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Normal installeret intake og samlet morgenforløb er fortsat `IKKE TESTET`; morgenjobbet forbliver deaktiveret.
+
+
 ## 2026-09-22 — IV-006: podcast-afledning helt til SQLite
 
 - Episodeparseren validerer og bevarer valgfri `derivation` og `segment_accounting`. `_sidecar` fører dem videre under `upstream`; den eksisterende `source_provenance.metadata_json` gemmer dem uden databaseskemaændring. Tekst/sidecar-intake validerer også de nye felter.
