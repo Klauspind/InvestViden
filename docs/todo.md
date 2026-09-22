@@ -1,14 +1,16 @@
 # Todo – InvestViden
 
-## Nu
+## Gennemført integration
 
 ### IV-006 — Bevar Transskribering-afledning gennem podcastimport
 
-**Status 2026-09-22:** Implementeret; `VERIFICERET` med syntetiske data i Linux/Python 3.12. Hele suiten består med **78/78 tests**. Den virkelige episode på Windows `KRÆVER BRUGERTEST`.
+**Status 2026-09-22: AFSLUTTET for den afgrænsede afledningsintegration.** `VERIFICERET` med 78/78 syntetiske tests i Linux/Python 3.12 og nu også med faktisk isoleret episodeimport på workstationen.
 
 **Mål og accept:** Bevar producentens `derivation` og `segment_accounting` i sidecar og SQLite ved både direkte episode-JSON-intake og tekst/sidecar-intake. Afvis ugyldige nye felter, behold ældre episoder uden dem, og bevar idempotens og originale filer. Ingen aktiv database, migrationsændring, AI-kald eller morgenjob. Se `docs/iv-006-podcast-derivation.md`.
 
-**Næste:** Kør `scripts/verify_podcast_derivation_import.py --episode-root <den isolerede postprocess-mappe>` på workstationen. Scriptet kan kun oprette en frisk midlertidig database. Det forventer 1.371 segmenter fra 1.373 canonical-segmenter og kontrollerer lagret provenance og genkørsel. Producentens upstream-hashes videreføres som oplysninger; de oprindelige medier/canonical-filer genhashes ikke af consumeren.
+**Lokal accept:** `VERIFICERET` fra brugerens PowerShell-output på workstationen: én virkelig episode blev importeret i en frisk midlertidig SQLite-database. `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt i SQLite; gentaget scanning genkendte kilden uden dublet, og episodefilen var uændret. Regnskab: `input=1373`, `kept=1371`, `removed=2`.
+
+**Afgrænsning / videre arbejde:** Originalmediets og canonical-pakkens hashes blev videreført som producentoplysninger; de blev ikke genberegnet i consumer-testen. Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Normal installeret intake og samlet morgenforløb er fortsat `IKKE TESTET`; morgenjobbet forbliver deaktiveret.
 
 ## Afventer separat brugertest
 
