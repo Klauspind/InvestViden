@@ -13,13 +13,15 @@ InvestViden er et privat, local-first og kildebaseret system til investeringsvid
 
 AI-output er kandidater. Aktiv viden kræver individuel menneskelig godkendelse eller korrektion.
 
-## Aktuel opgave — IV-006 podcast-afledning
+## Afsluttet integration — IV-006 podcast-afledning
 
-Brugeren har efter bestået Transskribering-accept prioriteret videreførelse af afledningskæden i InvestViden. IV-006 er den aktive afgrænsede integration; IV-002 afventer fortsat sin særskilte Windows-brugertest. Root-`todo.md` og `handover.md` er ældre desktopstatus og afspejler ikke denne prioritering; `docs/` er autoritativt.
+Brugeren har efter bestået Transskribering-accept prioriteret videreførelse af afledningskæden i InvestViden. IV-006 er afsluttet for den afgrænsede integration efter lokal accept; IV-002 afventer fortsat sin særskilte Windows-brugertest. Root-`todo.md` og `handover.md` er ældre desktopstatus og afspejler ikke denne prioritering; `docs/` er autoritativt.
 
 `VERIFICERET` i Linux/Python 3.12: 78/78 tests. Ny valgfri episodeprovenance og segmentregnskab valideres og føres til `upstream.derivation` og `upstream.segment_accounting` i sidecar/SQLite. Ældre input uden felterne fungerer fortsat; ingen aktiv database er åbnet eller migreret. Hash for episodefilen beregnes fra de præcis samme bytes, som blev parset. Ugyldige felter afvises før import.
 
-`KRÆVER BRUGERTEST`: Kør `scripts/verify_podcast_derivation_import.py` på workstationens isolerede afledte episode (1.371 bevarede fra 1.373 input). Scriptet opretter og fjerner sin egen midlertidige database og tester import, lagret derivation/regnskab, genkendelse ved genkørsel og uændret kilde. Ingen aktiv database, AI-kald eller planlagt opgave. Den tidligere accepterede producenttest er ikke en consumer-accept.
+`VERIFICERET` fra brugerens PowerShell-output på workstationen: én virkelig episode blev importeret i en frisk midlertidig SQLite-database. `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt i SQLite; gentaget scanning genkendte kilden uden dublet, og episodefilen var uændret. Regnskab: `input=1373`, `kept=1371`, `removed=2`.
+
+Originalmediets og canonical-pakkens hashes blev videreført som producentoplysninger; de blev ikke genberegnet i consumer-testen. Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Normal installeret intake og samlet morgenforløb er fortsat `IKKE TESTET`; morgenjobbet forbliver deaktiveret.
 
 Upstream-medier og canonical-filer genhashes ikke af consumeren. Producentens hashes er videreførte oplysninger, ikke en ny fysisk kontrol. Eksisterende importer får ingen automatisk backfill. Se `docs/iv-006-podcast-derivation.md`.
 
@@ -62,6 +64,6 @@ Ovenstående er en historisk rapport fra 2026-09-15, ikke en ny test af den loka
 
 ## Næste trin
 
-Næste trin er den isolerede IV-006-accept på den faktiske episode. IV-002 Test A/B fra `docs/IV-002_LOCAL_TEST.md` afventer separat. Opret ingen Windows-opgave, og rør ikke aktiv database.
+Den isolerede IV-006-accept er bestået. Næste integrationstrin er stabil installation og normal intake på isoleret grundlag, inden samlet manuel pipelineafprøvning. IV-002 Test A/B fra `docs/IV-002_LOCAL_TEST.md` afventer separat. Opret ingen Windows-opgave, og rør ikke aktiv database.
 
 `docs/` er autoritativ for levende browserstatus. Root-handover fra desktop er historisk reference; faktiske kode- og testresultater har forrang ved uoverensstemmelse.
