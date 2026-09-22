@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 from .repository import KnowledgeBase, file_sha256, slug
+from .podcast_sync import _derivation_metadata
 
 
 SOURCE_FOLDERS = {
@@ -89,6 +90,11 @@ def _candidate(path: Path, inbox_root: Path, settings: dict[str, Any], defaults:
         required = [loaded.get("episode_key"), upstream.get("path"), upstream.get("sha256"), render.get("renderer_version")]
         if not all(isinstance(value, str) and value for value in required):
             raise ValueError(f"Podcast-provenance mangler obligatoriske felter: {sidecar}")
+        if "derivation" in upstream or "segment_accounting" in upstream:
+            segment_count = render.get("segment_count")
+            if type(segment_count) is not int or segment_count < 1:
+                raise ValueError("Provenance mangler gyldigt render.segment_count")
+            _derivation_metadata(upstream, segment_count)
         expected_hash = render.get("sha256")
         if expected_hash != file_sha256(path):
             raise ValueError(f"Provenance-sidecar matcher ikke tekstfilens SHA-256: {sidecar}")

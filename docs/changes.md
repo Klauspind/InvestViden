@@ -1,5 +1,12 @@
 # Ændringslog – InvestViden
 
+## 2026-09-22 — IV-006: podcast-afledning helt til SQLite
+
+- Episodeparseren validerer og bevarer valgfri `derivation` og `segment_accounting`. `_sidecar` fører dem videre under `upstream`; den eksisterende `source_provenance.metadata_json` gemmer dem uden databaseskemaændring. Tekst/sidecar-intake validerer også de nye felter.
+- Episode-SHA beregnes over samme bytes som parseren læser, inklusive eventuel BOM. Direkte intake kontrollerer, at dette snapshot matcher den scannede fil.
+- `VERIFICERET`: 78/78 automatiske tests i Linux/Python 3.12, heraf otte nye for direkte import, tekst/sidecar-kæde, bagudkompatibilitet, ugyldig provenance, idempotens, hashbinding og accept-CLI uden privat tekst i output. Alle databaser er midlertidige, ingen rigtige AI-kald.
+- `scripts/verify_podcast_derivation_import.py` giver én isoleret workstation-accept med den virkelige afledte episode. `KRÆVER BRUGERTEST`: Windows-kørsel og normal installeret intake. Upstream-hashes videreføres; fysisk upstream-verifikation udføres ikke. Eksisterende kilder får ingen automatisk efteropdatering, og aktiv database/morgenjob ændres ikke.
+
 ## 2026-09-19 — IV-002 etape C: sikker CLI og Windows-testpakke
 
 - Tilføjet `weekly-drafts` og `weekly-recovery` med obligatorisk, eksisterende schema-4-database og uden database-default.

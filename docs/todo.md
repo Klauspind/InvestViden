@@ -2,6 +2,16 @@
 
 ## Nu
 
+### IV-006 — Bevar Transskribering-afledning gennem podcastimport
+
+**Status 2026-09-22:** Implementeret; `VERIFICERET` med syntetiske data i Linux/Python 3.12. Hele suiten består med **78/78 tests**. Den virkelige episode på Windows `KRÆVER BRUGERTEST`.
+
+**Mål og accept:** Bevar producentens `derivation` og `segment_accounting` i sidecar og SQLite ved både direkte episode-JSON-intake og tekst/sidecar-intake. Afvis ugyldige nye felter, behold ældre episoder uden dem, og bevar idempotens og originale filer. Ingen aktiv database, migrationsændring, AI-kald eller morgenjob. Se `docs/iv-006-podcast-derivation.md`.
+
+**Næste:** Kør `scripts/verify_podcast_derivation_import.py --episode-root <den isolerede postprocess-mappe>` på workstationen. Scriptet kan kun oprette en frisk midlertidig database. Det forventer 1.371 segmenter fra 1.373 canonical-segmenter og kontrollerer lagret provenance og genkørsel. Producentens upstream-hashes videreføres som oplysninger; de oprindelige medier/canonical-filer genhashes ikke af consumeren.
+
+## Afventer separat brugertest
+
 ### IV-002 — Implementér idempotent ugentlig runner
 
 **Status 2026-09-19: ETAPE A-C IMPLEMENTERET; AUTOMATISK VERIFICERET, KRÆVER BRUGERTEST på Windows.** Se `docs/iv-002-weekly-runner.md` og `docs/IV-002_LOCAL_TEST.md`.

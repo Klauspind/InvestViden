@@ -129,6 +129,8 @@ def plan_input(kb: KnowledgeBase, root: dict[str, str]) -> dict[str, Any]:
                 sidecar_hash = None
                 if root["format"] == "podcast_json":
                     episode = read_episode(path)
+                    if episode.json_sha256 != original_hash:
+                        raise ValidationError("Episode-snapshot matcher ikke den scannede fil; scan igen")
                     rendered = render_episode(episode)
                     content = rendered.encode("utf-8")
                     content_hash = hashlib.sha256(content).hexdigest()

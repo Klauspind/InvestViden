@@ -39,6 +39,8 @@ class PodcastEpisode:
     quality_score: float | None
     quality_grade: str | None
     segments: tuple[dict[str, Any], ...]
+    derivation: dict[str, Any] | None = None
+    segment_accounting: dict[str, int] | None = None
 
 
 @dataclass(frozen=True)
@@ -124,8 +126,9 @@ def discover_episode_jsons(source_root: Path) -> list[Path]:
 
 def read_episode(path: Path, settings: dict[str, Any] | None = None) -> PodcastEpisode:
     settings = settings or {}
+    raw_bytes = path.read_bytes()
     try:
-        data = json.loads(path.read_text(encoding="utf-8-sig"))
+        data = json.loads(raw_bytes.decode("utf-8-sig"))
     except json.JSONDecodeError as exc:
         raise ValueError(f"Ugyldig JSON: {exc}") from exc
     if not isinstance(data, dict):
@@ -166,6 +169,7 @@ def read_episode(path: Path, settings: dict[str, Any] | None = None) -> PodcastE
             validated_segments.append({"start": start, "end": end, "text": text})
     if not validated_segments:
         raise ValueError("Episode-JSON indeholder ingen tekstsegmenter")
+    derivation, accounting = _derivation_metadata(data, len(validated_segments))
 
     publisher_mapping = settings.get("inbox", {}).get("podcast_publishers", {})
     publisher = _mapped(publisher_mapping, podcast, podcast)
@@ -175,7 +179,7 @@ def read_episode(path: Path, settings: dict[str, Any] | None = None) -> PodcastE
 
     return PodcastEpisode(
         json_path=path.resolve(),
-        json_sha256=file_sha256(path),
+        json_sha256=hashlib.sha256(raw_bytes).hexdigest(),
         episode_id=episode_id,
         episode_key=_episode_key(podcast, published_at, episode_id, title),
         podcast=podcast,
@@ -194,7 +198,44 @@ def read_episode(path: Path, settings: dict[str, Any] | None = None) -> PodcastE
         quality_score=float(score) if score is not None else None,
         quality_grade=str(quality.get("grade")) if quality.get("grade") else None,
         segments=tuple(validated_segments),
+        derivation=derivation,
+        segment_accounting=accounting,
     )
+
+
+def _derivation_metadata(data: dict[str, Any], segment_count: int):
+    """Validate optional producer claims; this does not verify upstream files."""
+    derivation = data.get("derivation")
+    accounting = data.get("segment_accounting")
+    if "derivation" in data:
+        if not isinstance(derivation, dict):
+            raise ValueError("derivation skal være et objekt")
+        if derivation.get("schema_version") != "podcast-legacy-derivation-v1":
+            raise ValueError("Ukendt derivation schema_version")
+        for key in ("package_id", "canonical_schema_version"):
+            if not isinstance(derivation.get(key), str) or not derivation[key].strip():
+                raise ValueError(f"derivation mangler {key}")
+        for key in ("source_sha256", "transcript_sha256", "postprocess_input_sha256"):
+            if not isinstance(derivation.get(key), str) or not re.fullmatch(r"[0-9a-fA-F]{64}", derivation[key]):
+                raise ValueError(f"derivation har ugyldig {key}")
+        count = derivation.get("canonical_segment_count")
+        if type(count) is not int or count < segment_count:
+            raise ValueError("Ugyldigt canonical_segment_count")
+        derivation = dict(derivation)
+    if "segment_accounting" in data:
+        keys = ("input", "kept", "removed", "advertisement", "empty_after_cleaning")
+        if not isinstance(accounting, dict) or any(
+            type(accounting.get(key)) is not int or accounting[key] < 0 for key in keys
+        ):
+            raise ValueError("Ugyldigt segment_accounting")
+        if (accounting["kept"] != segment_count
+                or accounting["input"] != accounting["kept"] + accounting["removed"]
+                or accounting["removed"] != accounting["advertisement"] + accounting["empty_after_cleaning"]):
+            raise ValueError("Segmentregnskabet stemmer ikke")
+        if derivation is not None and derivation["canonical_segment_count"] != accounting["input"]:
+            raise ValueError("Canonical-antal og segmentregnskab er forskellige")
+        accounting = dict(accounting)
+    return derivation, accounting
 
 
 def render_episode(episode: PodcastEpisode) -> str:
@@ -309,7 +350,7 @@ def plan_podcast_sync(
 
 def _sidecar(item: SyncItem) -> dict[str, Any]:
     episode = item.episode
-    return {
+    metadata = {
         "schema_version": "1.0",
         "kind": "investviden_podcast_source",
         "episode_key": episode.episode_key,
@@ -335,6 +376,11 @@ def _sidecar(item: SyncItem) -> dict[str, Any]:
             "segment_count": len(episode.segments),
         },
     }
+    if episode.derivation is not None:
+        metadata["upstream"]["derivation"] = dict(episode.derivation)
+    if episode.segment_accounting is not None:
+        metadata["upstream"]["segment_accounting"] = dict(episode.segment_accounting)
+    return metadata
 
 
 def _write_new(path: Path, text: str) -> None:
