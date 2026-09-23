@@ -1,5 +1,13 @@
 # Todo – InvestViden
 
+## Status 23.09.2026 — rigtig morgenepisode accepteret af InvestViden-consumer
+
+- `VERIFICERET` på arbejds-workstationen: consumer-outputtet fra Transskriberingens nye fysiske podcastmorgenflow blev importeret via den aktuelle InvestViden-intake til en frisk midlertidig SQLite-database.
+- Én kilde blev importeret; provenance og segmentregnskab blev bevaret; gentaget scan genkendte kilden uden dublet; inputfilen var uændret. Episoden havde 1554 segmenter.
+- Ingen aktiv InvestViden-database eller AI-tjeneste blev brugt.
+- Dette verificerer consumer-kompatibiliteten for den automatiserbare upstream-kæde, men gør ikke InvestVidens aktive schema-2-database eller øvrige produktflow færdigt.
+
+
 ## Status 23.09.2026 — aktuel workstation-installation og samlet upstream-consumer verificeret
 
 - `VERIFICERET` på arbejds-workstationen: en frisk/aktuel Git-klon af InvestViden med Python 3.10-miljø bestod 78/78 tests.
