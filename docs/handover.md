@@ -1,5 +1,12 @@
 # Handover – InvestViden
 
+## 23.09.2026 — upstream morgenflow consumer-verificeret
+
+- `VERIFICERET`: en rigtig ny episode fra Transskriberingens samlede morgenflow blev accepteret af normal InvestViden-intake på frisk midlertidig SQLite.
+- Én kilde, bevaret provenance/segmentregnskab, ingen dublet ved genkørsel, uændret inputfil; 1554 segmenter.
+- Dette ændrer ikke sikkerhedsgrænsen for den aktive schema-2-database og afslutter ikke InvestViden som produkt.
+
+
 ## 23.09.2026 — aktuel workstation-consumer og upstream-kæde
 
 - `VERIFICERET`: aktuel InvestViden Git-klon på arbejds-workstationen bestod 78/78 tests.
