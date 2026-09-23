@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 23.09.2026 — aktuel workstation-consumer og upstream-kæde
+
+- `VERIFICERET`: aktuel InvestViden Git-klon på arbejds-workstationen bestod 78/78 tests.
+- `VERIFICERET`: rigtig Transskribering canonical podcastpakke blev separat afledt/efterbehandlet og derefter importeret via normal InvestViden intake til en frisk midlertidig SQLite-database.
+- Én kilde blev oprettet; derivation, segmentregnskab og episodehash blev bevaret; gentaget scan genkendte kilden uden dublet; inputfilen forblev uændret.
+- Ingen aktiv database, AI-kald eller planlagt opgave blev anvendt. Consumeren genberegnede ikke upstream media/canonical hashes.
+- Næste integrationsarbejde er samlet isoleret morgenorkestrering; aktiv schema-2-database/migration behandles fortsat separat efter eksisterende sikkerhedsregler.
+
+
 **Statusdato:** 2026-09-22
 **Repository:** `Klauspind/InvestViden`  
 **Aktuel kodegren:** `main`
