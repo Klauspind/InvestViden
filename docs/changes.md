@@ -1,3 +1,10 @@
+
+## 2026-09-23 — Aktuel workstation-consumer verificeret mod Transskribering
+
+- Aktuel InvestViden Git-klon på workstationen bestod 78/78 tests.
+- En rigtig efterbehandlet podcastafledning fra Transskribering blev importeret via normal intakekode til frisk midlertidig SQLite: én kilde, bevaret derivation/segmentregnskab/hash og ingen dublet ved gentaget scan.
+- Ingen aktiv database, AI-kald eller Windows-opgave blev brugt.
+
 # Ændringslog – InvestViden
 
 ## 2026-09-22 — Faktisk isoleret consumer-accept bestået
