@@ -1,5 +1,14 @@
 # Todo – InvestViden
 
+## Status 23.09.2026 — aktuel workstation-installation og samlet upstream-consumer verificeret
+
+- `VERIFICERET` på arbejds-workstationen: en frisk/aktuel Git-klon af InvestViden med Python 3.10-miljø bestod 78/78 tests.
+- `VERIFICERET` med den aktuelle Transskribering-kæde: en canonical podcastpakke blev separat afledt og efterbehandlet, hvorefter den resulterende episode-JSON blev importeret via InvestVidens normale intakekode til en frisk midlertidig SQLite-database.
+- Én kilde blev importeret; `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt. Gentaget scan genkendte kilden uden dublet, og inputfilen var uændret.
+- Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Upstream media/canonical hashes er producentoplysninger og blev ikke genberegnet i consumer-trinnet.
+- `NÆSTE`: deltag som consumer i den samlede isolerede morgenorkestrering. Aktiv schema-2-database og normal driftsmigration forbliver separat blokeret af eksisterende sikkerhedsbeslutninger.
+
+
 ## Gennemført integration
 
 ### IV-006 — Bevar Transskribering-afledning gennem podcastimport
