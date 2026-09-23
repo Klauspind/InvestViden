@@ -1,4 +1,11 @@
 
+## 2026-09-23 — Rigtig morgenepisode verificeret i consumer-intake
+
+- Den nye episode afleveret af Transskriberingens fysiske morgenflow blev importeret til frisk midlertidig SQLite via normal intake.
+- Provenance/segmentregnskab blev bevaret, genkørsel gav ingen dublet, filen var uændret, og episoden havde 1554 segmenter.
+- Aktiv database og AI blev ikke anvendt.
+
+
 ## 2026-09-23 — Aktuel workstation-consumer verificeret mod Transskribering
 
 - Aktuel InvestViden Git-klon på workstationen bestod 78/78 tests.
