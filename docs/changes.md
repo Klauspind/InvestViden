@@ -1,3 +1,11 @@
+## 2026-09-24 — IV-003 samlet gratis UI-accept
+
+- Tilføjet `tests/test_ui_free_acceptance.py`, som gennemfører reklamefilter og Mistral `draft -> confirmed` gennem den rigtige localhost-HTTP-server på en frisk midlertidig schema-4-database.
+- Testen bruger kun syntetiske kilder; AI-transporten er fail-closed og må ikke kaldes i gratisflowet.
+- Tilføjet GitHub Actions-regression på Python 3.10 og 3.12.
+- `VERIFICERET`: run 35984116366 bestod **79/79 tests** på begge Python-versioner.
+- `KRÆVER BRUGERTEST`: kort fysisk browserkontrol af UI'et; ingen aktiv database og intet rigtigt AI-kald er anvendt.
+
 
 ## 2026-09-23 — Rigtig morgenepisode verificeret i consumer-intake
 
