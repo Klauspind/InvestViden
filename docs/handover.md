@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 24.09.2026 — IV-003 gratis UI-gate
+
+- `VERIFICERET`: samlet HTTP-accepttest dækker sponsorfilter og Mistral-jobkøens `draft -> confirmed` uden send.
+- `VERIFICERET`: testen bruger frisk midlertidig schema-4, syntetiske kilder og fail-closed transport; aktiv database og ekstern AI anvendes ikke.
+- `VERIFICERET`: GitHub Actions run 35984116366: **79/79 tests** på Python 3.10 og **79/79 tests** på Python 3.12.
+- `KRÆVER BRUGERTEST`: fysisk browserkontrol på workstationen; stop før `Send bekræftet job nu`.
+- Næste efter browseraccept: IV-004 migrationsverifikation på en frisk kopi af aktiv schema-2; den aktive database forbliver beskyttet.
+
+
 ## 23.09.2026 — upstream morgenflow consumer-verificeret
 
 - `VERIFICERET`: en rigtig ny episode fra Transskriberingens samlede morgenflow blev accepteret af normal InvestViden-intake på frisk midlertidig SQLite.
