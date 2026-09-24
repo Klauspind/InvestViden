@@ -1,5 +1,13 @@
 # Todo – InvestViden
 
+## Status 24.09.2026 — faktisk legacy-database er schema 1
+
+- `VERIFICERET` fra workstation-output: den beskyttede database `C:\\Users\\b306123\\InvestViden\\data\\knowledgebase.sqlite` rapporterer schema **1**, ikke schema 2 som tidligere historisk dokumentation antog.
+- Første migrationsforsøg stoppede før kopiering, fordi verifieren krævede schema 2. Der blev ikke oprettet preview-database, og den aktive database blev ikke migreret eller erstattet.
+- IV-004-verifieren er udvidet til eksplicit at acceptere schema 1 og 2, kontrollere forventede legacy-tabeller og behandle eventuelt manglende `source_provenance` i schema 1 som 0 rækker før migration.
+- `KRÆVER BRUGERTEST`: kør den opdaterede verifier mod den faktiske schema-1-database efter synkronisering af branch/main og kontroller alle sammenligninger før UI-start.
+
+
 ## Status 24.09.2026 — IV-003 gratis UI-flow automatisk verificeret
 
 - `VERIFICERET`: ny samlet HTTP-accepttest dækker reklame-/introfilter samt Mistral `draft -> confirmed` på en frisk midlertidig schema-4-database med syntetiske kilder.
@@ -79,7 +87,7 @@
 
 ### IV-004 — Verificér schema-4 migrationskopi
 
-Lav en frisk kopi af den aktive schema-2-database og verificér antal, relationer, reviewstatusser, hashes, foreign keys og integritet før/efter. Aktiv database må fortsat ikke migreres.
+**Status 2026-09-24: IMPLEMENTERING OPDATERET; KRÆVER WORKSTATION-VERIFIKATION.** Den faktiske beskyttede legacy-database er schema 1. Verifieren understøtter nu schema 1 og 2 og skal lave en frisk, isoleret schema-4-kopi med kontrol af antal, relationer, reviewstatusser, hashes, foreign keys, FTS-indeks og integritet før/efter. Aktiv database må fortsat ikke migreres.
 
 ## Senere
 
@@ -89,7 +97,7 @@ Verificér kæden import -> AI -> review -> søgning -> backup og dokumentér ro
 
 ## Blokeret
 
-- Aktiv schema-2 migration er blokeret af designbeslutning og kræver ny, udtrykkelig ejergodkendelse efter frisk migrations-/rollbackverifikation.
+- Aktiv legacy-database-migration er blokeret af designbeslutning og kræver ny, udtrykkelig ejergodkendelse efter frisk migrations-/rollbackverifikation.
 
 ## Gennemført
 

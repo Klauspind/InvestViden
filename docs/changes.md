@@ -1,3 +1,11 @@
+## 2026-09-24 — IV-004 schema-1 verifier
+
+- Workstation-output viste, at den beskyttede legacy-database er schema 1; den tidligere schema-2-antagelse var forkert for den faktisk fundne fil.
+- Den første migrationsverifikation stoppede før kopiering, og preview-filen blev ikke oprettet.
+- `scripts/verify_schema_v3_migration.py` accepterer nu eksplicit schema 1 og 2, validerer legacy-tabeller og bevarer rækker fra alle eksisterende tabeller; manglende `source_provenance` i schema 1 behandles som 0 før migration.
+- Tilføjet regressionstest for schema 1 uden `source_provenance` samt fortsat schema-2-understøttelse. Begge tests kontrollerer, at kildedatabasen forbliver på sin oprindelige schemaversion.
+- Faktisk workstation-migrationskopi er fortsat `KRÆVER BRUGERTEST`; ingen aktiv database er migreret.
+
 ## 2026-09-24 — IV-003 samlet gratis UI-accept
 
 - Tilføjet `tests/test_ui_free_acceptance.py`, som gennemfører reklamefilter og Mistral `draft -> confirmed` gennem den rigtige localhost-HTTP-server på en frisk midlertidig schema-4-database.

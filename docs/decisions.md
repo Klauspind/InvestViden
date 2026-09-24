@@ -8,9 +8,9 @@ AI-output er kandidater. Et udsagn bliver først aktiv viden efter individuel me
 
 SQLite bærer den autoritative tilstand for kilder, hashes, provenance, udsagnsversioner og reviewhistorik. Afledte rapporter og eksporter skal kunne genskabes.
 
-## D-003 — Aktiv schema-2 database er beskyttet
+## D-003 — Aktiv legacy-database er beskyttet
 
-Den aktive lokale database er schema 2 og må ikke migreres, erstattes eller skrives til fra ny schema-4-kode uden ny, udtrykkelig ejergodkendelse. Migrationstest sker på kopier.
+Den beskyttede lokale database må ikke migreres, erstattes eller skrives til fra ny schema-4-kode uden ny, udtrykkelig ejergodkendelse. Migrationstest sker på kopier. Workstation-kontrol 2026-09-24 viste, at den faktisk fundne database er schema 1; tidligere schema-2-angivelse var historisk dokumentation og er ikke længere aktuel.
 
 ## D-004 — Local-first og localhost-only
 
