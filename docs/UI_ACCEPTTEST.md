@@ -72,6 +72,20 @@ Testen ændrer kun schema-4-forhåndskopien og dens tilhørende workspace under
 slettes manuelt bagefter; den importerede testkilde bliver i forhåndskopien som
 testhistorik, medmindre der senere oprettes en ny frisk migrationskopi.
 
+## IV-003 — samlet gratis UI-accept (2026-09-24)
+
+**Automatisk status:** `VERIFICERET`. `tests/test_ui_free_acceptance.py` starter den rigtige lokale HTTP-server mod en frisk midlertidig schema-4-database, verificerer reklame-/introfilteret, opretter en Mistral-kladde og bekræfter den. Testens transportfunktion fejler øjeblikkeligt, hvis den kaldes, så `draft -> confirmed` er dokumenteret uden ekstern afsendelse. Hele suiten bestod 79/79 på Python 3.10 og 3.12 i GitHub Actions run 35984116366.
+
+**Fysisk status:** `KRÆVER BRUGERTEST`. Den korte workstation-prøve er:
+
+1. Start `START_INVESTVIDEN_UI_PREVIEW.cmd` og kontrollér, at siden angiver preview-databasen under `output/`.
+2. I `Søg i viden`: kontrollér, at kendt Saxo-sponsorintro ikke står i `Arkiv`, men kan findes i `Reklame og intro`, mens reel analyse fortsat findes normalt.
+3. Åbn `Mistral-job`, vælg højst én ufølsom testkilde og klik `Opret kladde med valgte kilder`. Kontrollér `draft`, prisloft højst USD 0,10 og teksten om, at intet er sendt.
+4. Klik `Bekræft kilder og pris`. Kontrollér `confirmed` og teksten om, at jobbet endnu ikke er sendt.
+5. **Stop her. Klik ikke `Send bekræftet job nu`.**
+
+Denne browserprøve må kun anvende schema-4-forhåndskopien og giver ingen tilladelse til aktiv migration eller rigtigt API-kald.
+
 ## Reklame-/introfilter – kort accepttest (2026-09-14)
 
 **Status:** `KRÆVER BRUGERTEST` efter genstart af UI'en.
