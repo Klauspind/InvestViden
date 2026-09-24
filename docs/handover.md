@@ -1,5 +1,13 @@
 # Handover – InvestViden
 
+## 24.09.2026 — schema-1 fund på faktisk workstation-database
+
+- `VERIFICERET` fra brugerens PowerShell-output: den beskyttede database i den gamle workstation-mappe har schema 1. Tidligere dokumentation om schema 2 var historisk og er nu korrigeret.
+- Den første IV-004-kørsel stoppede fail-closed, fordi verifieren kun accepterede schema 2. Ingen preview-database blev oprettet, og UI-starteren nægtede efterfølgende at starte.
+- Verifieren er ændret til eksplicit schema 1/2-understøttelse med regressionstest, herunder schema 1 uden `source_provenance`; kildedatabasen skal forblive uændret.
+- `KRÆVER BRUGERTEST`: faktisk migrationskopi på workstationen og derefter IV-003-browseraccept. Ingen aktiv migration er godkendt.
+
+
 ## 24.09.2026 — IV-003 gratis UI-gate
 
 - `VERIFICERET`: samlet HTTP-accepttest dækker sponsorfilter og Mistral-jobkøens `draft -> confirmed` uden send.
@@ -67,7 +75,7 @@ Etape A tilbyder read-only preview som standard; `apply=True` opretter kun *ubek
 ## Sikkerhedsgrænser
 
 - SQLite er autoritativ for kilder, versioner, hashes, provenance, claims, review og AI-jobstatus.
-- Den aktive lokale `data/knowledgebase.sqlite` er ifølge historisk desktop-handover schema 2. Den må ikke migreres eller ændres uden ny, udtrykkelig ejergodkendelse.
+- Den beskyttede lokale legacy-database er aktuelt verificeret som schema 1 på workstationen 2026-09-24. Den må ikke migreres eller ændres uden ny, udtrykkelig ejergodkendelse.
 - Schema-4-udvikling og tests sker på isolerede kopier eller midlertidige databaser.
 - UI må kun lytte på localhost.
 - Kildepolitikkerne `allow`, `ask`, `local_only` og `blocked` håndhæves før tekst forlader pc'en.
@@ -80,7 +88,7 @@ Den sanitiserede desktop-snapshot blev genskabt i GitHub. Produktkode, tests, mi
 
 ## Historisk desktopstatus (ikke aktuelt verificeret)
 
-- Aktiv database: schema 2; integrity check `ok`.
+- Historisk rapport: database schema 2; integrity check `ok`. Ny fysisk kontrol 2026-09-24 viste schema 1 på den faktisk fundne beskyttede database, så den historiske schemaangivelse må ikke bruges som aktuel status.
 - 66 kilder og 4.074 udsagn; 402 `approved`, 10 `ai_extracted`, 3.662 `uncertain`.
 - SHA-256: `199176c803bb8817446287adead863c7e1b2844ebc290dc45f9a8a74d825588e`.
 - Preview-starterens `--check` bestod på desktop.
