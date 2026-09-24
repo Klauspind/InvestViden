@@ -26,6 +26,27 @@ TRACKED_TABLES = (
     "source_provenance",
 )
 
+REQUIRED_LEGACY_TABLES = {
+    "sources",
+    "extraction_runs",
+    "claims",
+    "companies",
+    "claim_companies",
+    "themes",
+    "claim_themes",
+    "claim_points",
+    "evidence",
+}
+
+
+def _table_names(conn: sqlite3.Connection) -> set[str]:
+    return {
+        str(row[0])
+        for row in conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name"
+        )
+    }
+
 
 def _counts(conn: sqlite3.Connection, tables: tuple[str, ...]) -> dict[str, int]:
     return {
@@ -58,14 +79,31 @@ def verify(source: Path, output: Path) -> dict[str, object]:
     original = sqlite3.connect(source_uri, uri=True)
     original.row_factory = sqlite3.Row
     try:
-        version = int(original.execute("SELECT MAX(version) FROM schema_version").fetchone()[0])
-        if version != 2:
-            raise RuntimeError(f"Verifieren forventer schema 2, men fandt schema {version}")
-        before = _counts(original, ("sources",) + TRACKED_TABLES)
+        version_row = original.execute(
+            "SELECT MAX(version) FROM schema_version"
+        ).fetchone()
+        version = int(version_row[0]) if version_row and version_row[0] is not None else 0
+        if version not in {1, 2}:
+            raise RuntimeError(
+                f"Verifieren forventer schema 1 eller 2, men fandt schema {version}"
+            )
+
+        tables = _table_names(original)
+        missing_required = sorted(REQUIRED_LEGACY_TABLES - tables)
+        if missing_required:
+            raise RuntimeError(
+                "Legacy-databasen mangler forventede tabeller: "
+                + ", ".join(missing_required)
+            )
+
+        existing_tracked = tuple(name for name in TRACKED_TABLES if name in tables)
+        before = {"sources": 0, **{name: 0 for name in TRACKED_TABLES}}
+        before.update(_counts(original, ("sources",) + existing_tracked))
         before_status = _status_counts(original)
         before_hashes = {
             str(row[0]) for row in original.execute("SELECT sha256 FROM sources ORDER BY sha256")
         }
+
         copied = sqlite3.connect(output)
         try:
             original.backup(copied)
@@ -119,6 +157,7 @@ def verify(source: Path, output: Path) -> dict[str, object]:
 
     return {
         "source": str(source),
+        "source_schema_version": version,
         "migrated_copy": str(output),
         "created_at": datetime.now(timezone.utc).isoformat(),
         "before": before,
@@ -136,9 +175,13 @@ def verify(source: Path, output: Path) -> dict[str, object]:
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Migrér en konsistent kopi til seneste schema og bevis, at indholdet er bevaret"
+        description="Migrér en konsistent schema-1/2-kopi til seneste schema og bevis, at indholdet er bevaret"
     )
-    parser.add_argument("source", type=Path, help="Aktiv schema-v2-database; åbnes skrivebeskyttet")
+    parser.add_argument(
+        "source",
+        type=Path,
+        help="Aktiv legacy-database (schema 1 eller 2); åbnes skrivebeskyttet",
+    )
     parser.add_argument("output", type=Path, help="Ny migrationskopi; må ikke eksistere")
     args = parser.parse_args()
     report = verify(args.source, args.output)
