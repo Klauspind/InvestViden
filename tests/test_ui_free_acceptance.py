@@ -58,7 +58,8 @@ class FreeUIAcceptanceTest(unittest.TestCase):
             self.kb.ingest(extraction)
         with self.kb.conn:
             self.kb.conn.execute(
-                "UPDATE sources SET dataset='legacy' WHERE id=?",
+                """UPDATE sources SET dataset='legacy'
+                   WHERE id=(SELECT logical_source_id FROM source_versions WHERE id=?)""",
                 (legacy_id,),
             )
 
