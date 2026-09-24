@@ -1,5 +1,13 @@
 # Todo – InvestViden
 
+## Status 24.09.2026 — IV-003 gratis UI-flow automatisk verificeret
+
+- `VERIFICERET`: ny samlet HTTP-accepttest dækker reklame-/introfilter samt Mistral `draft -> confirmed` på en frisk midlertidig schema-4-database med syntetiske kilder.
+- `VERIFICERET`: AI-transporten er fail-closed i testen og blev ikke kaldt; ingen aktiv database eller ekstern AI blev anvendt.
+- `VERIFICERET`: hele repository-suiten består med **79/79 tests** på både Python 3.10 og 3.12 i GitHub Actions run 35984116366.
+- `KRÆVER BRUGERTEST`: kort fysisk browserkontrol på workstationen af visning og `draft -> confirmed`; stop før send. Se `docs/UI_ACCEPTTEST.md` og `docs/iv-003-free-ui-acceptance.md`.
+
+
 ## Status 23.09.2026 — rigtig morgenepisode accepteret af InvestViden-consumer
 
 - `VERIFICERET` på arbejds-workstationen: consumer-outputtet fra Transskriberingens nye fysiske podcastmorgenflow blev importeret via den aktuelle InvestViden-intake til en frisk midlertidig SQLite-database.
@@ -63,9 +71,11 @@
 
 ### IV-003 — Gennemfør gratis brugerprøve af UI-flow
 
+**Status 2026-09-24: AUTOMATISK VERIFICERET; KRÆVER KORT BRUGERTEST.**
+
 **Omfang:** reklame-/introfilter og Mistral-jobkøens kladde-/bekræftelsesflow.
 
-**Acceptkriterier:** Flowet kan gennemføres på isoleret schema-4-kopi uden rigtigt API-kald og uden adgang til aktiv database.
+**Accept:** Den samlede gratis HTTP-gate er bestået på midlertidig schema-4 med syntetiske data uden transportkald. Hele suiten er 79/79 på Python 3.10 og 3.12. Den sidste fysiske browserkontrol skal bekræfte visning og betjening på workstationen; stop før send.
 
 ### IV-004 — Verificér schema-4 migrationskopi
 
