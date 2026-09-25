@@ -1,3 +1,13 @@
+## 2026-09-25 — IV-005 version-1 accepttest implementeret
+
+- Tilføjet `scripts/verify_v1_acceptance.py`, som kører hele kernekæden på frisk syntetisk schema 4 uden ekstern AI eller aktiv database.
+- Kandidaten indlæses som `ai_extracted` og kontrolleres som ikke-aktiv før individuel `approved`-review; derefter verificeres aktiv søgning.
+- Backup kontrolleres for integritet og hash. Efter en simuleret senere kildeændring oprettes en rollback-kopi fra backup, og kilde-/claimantal, reviewstatus, søgbarhed, schema, integritet og foreign keys verificeres.
+- Originalkilden kontrolleres byte-identisk før/efter. Scriptet nægter at overskrive en ikke-tom arbejdsmappe.
+- Tilføjet `tests/test_v1_acceptance.py` og `docs/iv-005-v1-acceptance.md`.
+- `VERIFICERET`: GitHub Actions PR-run 36103274600 bestod **83/83 tests** på Python 3.10 og **83/83 tests** på Python 3.12.
+- `KRÆVER BRUGERTEST`: én fysisk workstation-kørsel af acceptscriptet i en ny lokal `output/`-mappe.
+
 ## 2026-09-25 — IV-003 fysisk workstation-accept
 
 - Oprettet isoleret syntetisk schema-4-preview til fysisk UI-test: 2 kilder, 2 udsagn, `integrity_check=ok`; den beskyttede legacy-database blev ikke brugt.
