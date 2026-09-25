@@ -1,3 +1,11 @@
+## 2026-09-25 — IV-003 fysisk workstation-accept
+
+- Oprettet isoleret syntetisk schema-4-preview til fysisk UI-test: 2 kilder, 2 udsagn, `integrity_check=ok`; den beskyttede legacy-database blev ikke brugt.
+- Brugeren accepterede UI-konceptet som fungerende.
+- Mistral-send blev utilsigtet/ekstra afprøvet uden konfigureret `MISTRAL_API_KEY`; to job sluttede `failed` med faktisk USD 0.000000. Ingen vellykket ekstern AI-afsendelse blev udført.
+- IV-003 afsluttes for fysisk UI-/konceptaccept. Rigtigt Mistral-kald er fortsat `IKKE TESTET` og kræver særskilt eksplicit godkendelse.
+- Den fundne legacy-`knowledgebase.sqlite` er schema 1 men tom (0 kilder / 0 udsagn). Historisk database med 66 kilder / 4.074 udsagn er ikke fundet; dette er en separat senere data-/arkitekturopgave.
+
 ## 2026-09-24 — IV-004 schema-1 verifier
 
 - Workstation-output viste, at den beskyttede legacy-database er schema 1; den tidligere schema-2-antagelse var forkert for den faktisk fundne fil.
