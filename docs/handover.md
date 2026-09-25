@@ -1,5 +1,13 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-005 fysisk version-1 accept bestået
+
+- `VERIFICERET`: den isolerede workstation-accept kørte på schema 4 og gennemførte hele kerneflowet fra syntetisk AI-kandidat til individuel godkendelse, aktiv søgning, verificeret backup og separat rollback-kopi.
+- Resultatet viste `candidate_started_as=ai_extracted`, `human_review=approved`, `active_search=true`, `backup_integrity=ok`, `rollback_integrity=ok` og ingen foreign-key-fejl.
+- `VERIFICERET`: originalkilden var uændret; `external_ai_calls=0`; `active_database_used=false`.
+- IV-005 er dermed afsluttet. Det giver fortsat ikke tilladelse til at migrere eller erstatte den beskyttede legacy-database.
+- Næste allerede implementerede leverance, der mangler fysisk lukning, er IV-002 Test A/B på en isoleret schema-4-kopi.
+
 ## 25.09.2026 — IV-005 version-1 accepttest implementeret
 
 - Implementeret isoleret end-to-end acceptscript for `kilde -> AI-kandidat -> individuel review -> aktiv søgning -> backup -> rollback`.
