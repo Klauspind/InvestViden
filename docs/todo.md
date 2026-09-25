@@ -90,11 +90,11 @@
 
 **Status 2026-09-25: TEKNISK MIGRATION VERIFICERET PÅ WORKSTATION, MEN LEGACY-FILEN ER TOM.** Schema 1 -> 4-kopien bestod alle sammenligninger, `integrity_check=ok` og foreign keys uden fejl, mens kilden forblev urørt. Den fundne `knowledgebase.sqlite` indeholdt dog 0 kilder og 0 udsagn. Den tidligere historiske database med 66 kilder / 4.074 udsagn er ikke fundet og behandles som separat data-/arkitekturopgave. Aktiv database må fortsat ikke migreres.
 
-## Senere
+## Gennemført
 
 ### IV-005 — Version-1 accepttest
 
-**Status 2026-09-25: AUTOMATISK VERIFICERET; KRÆVER KORT WORKSTATION-ACCEPT.** Den isolerede accepttest dækker `import -> syntetisk AI-kandidat -> individuel review -> aktiv søgning -> verificeret backup -> rollback-kopi`. GitHub Actions PR-run 36103274600 bestod **83/83 tests** på både Python 3.10 og 3.12. Testen bruger kun syntetiske data, schema 4 og ingen ekstern AI/aktiv database. Se `docs/iv-005-v1-acceptance.md`. Resterende: én lokal kørsel i en ny `output/`-mappe.
+**Status 2026-09-25: AFSLUTTET.** Den isolerede accepttest dækker `import -> syntetisk AI-kandidat -> individuel review -> aktiv søgning -> verificeret backup -> rollback-kopi`. GitHub Actions PR-run 36103274600 bestod **83/83 tests** på både Python 3.10 og 3.12. Den fysiske workstation-accept er også bestået: schema 4, kandidat startede som `ai_extracted`, individuel review blev `approved`, aktiv søgning var slået til, backup og rollback havde `integrity_check=ok`, rollback havde ingen foreign-key-fejl, originalkilden var uændret, `external_ai_calls=0`, og `active_database_used=false`. Testen brugte kun syntetiske data og den isolerede mappe `output/iv005-v1-acceptance`. Se `docs/iv-005-v1-acceptance.md`.
 
 ## Blokeret
 
