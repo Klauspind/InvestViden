@@ -16,11 +16,14 @@
 - IV-007 er dermed afsluttet. Ingen aktiv database, AI-transport eller Windows Opgavestyring blev anvendt.
 - Se `docs/iv-007-morning-consumer.md`.
 
-## Aktiv opgave 25.09.2026 — næste produkttrin
+## Aktiv opgave 25.09.2026 — IV-008 lokal driftskobling
 
-- `NÆSTE`: design og implementér den installerede lokale driftskobling, så Transskribering kan levere færdige InvestViden-episoder til en fast lokal intake-mappe, og InvestViden kan køre samme verificerede consumer-flow manuelt med én kommando.
-- Første leverance skal fortsat stoppe ved lokal `draft`; ingen automatisk jobbekræftelse, ekstern AI eller aktiv legacy-database.
-- Windows Opgavestyring og fuld automatisk morgenkæde behandles først efter særskilt fysisk accept af den installerede manuelle driftskobling.
+- `IMPLEMENTERET`: privat lokal konfiguration under `%LOCALAPPDATA%\InvestViden\config\morning-consumer.json`, read-only `-Check` og én manuel CMD/PowerShell-runner til den verificerede IV-007-kæde.
+- Flowet bruger en fast Transskribering-leveringsmappe, opretter ny isoleret runtime pr. kørsel og stopper ved lokal `draft`.
+- `VERIFICERET`: GitHub Actions run 36137895496 bestod PowerShell-syntakskontrol og **86/86 tests** på både Python 3.10 og 3.12.
+- Ingen aktiv database, ekstern AI eller Windows Opgavestyring indgår.
+- `KRÆVER BRUGERTEST`: fysisk workstation-accept af setup-script, `-Check` og CMD-runner.
+- Se `docs/iv-008-local-runtime-link.md`.
 
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
