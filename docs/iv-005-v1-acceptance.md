@@ -27,6 +27,9 @@ eksterne AI-kald.
 
 ## Automatisk test
 
+`VERIFICERET` 2026-09-25: GitHub Actions PR-run 36103274600 bestod **83/83 tests**
+på Python 3.10 og **83/83 tests** på Python 3.12.
+
 `tests/test_v1_acceptance.py` kører hele kæden i en midlertidig mappe og
 verificerer desuden, at acceptscriptet nægter at overskrive en ikke-tom
 arbejdsmappe.
