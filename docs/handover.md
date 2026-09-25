@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-007 fysisk morgen-consumer accept bestået
+
+- `VERIFICERET`: workstation-kørslen af `scripts/verify_morning_consumer_flow.py` bestod mod en færdig Transskribering episodelevering.
+- Resultatet viste `schema_version=4`, `source_imported=true`, `provenance_preserved=true`, `intake_backup_integrity=ok`, `ai_permission=allow`, `ai_job_status=draft`, ét jobitem og nul AI-forsøg.
+- `VERIFICERET`: prisestimat var inden for loftet, genimport blev `existing`, originalkilden var uændret, `external_ai_calls=0` og `active_database_used=false`.
+- IV-007 er afsluttet. Næste produkttrin er en installeret lokal driftskobling med fast leverings-/intakesti og én manuel kommando, stadig stoppende ved lokal `draft`.
+- Automatisk ekstern AI, aktiv legacy-database og Windows Opgavestyring er fortsat uden for scope.
+
+
 ## 25.09.2026 — IV-007 isoleret morgen-consumer implementeret
 
 - Implementeret `scripts/verify_morning_consumer_flow.py`: præcis én Transskribering episode-JSON -> normal InvestViden-intake -> bevaret provenance -> lokal Mistral-`draft`.
