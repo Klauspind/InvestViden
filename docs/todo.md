@@ -8,11 +8,14 @@
 - Testen brugte ikke den aktive legacy-database, foretog ikke eksterne AI-kald og oprettede ikke Windows Opgavestyring.
 - IV-002 er dermed afsluttet som den afgrænsede ugentlige kladderunner-leverance. Automatisk afsendelse til AI og egentlig driftsplanlægning er fortsat uden for scope.
 
-## Aktiv opgave 25.09.2026 — næste produktintegration
+## Aktiv opgave 25.09.2026 — IV-007 isoleret morgen-consumer
 
-- `NÆSTE`: saml den allerede verificerede Transskribering-consumer og InvestViden-intake i et isoleret, manuelt morgenflow på schema 4.
-- Målet er én kontrolleret kæde fra færdig canonical podcastpakke til importeret InvestViden-kilde og lokal AI-jobkladde, uden aktiv database og uden automatisk eksternt AI-kald.
-- Først efter denne isolerede integration bør installation/driftsaktivering og eventuel Windows Opgavestyring vurderes særskilt.
+- `IMPLEMENTERET` på featuregrenen `iv-007-morning-consumer`: én samlet acceptwrapper fra færdig Transskribering episode-JSON gennem normal InvestViden-intake til lokal, ubekræftet Mistral-jobkladde.
+- Kæden bruger frisk schema 4, bevarer provenance/derivation/segmentregnskab, kræver verificeret intake-backup, kontrollerer idempotens og stopper med `draft`/nul AI-forsøg.
+- Ingen aktiv database, AI-transport eller Windows Opgavestyring indgår.
+- `VERIFICERET`: GitHub Actions run 36128867833 bestod **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12. De nye tests dækker succesflow, ikke-tom arbejdsmappe og flere episodefiler; ingen netværkstransport anvendes.
+- `KRÆVER BRUGERTEST`: efter merge køres én fysisk workstation-accept mod præcis én færdig episodelevering.
+- Se `docs/iv-007-morning-consumer.md`.
 
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
