@@ -2,10 +2,10 @@
 
 ## Aktiv opgave 25.09.2026 — IV-002 fysisk Windows-lukning
 
-- `NÆSTE`: kør Test A fra `docs/IV-002_LOCAL_TEST.md` mod den eksisterende isolerede schema-4-preview.
-- Test A er read-only og må ikke oprette kladder, backups eller API-kald.
-- Kun hvis Test A består uden recovery-problem, køres den kontrollerede Test B.
-- Den aktive legacy-database må ikke bruges, og Windows Opgavestyring oprettes ikke i denne iteration.
+- `VERIFICERET`: Test A er bestået på workstationen mod den eksisterende isolerede schema-4-preview. Recovery viste `no_marker`, ingen lås, ingen jobs og ingen manglende kilder. Preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; scriptet sluttede med `VERIFICERET: Begge read-only kontroller bestod. Ingen kladder blev oprettet.`
+- Da den eksisterende preview ikke har en egnet `allow`-kilde, vil normal Test B kun returnere `nothing_to_do` og kan ikke fysisk verificere skrivevejen.
+- `NÆSTE`: gennemfør derfor skriveaccepten på en frisk syntetisk schema-4-database med én `allow`-kilde og dedikerede state-/backupmapper. Det tester samme runnerkode uden at oprette den normale uge-39-markør.
+- Den aktive legacy-database må ikke bruges, ingen ekstern AI må kaldes, og Windows Opgavestyring oprettes ikke i denne iteration.
 
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
