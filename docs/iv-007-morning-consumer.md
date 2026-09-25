@@ -48,7 +48,11 @@ Automatiske tests må ikke foretage eksterne AI-kald.
 
 ## Workstation-accept
 
-Efter merge og `git pull --ff-only origin main` køres scriptet mod en ny fysisk
+**VERIFICERET 2026-09-25:** Den fysiske workstation-kørsel bestod mod en færdig Transskribering episodelevering. Outputtet viste schema 4, kilde importeret, provenance bevaret, intake-backup `ok`, `allow`-politik, lokal `draft`, ét jobitem, nul AI-forsøg, prisestimat inden for loftet, genimport som `existing`, uændret originalkilde, nul eksterne AI-kald og ingen brug af aktiv database.
+
+### Reproduktion
+
+Efter `git pull --ff-only origin main` kan scriptet reproduceres mod en ny fysisk
 Transskribering-levering, som indeholder præcis én færdig episode-JSON:
 
 ```powershell
