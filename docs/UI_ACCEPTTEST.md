@@ -1,7 +1,7 @@
 # Accepttest af den lokale InvestViden-UI
 
-Denne test bruger kun `output/investviden-ui-preview-schema4.sqlite`. Den aktive
-`data/knowledgebase.sqlite` er fortsat schema 2 og ændres ikke.
+Denne test bruger kun `output/investviden-ui-preview-schema4.sqlite`. Den beskyttede
+legacy-`knowledgebase.sqlite` er fysisk verificeret som schema 1 på workstationen og ændres ikke.
 
 ## Start
 
@@ -76,7 +76,9 @@ testhistorik, medmindre der senere oprettes en ny frisk migrationskopi.
 
 **Automatisk status:** `VERIFICERET`. `tests/test_ui_free_acceptance.py` starter den rigtige lokale HTTP-server mod en frisk midlertidig schema-4-database, verificerer reklame-/introfilteret, opretter en Mistral-kladde og bekræfter den. Testens transportfunktion fejler øjeblikkeligt, hvis den kaldes, så `draft -> confirmed` er dokumenteret uden ekstern afsendelse. Hele suiten bestod 79/79 på Python 3.10 og 3.12 i GitHub Actions run 35984116366.
 
-**Fysisk status:** `KRÆVER BRUGERTEST`. Den korte workstation-prøve er:
+**Fysisk status 2026-09-25:** `VERIFICERET` for UI-/konceptaccept. Brugeren meldte, at konceptet fungerede på den isolerede syntetiske schema-4-preview. Mistral-send blev desuden forsøgt uden konfigureret API-nøgle; job stoppede som `failed`, og UI'en viste faktisk USD 0.000000. Vellykket eksternt Mistral-kald er fortsat `IKKE TESTET` og er ikke en del af denne accept.
+
+Den korte workstation-prøve er:
 
 1. Start `START_INVESTVIDEN_UI_PREVIEW.cmd` og kontrollér, at siden angiver preview-databasen under `output/`.
 2. I `Søg i viden`: kontrollér, at kendt Saxo-sponsorintro ikke står i `Arkiv`, men kan findes i `Reklame og intro`, mens reel analyse fortsat findes normalt.
