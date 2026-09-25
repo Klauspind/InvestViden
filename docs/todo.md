@@ -94,7 +94,7 @@
 
 ### IV-005 — Version-1 accepttest
 
-Verificér kæden import -> AI -> review -> søgning -> backup og dokumentér rollback. Først derefter kan der anmodes om en ny, eksplicit beslutning om aktiv migration.
+**Status 2026-09-25: IMPLEMENTERET; AUTOMATISK VERIFIKATION AFVENTER.** Ny isoleret accepttest dækker `import -> syntetisk AI-kandidat -> individuel review -> aktiv søgning -> verificeret backup -> rollback-kopi`. Testen bruger kun syntetiske data, schema 4 og ingen ekstern AI/aktiv database. Se `docs/iv-005-v1-acceptance.md`. Efter grøn CI kræves én kort workstation-kørsel i en ny `output/`-mappe.
 
 ## Blokeret
 
