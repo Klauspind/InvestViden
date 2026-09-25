@@ -1,5 +1,12 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-002 Test A fysisk bestået
+
+- `VERIFICERET`: read-only recovery på workstationen viste `status=no_marker`, `lock_present=false`, ingen jobs og ingen manglende kilder for 2026-W39.
+- `VERIFICERET`: read-only preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; ingen kladder blev oprettet.
+- Den eksisterende preview kan derfor ikke verificere skrivevejen. Næste test bruger en frisk syntetisk schema-4-database med én `allow`-kilde og isolerede state-/backupmapper, så normal ugejournal ikke forurenes.
+- Aktiv database, ekstern AI og Windows Opgavestyring forbliver urørt.
+
 ## 25.09.2026 — IV-005 fysisk version-1 accept bestået
 
 - `VERIFICERET`: den isolerede workstation-accept kørte på schema 4 og gennemførte hele kerneflowet fra syntetisk AI-kandidat til individuel godkendelse, aktiv søgning, verificeret backup og separat rollback-kopi.
