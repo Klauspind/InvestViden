@@ -1,7 +1,6 @@
 # IV-002 — lokal test af sikker ugentlig runner
 
-Status: **KRÆVER BRUGERTEST** på Windows. Testen må kun bruge en eksisterende,
-isoleret schema-4-kopi. Brug aldrig `data\knowledgebase.sqlite`.
+Status 2026-09-25: **VERIFICERET på Windows**. Test A bestod på den eksisterende isolerede schema-4-preview. Skrivevejen blev derefter accepteret på en frisk syntetisk schema-4-database med én `allow`-kilde og isolerede state-/backupmapper. Brug aldrig `data\knowledgebase.sqlite`.
 
 ## Forudsætninger
 
@@ -82,3 +81,12 @@ Den lokale gate er bestået, når Test A består, og en eventuel Test B enten:
 - stopper fail-closed med bevaret recovery-evidens og uden dubletter.
 
 Windows Opgavestyring er fortsat uden for denne test og må ikke oprettes endnu.
+
+
+## Faktisk acceptresultat 25.09.2026
+
+- `VERIFICERET`: Test A bestod read-only.
+- Den eksisterende preview havde 0 egnede kilder, så normal Test B ville kun have testet `nothing_to_do`.
+- Den reelle skriveaccept blev derfor udført på frisk syntetisk schema 4 med dedikerede runtime-mapper.
+- Brugeren rapporterede succes for preview, apply, recovery og genkørsel/idempotenskontrol.
+- Ingen aktiv database, ekstern AI eller Windows Opgavestyring blev anvendt.
