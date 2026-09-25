@@ -1,11 +1,18 @@
 # Todo – InvestViden
 
-## Aktiv opgave 25.09.2026 — IV-002 fysisk Windows-lukning
+## Status 25.09.2026 — IV-002 fysisk Windows-lukning afsluttet
 
-- `VERIFICERET`: Test A er bestået på workstationen mod den eksisterende isolerede schema-4-preview. Recovery viste `no_marker`, ingen lås, ingen jobs og ingen manglende kilder. Preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; scriptet sluttede med `VERIFICERET: Begge read-only kontroller bestod. Ingen kladder blev oprettet.`
-- Da den eksisterende preview ikke har en egnet `allow`-kilde, vil normal Test B kun returnere `nothing_to_do` og kan ikke fysisk verificere skrivevejen.
-- `NÆSTE`: gennemfør derfor skriveaccepten på en frisk syntetisk schema-4-database med én `allow`-kilde og dedikerede state-/backupmapper. Det tester samme runnerkode uden at oprette den normale uge-39-markør.
-- Den aktive legacy-database må ikke bruges, ingen ekstern AI må kaldes, og Windows Opgavestyring oprettes ikke i denne iteration.
+- `VERIFICERET`: Test A er bestået på workstationen mod den eksisterende isolerede schema-4-preview. Recovery viste `no_marker`, ingen lås, ingen jobs og ingen manglende kilder. Preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; ingen kladder blev oprettet.
+- `VERIFICERET`: den efterfølgende skriveaccept blev gennemført på en frisk syntetisk schema-4-database med én `allow`-kilde og dedikerede state-/backupmapper.
+- Brugeren rapporterede succes for hele write-acceptforløbet: preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
+- Testen brugte ikke den aktive legacy-database, foretog ikke eksterne AI-kald og oprettede ikke Windows Opgavestyring.
+- IV-002 er dermed afsluttet som den afgrænsede ugentlige kladderunner-leverance. Automatisk afsendelse til AI og egentlig driftsplanlægning er fortsat uden for scope.
+
+## Aktiv opgave 25.09.2026 — næste produktintegration
+
+- `NÆSTE`: saml den allerede verificerede Transskribering-consumer og InvestViden-intake i et isoleret, manuelt morgenflow på schema 4.
+- Målet er én kontrolleret kæde fra færdig canonical podcastpakke til importeret InvestViden-kilde og lokal AI-jobkladde, uden aktiv database og uden automatisk eksternt AI-kald.
+- Først efter denne isolerede integration bør installation/driftsaktivering og eventuel Windows Opgavestyring vurderes særskilt.
 
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
@@ -54,11 +61,11 @@
 
 **Afgrænsning / videre arbejde:** Originalmediets og canonical-pakkens hashes blev videreført som producentoplysninger; de blev ikke genberegnet i consumer-testen. Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Normal installeret intake og samlet morgenforløb er fortsat `IKKE TESTET`; morgenjobbet forbliver deaktiveret.
 
-## Afventer separat brugertest
+## Gennemført
 
 ### IV-002 — Implementér idempotent ugentlig runner
 
-**Status 2026-09-19: ETAPE A-C IMPLEMENTERET; AUTOMATISK VERIFICERET, KRÆVER BRUGERTEST på Windows.** Se `docs/iv-002-weekly-runner.md` og `docs/IV-002_LOCAL_TEST.md`.
+**Status 2026-09-25: AFSLUTTET.** Etape A-C er automatisk verificeret og fysisk accepteret på Windows med isoleret schema 4. Se `docs/iv-002-weekly-runner.md` og `docs/IV-002_LOCAL_TEST.md`.
 
 **Gennemført etape A (kode):** Ugentlig preview som standard og eksplicit oprettelse af *ubekræftede* Mistral-jobkladder for `allow`-kilder; udelukker øvrige politikker, allerede reserverede kilder og ventende extraction-output. ISO-uge-markør, eksklusiv lås, stop ved ufuldstændig uge, eksisterende prisloft og kilde-hashkontrol genbruges. Verificeret SQLite-backup med hash/integritet før retention til 30 backups. Ingen transport, API-kald, godkendelse eller planlagt Windows-opgave.
 
@@ -78,7 +85,7 @@
 - Verificeret SQLite-backup efter ændringer; 30 relevante backups beholdes.
 - Delvise fejl kan fortsættes uden at genkøre succesfulde kilder, men recovery må ikke ske automatisk før dokumenteret afstemning.
 - Windows Opgavestyring konfigureres ikke i første leverance.
-- **Mangler:** lokal Test A og derefter kontrolleret Test B på en isoleret schema-4-kopi. Windows Opgavestyring er ikke del af leverancen.
+- `VERIFICERET`: lokal Test A og den kontrollerede skriveaccept er bestået på isoleret schema 4. Windows Opgavestyring er fortsat ikke del af leverancen.
 
 **Datarisiko:** Ingen skrivning mod aktiv `data/knowledgebase.sqlite`. Udvikling og test på midlertidig schema-4-database eller frisk isoleret kopi. Ingen rigtige API-kald i automatiske tests.
 
