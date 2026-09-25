@@ -1,3 +1,12 @@
+## 2026-09-25 — IV-008 lokal driftskobling
+
+- Tilføjet lokal setup- og runnervej for den allerede verificerede IV-007 consumer-kæde.
+- Privat konfiguration gemmes under `%LOCALAPPDATA%\InvestViden\config`; runtime gemmes som standard under `%LOCALAPPDATA%\InvestViden\runtime\morning-consumer`.
+- `-Check` validerer konfiguration og præcis én episode-JSON uden databaseoprettelse eller AI-kald.
+- Rigtig kørsel opretter ny isoleret runtime og stopper ved lokal `draft`.
+- `VERIFICERET`: GitHub Actions run 36137895496 bestod PowerShell-syntakskontrol og **86/86 tests** på Python 3.10 og 3.12.
+- `KRÆVER BRUGERTEST`: fysisk Windows setup/check/run.
+
 ## 2026-09-25 — IV-007 fysisk workstation-accept bestået
 
 - Den samlede consumer-kæde fra færdig Transskribering episode-JSON til InvestViden-intake og lokal Mistral-`draft` er fysisk accepteret.
