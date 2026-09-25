@@ -1,3 +1,9 @@
+## 2026-09-25 — IV-002 fysisk Test A bestået
+
+- Workstationens read-only recovery viste `no_marker`, ingen lås og ingen databasejobs.
+- Uge-preview viste 0 egnede kilder, 0 jobs og 1 sprunget kilde; ingen kladder blev oprettet.
+- Fordi den eksisterende preview ikke kan udløse skrivevejen, fortsættes fysisk write-accept på frisk syntetisk schema 4 med isolerede state-/backupmapper. Den normale ugejournal ændres ikke.
+
 ## 2026-09-25 — IV-005 fysisk workstation-accept bestået
 
 - Den isolerede version-1 accepttest blev kørt på workstationen med schema 4 og syntetiske data.
