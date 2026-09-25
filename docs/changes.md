@@ -6,7 +6,7 @@
 - Originalkilden kontrolleres byte-identisk før/efter. Scriptet nægter at overskrive en ikke-tom arbejdsmappe.
 - Tilføjet `tests/test_v1_acceptance.py` og `docs/iv-005-v1-acceptance.md`.
 - `VERIFICERET`: GitHub Actions PR-run 36103274600 bestod **83/83 tests** på Python 3.10 og **83/83 tests** på Python 3.12.
-- `KRÆVER BRUGERTEST`: én fysisk workstation-kørsel af acceptscriptet i en ny lokal `output/`-mappe.
+- `VERIFICERET` på workstation 2026-09-25: schema 4, kandidatstatus `ai_extracted`, individuel review til `approved`, aktiv søgning, backup/rollback med `integrity=ok`, ingen foreign-key-fejl, uændret originalkilde, 0 eksterne AI-kald og ingen brug af aktiv database.
 
 ## 2026-09-25 — IV-003 fysisk workstation-accept
 
