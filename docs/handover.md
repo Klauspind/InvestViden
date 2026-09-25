@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-008 lokal driftskobling implementeret
+
+- Tilføjet privat lokal konfiguration under `%LOCALAPPDATA%\InvestViden\config\morning-consumer.json`.
+- Tilføjet `KONFIGURER_INVESTVIDEN_MORGENFLOW.ps1`, `START_INVESTVIDEN_MORGENFLOW.ps1` og `START_INVESTVIDEN_MORGENFLOW.cmd`.
+- `-Check` er read-only og kræver præcis én episode-JSON med `segments`; rigtig kørsel opretter en ny tidsstemplet runtime og genbruger IV-007-kæden til lokal `draft`.
+- `VERIFICERET`: GitHub Actions run 36137895496 bestod PowerShell-parserkontrol og **86/86 tests** på Python 3.10 og 3.12.
+- `KRÆVER BRUGERTEST`: fysisk setup/check/run på workstationen. Aktiv database, ekstern AI og Windows Opgavestyring er fortsat uden for scope.
+
+
 ## 25.09.2026 — IV-007 fysisk morgen-consumer accept bestået
 
 - `VERIFICERET`: workstation-kørslen af `scripts/verify_morning_consumer_flow.py` bestod mod en færdig Transskribering episodelevering.
