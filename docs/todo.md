@@ -94,7 +94,7 @@
 
 ### IV-005 — Version-1 accepttest
 
-**Status 2026-09-25: IMPLEMENTERET; AUTOMATISK VERIFIKATION AFVENTER.** Ny isoleret accepttest dækker `import -> syntetisk AI-kandidat -> individuel review -> aktiv søgning -> verificeret backup -> rollback-kopi`. Testen bruger kun syntetiske data, schema 4 og ingen ekstern AI/aktiv database. Se `docs/iv-005-v1-acceptance.md`. Efter grøn CI kræves én kort workstation-kørsel i en ny `output/`-mappe.
+**Status 2026-09-25: AUTOMATISK VERIFICERET; KRÆVER KORT WORKSTATION-ACCEPT.** Den isolerede accepttest dækker `import -> syntetisk AI-kandidat -> individuel review -> aktiv søgning -> verificeret backup -> rollback-kopi`. GitHub Actions PR-run 36103274600 bestod **83/83 tests** på både Python 3.10 og 3.12. Testen bruger kun syntetiske data, schema 4 og ingen ekstern AI/aktiv database. Se `docs/iv-005-v1-acceptance.md`. Resterende: én lokal kørsel i en ny `output/`-mappe.
 
 ## Blokeret
 
