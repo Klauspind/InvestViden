@@ -1,3 +1,11 @@
+## 2026-09-25 — IV-007 isoleret morgen-consumer
+
+- Tilføjet `scripts/verify_morning_consumer_flow.py`, som samler podcastconsumer, normal intake og lokal Mistral-jobkladde i én isoleret acceptkæde.
+- Kæden opretter frisk schema 4, importerer præcis én episode med `allow`, bevarer provenance/derivation/segmentregnskab, kræver intakt intake-backup og stopper ved en ubekræftet `draft` med nul AI-forsøg.
+- Tilføjet `tests/test_morning_consumer_flow.py` med fail-closed cases for ikke-tom arbejdsmappe og flere episoder samt kontrol af, at privat tekst/path ikke lækker i output.
+- `VERIFICERET`: GitHub Actions run 36128867833: **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12.
+- `KRÆVER BRUGERTEST`: fysisk workstation-kørsel mod én færdig Transskribering episodelevering.
+
 ## 2026-09-25 — IV-002 fysisk Windows-accept afsluttet
 
 - Read-only Test A bestod på workstationen uden kladder eller skrivehandlinger.
