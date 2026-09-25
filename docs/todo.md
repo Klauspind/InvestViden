@@ -8,14 +8,19 @@
 - Testen brugte ikke den aktive legacy-database, foretog ikke eksterne AI-kald og oprettede ikke Windows Opgavestyring.
 - IV-002 er dermed afsluttet som den afgrænsede ugentlige kladderunner-leverance. Automatisk afsendelse til AI og egentlig driftsplanlægning er fortsat uden for scope.
 
-## Aktiv opgave 25.09.2026 — IV-007 isoleret morgen-consumer
+## Status 25.09.2026 — IV-007 isoleret morgen-consumer afsluttet
 
-- `IMPLEMENTERET` på featuregrenen `iv-007-morning-consumer`: én samlet acceptwrapper fra færdig Transskribering episode-JSON gennem normal InvestViden-intake til lokal, ubekræftet Mistral-jobkladde.
-- Kæden bruger frisk schema 4, bevarer provenance/derivation/segmentregnskab, kræver verificeret intake-backup, kontrollerer idempotens og stopper med `draft`/nul AI-forsøg.
-- Ingen aktiv database, AI-transport eller Windows Opgavestyring indgår.
-- `VERIFICERET`: GitHub Actions run 36128867833 bestod **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12. De nye tests dækker succesflow, ikke-tom arbejdsmappe og flere episodefiler; ingen netværkstransport anvendes.
-- `KRÆVER BRUGERTEST`: efter merge køres én fysisk workstation-accept mod præcis én færdig episodelevering.
+- `VERIFICERET`: den samlede kæde fra færdig Transskribering episode-JSON gennem normal InvestViden-intake til lokal, ubekræftet Mistral-jobkladde er fysisk accepteret på workstationen.
+- Resultatet viste schema 4, kilde importeret, provenance bevaret, intake-backup `ok`, `ai_permission=allow`, præcis ét jobitem, `ai_job_status=draft`, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing`, uændret originalkilde, `external_ai_calls=0` og `active_database_used=false`.
+- Automatisk verificering: GitHub Actions bestod **86/86 tests** på både Python 3.10 og 3.12.
+- IV-007 er dermed afsluttet. Ingen aktiv database, AI-transport eller Windows Opgavestyring blev anvendt.
 - Se `docs/iv-007-morning-consumer.md`.
+
+## Aktiv opgave 25.09.2026 — næste produkttrin
+
+- `NÆSTE`: design og implementér den installerede lokale driftskobling, så Transskribering kan levere færdige InvestViden-episoder til en fast lokal intake-mappe, og InvestViden kan køre samme verificerede consumer-flow manuelt med én kommando.
+- Første leverance skal fortsat stoppe ved lokal `draft`; ingen automatisk jobbekræftelse, ekstern AI eller aktiv legacy-database.
+- Windows Opgavestyring og fuld automatisk morgenkæde behandles først efter særskilt fysisk accept af den installerede manuelle driftskobling.
 
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
