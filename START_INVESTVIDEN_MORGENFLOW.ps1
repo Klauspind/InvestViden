@@ -49,9 +49,19 @@ if ([StringComparer]::OrdinalIgnoreCase.Equals($runtimeRoot, $protectedDb)) {
 $python = Resolve-Python
 
 if ($Check) {
-    $episodeJsons = @(Get-ChildItem -LiteralPath $delivery -Filter '*.json' -File -Recurse -ErrorAction Stop)
+    $episodeJsons = @()
+    foreach ($candidate in Get-ChildItem -LiteralPath $delivery -Filter '*.json' -File -Recurse -ErrorAction Stop) {
+        try {
+            $parsed = Get-Content -LiteralPath $candidate.FullName -Raw -Encoding UTF8 | ConvertFrom-Json
+            if ($null -ne $parsed.segments -and $parsed.segments -is [System.Collections.IEnumerable]) {
+                $episodeJsons += $candidate
+            }
+        } catch {
+            continue
+        }
+    }
     if ($episodeJsons.Count -ne 1) {
-        throw "Check kraever praecis een JSON-fil i leveringsmappen; fandt $($episodeJsons.Count)."
+        throw "Check kraever praecis een episode-JSON med segments; fandt $($episodeJsons.Count)."
     }
     Write-Host 'VERIFICERET: Lokal morning-consumer konfiguration er klar.'
     Write-Host 'Ingen database blev oprettet, og ingen AI-tjeneste blev kaldt.'
