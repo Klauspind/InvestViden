@@ -1,5 +1,13 @@
 # Todo – InvestViden
 
+## Aktiv opgave 25.09.2026 — IV-002 fysisk Windows-lukning
+
+- `NÆSTE`: kør Test A fra `docs/IV-002_LOCAL_TEST.md` mod den eksisterende isolerede schema-4-preview.
+- Test A er read-only og må ikke oprette kladder, backups eller API-kald.
+- Kun hvis Test A består uden recovery-problem, køres den kontrollerede Test B.
+- Den aktive legacy-database må ikke bruges, og Windows Opgavestyring oprettes ikke i denne iteration.
+
+
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
 
 - `VERIFICERET` fra workstation-output: den beskyttede database `C:\\Users\\b306123\\InvestViden\\data\\knowledgebase.sqlite` rapporterer schema **1**, ikke schema 2 som tidligere historisk dokumentation antog.
@@ -76,7 +84,7 @@
 
 **AFKLARING:** Handoveren antager, at automatisk ugentlig behandling kun omfatter nye, ubehandlede `allow`-kilder; `ask` kræver manuel bekræftelse. Etape A laver alene kladder og låser ikke designet for senere automation.
 
-## Næste
+## Tidligere afsluttede / afgrænsede milepæle
 
 ### IV-003 — Gennemfør gratis brugerprøve af UI-flow
 
