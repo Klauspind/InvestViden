@@ -36,7 +36,13 @@ arbejdsmappe.
 
 ## Lokal workstation-accept
 
-Efter merge kan testen køres i en ny lokal mappe:
+`VERIFICERET` 2026-09-25 på workstationen. Testen blev kørt i:
+
+`C:\Users\b306123\InvestViden-git\output\iv005-v1-acceptance`
+
+Resultatet viste schema 4, kandidatstatus `ai_extracted`, individuel review til `approved`, aktiv søgning, backup- og rollback-integritet `ok`, ingen foreign-key-fejl, uændret originalkilde, 0 eksterne AI-kald og ingen brug af aktiv database.
+
+Testen kan reproduceres i en ny lokal mappe:
 
 ```powershell
 python .\scripts\verify_v1_acceptance.py .\output\iv005-v1-acceptance
