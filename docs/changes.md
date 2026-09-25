@@ -5,7 +5,8 @@
 - Backup kontrolleres for integritet og hash. Efter en simuleret senere kildeændring oprettes en rollback-kopi fra backup, og kilde-/claimantal, reviewstatus, søgbarhed, schema, integritet og foreign keys verificeres.
 - Originalkilden kontrolleres byte-identisk før/efter. Scriptet nægter at overskrive en ikke-tom arbejdsmappe.
 - Tilføjet `tests/test_v1_acceptance.py` og `docs/iv-005-v1-acceptance.md`.
-- `IKKE TESTET`: samlet CI og fysisk workstation-kørsel efter denne ændring.
+- `VERIFICERET`: GitHub Actions PR-run 36103274600 bestod **83/83 tests** på Python 3.10 og **83/83 tests** på Python 3.12.
+- `KRÆVER BRUGERTEST`: én fysisk workstation-kørsel af acceptscriptet i en ny lokal `output/`-mappe.
 
 ## 2026-09-25 — IV-003 fysisk workstation-accept
 
