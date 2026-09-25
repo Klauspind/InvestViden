@@ -1,3 +1,10 @@
+## 2026-09-25 — IV-007 fysisk workstation-accept bestået
+
+- Den samlede consumer-kæde fra færdig Transskribering episode-JSON til InvestViden-intake og lokal Mistral-`draft` er fysisk accepteret.
+- `VERIFICERET`: schema 4, kildeimport, bevaret provenance, verificeret intake-backup, `allow`-politik, ét draft-jobitem, nul AI-forsøg, prisestimat inden for loftet og idempotent genimport.
+- `VERIFICERET`: originalkilden var uændret; `external_ai_calls=0`; `active_database_used=false`.
+- IV-007 er afsluttet uden aktiv database, ekstern AI eller Windows Opgavestyring.
+
 ## 2026-09-25 — IV-007 isoleret morgen-consumer
 
 - Tilføjet `scripts/verify_morning_consumer_flow.py`, som samler podcastconsumer, normal intake og lokal Mistral-jobkladde i én isoleret acceptkæde.
