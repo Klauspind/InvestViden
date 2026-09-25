@@ -1,11 +1,20 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-003 fysisk UI-accept og Mistral fail-closed
+
+- `VERIFICERET`: workstation-preview på isoleret syntetisk schema 4 blev oprettet med 2 kilder / 2 udsagn, `integrity_check=ok`, og den beskyttede legacy-database blev ikke brugt.
+- Brugeren vurderede UI-konceptet som fungerende. Mistral-jobvisningen viste testkilde, estimat og loft korrekt.
+- To send-forsøg endte `failed`, fordi `MISTRAL_API_KEY` ikke var konfigureret; UI'en viste faktisk USD 0.000000. Ingen dokumenteret ekstern AI-udgift.
+- `IKKE TESTET`: vellykket rigtigt Mistral-kald. Konfigurer ikke nøgle som del af IV-003; eksternt kald kræver fortsat særskilt eksplicit brugerbeslutning.
+- IV-003 kan afsluttes for fysisk UI-/konceptaccept. Næste produktarbejde bør ikke blokere på gendannelse af den historiske vidensbase.
+
+
 ## 24.09.2026 — schema-1 fund på faktisk workstation-database
 
 - `VERIFICERET` fra brugerens PowerShell-output: den beskyttede database i den gamle workstation-mappe har schema 1. Tidligere dokumentation om schema 2 var historisk og er nu korrigeret.
 - Den første IV-004-kørsel stoppede fail-closed, fordi verifieren kun accepterede schema 2. Ingen preview-database blev oprettet, og UI-starteren nægtede efterfølgende at starte.
 - Verifieren er ændret til eksplicit schema 1/2-understøttelse med regressionstest, herunder schema 1 uden `source_provenance`; kildedatabasen skal forblive uændret.
-- `KRÆVER BRUGERTEST`: faktisk migrationskopi på workstationen og derefter IV-003-browseraccept. Ingen aktiv migration er godkendt.
+- `VERIFICERET`: faktisk schema-1 -> schema-4 migrationskopi på workstationen bestod alle kontroller, men den fundne legacy-fil indeholdt 0 kilder og 0 udsagn. Den historiske database med tidligere dokumenterede 66 kilder / 4.074 udsagn er ikke fundet. Ingen aktiv migration er godkendt.
 
 
 ## 24.09.2026 — IV-003 gratis UI-gate
