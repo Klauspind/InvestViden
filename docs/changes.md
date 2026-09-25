@@ -1,3 +1,11 @@
+## 2026-09-25 — IV-005 fysisk workstation-accept bestået
+
+- Den isolerede version-1 accepttest blev kørt på workstationen med schema 4 og syntetiske data.
+- `VERIFICERET`: kandidaten startede som `ai_extracted`, individuel review blev `approved`, og udsagnet blev aktivt søgbart.
+- `VERIFICERET`: backup og rollback havde integritet `ok`; rollback havde ingen foreign-key-fejl; originalkilden var uændret.
+- `VERIFICERET`: `external_ai_calls=0` og `active_database_used=false`.
+- IV-005 er afsluttet uden ændring af den beskyttede legacy-database.
+
 ## 2026-09-25 — IV-005 version-1 accepttest implementeret
 
 - Tilføjet `scripts/verify_v1_acceptance.py`, som kører hele kernekæden på frisk syntetisk schema 4 uden ekstern AI eller aktiv database.
