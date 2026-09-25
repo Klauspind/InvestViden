@@ -1,3 +1,11 @@
+## 2026-09-25 — IV-002 fysisk Windows-accept afsluttet
+
+- Read-only Test A bestod på workstationen uden kladder eller skrivehandlinger.
+- En separat skriveaccept blev derefter gennemført på frisk syntetisk schema 4 med én `allow`-kilde og dedikerede state-/backupmapper.
+- Brugeren rapporterede succes for preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
+- Den aktive legacy-database, eksterne AI-kald og Windows Opgavestyring indgik ikke i testen.
+- IV-002 er afsluttet som afgrænset ugentlig kladderunner.
+
 ## 2026-09-25 — IV-002 fysisk Test A bestået
 
 - Workstationens read-only recovery viste `no_marker`, ingen lås og ingen databasejobs.
