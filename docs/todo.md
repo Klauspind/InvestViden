@@ -8,12 +8,13 @@
 - `KRÆVER BRUGERTEST`: kør den opdaterede verifier mod den faktiske schema-1-database efter synkronisering af branch/main og kontroller alle sammenligninger før UI-start.
 
 
-## Status 24.09.2026 — IV-003 gratis UI-flow automatisk verificeret
+## Status 25.09.2026 — IV-003 fysisk UI-accept gennemført
 
-- `VERIFICERET`: ny samlet HTTP-accepttest dækker reklame-/introfilter samt Mistral `draft -> confirmed` på en frisk midlertidig schema-4-database med syntetiske kilder.
-- `VERIFICERET`: AI-transporten er fail-closed i testen og blev ikke kaldt; ingen aktiv database eller ekstern AI blev anvendt.
-- `VERIFICERET`: hele repository-suiten består med **79/79 tests** på både Python 3.10 og 3.12 i GitHub Actions run 35984116366.
-- `KRÆVER BRUGERTEST`: kort fysisk browserkontrol på workstationen af visning og `draft -> confirmed`; stop før send. Se `docs/UI_ACCEPTTEST.md` og `docs/iv-003-free-ui-acceptance.md`.
+- `VERIFICERET`: den fysiske workstation-UI blev kørt mod en isoleret syntetisk schema-4-preview med 2 kilder og 2 udsagn; preview-check bestod, og den beskyttede legacy-database blev ikke brugt.
+- `VERIFICERET`: brugeren vurderede, at konceptet/UI-flowet fungerede. Skærmbilledet viste testkilden, prisestimat/loft og jobhistorik i UI'en.
+- `VERIFICERET`: to forsøg på send endte lokalt som `failed`, fordi `MISTRAL_API_KEY` ikke var konfigureret; UI'en viste faktisk USD `0.000000`. Der er derfor ingen dokumenteret ekstern AI-udgift i denne test.
+- `IKKE TESTET`: et vellykket rigtigt Mistral-kald med konfigureret API-nøgle. Det er ikke nødvendigt for IV-003 og kræver fortsat særskilt brugerbeslutning.
+- `VERIFICERET` automatisk: samlet HTTP-accepttest dækker reklame-/introfilter samt Mistral `draft -> confirmed`; hele suiten var **79/79** på Python 3.10 og 3.12 før IV-004-verifierændringen. Efter IV-004-verifierændringen bestod **81/81** på begge versioner.
 
 
 ## Status 23.09.2026 — rigtig morgenepisode accepteret af InvestViden-consumer
@@ -79,15 +80,15 @@
 
 ### IV-003 — Gennemfør gratis brugerprøve af UI-flow
 
-**Status 2026-09-24: AUTOMATISK VERIFICERET; KRÆVER KORT BRUGERTEST.**
+**Status 2026-09-25: AFSLUTTET for fysisk UI-/konceptaccept.**
 
 **Omfang:** reklame-/introfilter og Mistral-jobkøens kladde-/bekræftelsesflow.
 
-**Accept:** Den samlede gratis HTTP-gate er bestået på midlertidig schema-4 med syntetiske data uden transportkald. Hele suiten er 79/79 på Python 3.10 og 3.12. Den sidste fysiske browserkontrol skal bekræfte visning og betjening på workstationen; stop før send.
+**Accept:** Automatisk HTTP-gate er bestået på syntetisk schema-4 uden transportkald. Fysisk workstation-UI er accepteret af brugeren som fungerende koncept. Et efterfølgende send-forsøg stoppede sikkert, fordi API-nøglen manglede, og UI'en viste faktisk USD 0. Rigtigt eksternt Mistral-kald er fortsat `IKKE TESTET` og er ikke en del af IV-003-accepten.
 
 ### IV-004 — Verificér schema-4 migrationskopi
 
-**Status 2026-09-24: IMPLEMENTERING OPDATERET; KRÆVER WORKSTATION-VERIFIKATION.** Den faktiske beskyttede legacy-database er schema 1. Verifieren understøtter nu schema 1 og 2 og skal lave en frisk, isoleret schema-4-kopi med kontrol af antal, relationer, reviewstatusser, hashes, foreign keys, FTS-indeks og integritet før/efter. Aktiv database må fortsat ikke migreres.
+**Status 2026-09-25: TEKNISK MIGRATION VERIFICERET PÅ WORKSTATION, MEN LEGACY-FILEN ER TOM.** Schema 1 -> 4-kopien bestod alle sammenligninger, `integrity_check=ok` og foreign keys uden fejl, mens kilden forblev urørt. Den fundne `knowledgebase.sqlite` indeholdt dog 0 kilder og 0 udsagn. Den tidligere historiske database med 66 kilder / 4.074 udsagn er ikke fundet og behandles som separat data-/arkitekturopgave. Aktiv database må fortsat ikke migreres.
 
 ## Senere
 
