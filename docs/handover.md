@@ -1,5 +1,13 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-005 version-1 accepttest implementeret
+
+- Implementeret isoleret end-to-end acceptscript for `kilde -> AI-kandidat -> individuel review -> aktiv søgning -> backup -> rollback`.
+- Kun syntetiske data og frisk schema 4 anvendes; ingen aktiv database, private kilder eller eksterne AI-kald.
+- Rollback testes ved at tage verificeret backup, lave en efterfølgende ændring i testdatabasen og gendanne en separat kopi fra backup med kontrol af centrale tilstande.
+- `IKKE TESTET`: ny samlet CI og fysisk workstation-kørsel. Merge må først ske efter grøn CI.
+
+
 ## 25.09.2026 — IV-003 fysisk UI-accept og Mistral fail-closed
 
 - `VERIFICERET`: workstation-preview på isoleret syntetisk schema 4 blev oprettet med 2 kilder / 2 udsagn, `integrity_check=ok`, og den beskyttede legacy-database blev ikke brugt.
