@@ -13,7 +13,8 @@
 - `IMPLEMENTERET` på featuregrenen `iv-007-morning-consumer`: én samlet acceptwrapper fra færdig Transskribering episode-JSON gennem normal InvestViden-intake til lokal, ubekræftet Mistral-jobkladde.
 - Kæden bruger frisk schema 4, bevarer provenance/derivation/segmentregnskab, kræver verificeret intake-backup, kontrollerer idempotens og stopper med `draft`/nul AI-forsøg.
 - Ingen aktiv database, AI-transport eller Windows Opgavestyring indgår.
-- `NÆSTE`: automatisk Python 3.10/3.12-regression skal bestå; derefter merge og én fysisk workstation-accept mod præcis én færdig episodelevering.
+- `VERIFICERET`: GitHub Actions run 36128867833 bestod **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12. De nye tests dækker succesflow, ikke-tom arbejdsmappe og flere episodefiler; ingen netværkstransport anvendes.
+- `KRÆVER BRUGERTEST`: efter merge køres én fysisk workstation-accept mod præcis én færdig episodelevering.
 - Se `docs/iv-007-morning-consumer.md`.
 
 
