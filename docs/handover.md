@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-002 fysisk Windows-accept afsluttet
+
+- `VERIFICERET`: read-only Test A bestod på workstationen.
+- `VERIFICERET`: skriveaccepten blev derefter kørt på en frisk syntetisk schema-4-database med én `allow`-kilde og isolerede state-/backupmapper.
+- Brugeren rapporterede succes for preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
+- Den aktive legacy-database blev ikke brugt; testen omfattede ingen eksterne AI-kald og ingen Windows Opgavestyring.
+- IV-002 kan lukkes som afgrænset ugentlig kladderunner. Næste produktintegration er et samlet isoleret morgenflow fra Transskribering-output til InvestViden-intake og lokal jobkladde.
+
+
 ## 25.09.2026 — IV-002 Test A fysisk bestået
 
 - `VERIFICERET`: read-only recovery på workstationen viste `status=no_marker`, `lock_present=false`, ingen jobs og ingen manglende kilder for 2026-W39.
@@ -81,7 +90,7 @@ AI-output er kandidater. Aktiv viden kræver individuel menneskelig godkendelse 
 
 ## Afsluttet integration — IV-006 podcast-afledning
 
-Brugeren har efter bestået Transskribering-accept prioriteret videreførelse af afledningskæden i InvestViden. IV-006 er afsluttet for den afgrænsede integration efter lokal accept; IV-002 afventer fortsat sin særskilte Windows-brugertest. Root-`todo.md` og `handover.md` er ældre desktopstatus og afspejler ikke denne prioritering; `docs/` er autoritativt.
+Brugeren har efter bestået Transskribering-accept prioriteret videreførelse af afledningskæden i InvestViden. IV-006 er afsluttet for den afgrænsede integration efter lokal accept; IV-002 er fysisk accepteret på Windows med isoleret schema 4. Root-`todo.md` og `handover.md` er ældre desktopstatus og afspejler ikke denne prioritering; `docs/` er autoritativt.
 
 `VERIFICERET` i Linux/Python 3.12: 78/78 tests. Ny valgfri episodeprovenance og segmentregnskab valideres og føres til `upstream.derivation` og `upstream.segment_accounting` i sidecar/SQLite. Ældre input uden felterne fungerer fortsat; ingen aktiv database er åbnet eller migreret. Hash for episodefilen beregnes fra de præcis samme bytes, som blev parset. Ugyldige felter afvises før import.
 
@@ -93,7 +102,7 @@ Upstream-medier og canonical-filer genhashes ikke af consumeren. Producentens ha
 
 ## IV-002 — status 2026-09-19
 
-**ETAPE A-C IMPLEMENTERET, KRÆVER BRUGERTEST:** Den ugentlige kladderunner, databaseværn, recovery-afstemning, sikker CLI og Windows-launcher er implementeret. `docs/IV-002_LOCAL_TEST.md` samler den lokale test. Koden er ikke aktiveret på brugerens pc.
+**AFSLUTTET 2026-09-25:** Den ugentlige kladderunner, databaseværn, recovery-afstemning, sikker CLI og Windows-launcher er implementeret. `docs/IV-002_LOCAL_TEST.md` samler den lokale test. Koden er ikke aktiveret på brugerens pc.
 
 Etape A tilbyder read-only preview som standard; `apply=True` opretter kun *ubekræftede* Mistral-jobkladder. Automatisk ugentlig eksekvering af eksterne AI-kald implementeres ikke, fordi eksisterende sikkerhedsdesign kræver særskilt bekræftelse. ISO-uge-idempotens, lås, fail-closed recovery, SHA-/prischeck og valideret backup/retention er tilføjet.
 
