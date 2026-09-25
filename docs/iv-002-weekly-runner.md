@@ -1,6 +1,6 @@
 # IV-002 — ugentlig runner, etape A: kontrollerede jobkladder
 
-Status 2026-09-19: **ETAPE A-C IMPLEMENTERET**. Automatisk verificeret; lokal Windows-test mangler. Aktiv database er ikke berørt.
+Status 2026-09-25: **AFSLUTTET** som afgrænset ugentlig kladderunner. Etape A-C er automatisk verificeret og fysisk accepteret på Windows med isoleret schema 4. Aktiv database er ikke berørt.
 
 ## Beslutningsgrænse
 
@@ -45,11 +45,18 @@ Suiten består nu med **65/65 tests**. De seks nye scenarier dækker mere end fe
 
 Fem nye CLI-/launcher-tests bringer den samlede suite til **70/70 tests**. Manglende database oprettes ikke, preview/recovery skaber ingen runtime-mapper, og apply-integration skaber kun en `draft` og verificeret backup.
 
-## Resterende før IV-002 kan afsluttes
+## Fysisk Windows-accept 2026-09-25
 
-1. Gennemfør Test A i `docs/IV-002_LOCAL_TEST.md` på en eksisterende, isoleret schema-4-kopi.
-2. Gennemfør kun Test B efter gennemgang af Test A.
-3. Afklar initial import/indlæsning, periodisk ekstern backup og eventuel senere udførsel af *på forhånd bekræftede* AI-jobs.
+- `VERIFICERET`: Test A bestod read-only på den eksisterende schema-4-preview.
+- Da previewet ikke havde en egnet `allow`-kilde, blev skrivevejen testet separat på en frisk syntetisk schema-4-database med én `allow`-kilde og isolerede state-/backupmapper.
+- Brugeren rapporterede succes for preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
+- Aktiv legacy-database, ekstern AI og Windows Opgavestyring blev ikke anvendt.
+
+## Senere, separat arbejde
+
+1. Afklar initial driftsimport/indlæsning.
+2. Afklar periodisk ekstern backup.
+3. Afklar eventuel senere udførsel af *på forhånd bekræftede* AI-jobs.
 4. Opret ingen Windows Opgavestyring før særskilt accept.
 
 ## Databeskyttelse
