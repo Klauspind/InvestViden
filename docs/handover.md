@@ -1,5 +1,14 @@
 # Handover – InvestViden
 
+## 25.09.2026 — IV-007 isoleret morgen-consumer implementeret
+
+- Implementeret `scripts/verify_morning_consumer_flow.py`: præcis én Transskribering episode-JSON -> normal InvestViden-intake -> bevaret provenance -> lokal Mistral-`draft`.
+- Kæden bruger frisk schema 4 i ny/tom arbejdsmappe, kræver verificeret intake-backup, kontrollerer genimport som `existing`, original hash før/efter, prisloft, ét jobitem og nul AI-forsøg.
+- Scriptet udfører ingen AI-transport og udskriver ikke kildetekst eller lokale inputpaths.
+- `VERIFICERET`: GitHub Actions run 36128867833 bestod **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12.
+- `KRÆVER BRUGERTEST`: én fysisk kørsel mod en færdig episodelevering efter merge. Aktiv database og Windows Opgavestyring er fortsat uden for scope.
+
+
 ## 25.09.2026 — IV-002 fysisk Windows-accept afsluttet
 
 - `VERIFICERET`: read-only Test A bestod på workstationen.
