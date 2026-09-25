@@ -36,7 +36,9 @@ arbejdsmappe.
 
 ## Lokal workstation-accept
 
-Efter merge kan testen køres i en ny lokal mappe:
+**VERIFICERET 2026-09-25:** Den fysiske workstation-kørsel bestod i en ny isoleret arbejdsmappe. Resultatet viste `schema_version: 4`, `candidate_started_as: ai_extracted`, `human_review: approved`, `active_search: true`, `backup_integrity: ok`, `rollback_integrity: ok`, ingen rollback foreign-key-fejl, uændret originalkilde, `external_ai_calls: 0` og `active_database_used: false`.
+
+Reproduktionskommandoen er:
 
 ```powershell
 python .\scripts\verify_v1_acceptance.py .\output\iv005-v1-acceptance
