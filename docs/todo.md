@@ -1,5 +1,13 @@
 # Todo – InvestViden
 
+
+## Produktretning 29.09.2026 — stabil drift før avanceret intelligens
+
+- Den tværgående arkitekturanalyse er omsat til projektbeslutninger i `docs/decisions.md`.
+- AI-signaler må være søgbare og anvendelige før review, men skal være tydeligt markeret som ikke kontrollerede; `approved`/`corrected` er fortsat promotion til aktiv viden.
+- Ingen ny RAG-stack, multi-agent-platform, knowledge graph, fælles backend/database, stor frontend-rewrite eller avanceret valuation startes før normal drift er accepteret.
+- Næste aktive produktarbejde forbliver IV-008 og derefter sikker schema-4/normal-drift-verifikation på det grundlag, repositoryet allerede beskriver.
+
 ## Status 25.09.2026 — IV-002 fysisk Windows-lukning afsluttet
 
 - `VERIFICERET`: Test A er bestået på workstationen mod den eksisterende isolerede schema-4-preview. Recovery viste `no_marker`, ingen lås, ingen jobs og ingen manglende kilder. Preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; ingen kladder blev oprettet.
@@ -23,7 +31,8 @@
 - `VERIFICERET FEJL`: den faktiske CMD/PowerShell-runner stoppede før consumer-scriptet, fordi PowerShell unrollede den éne Python-sti til en streng og `$python[0]` derfor blev første tegn (`C`) i stedet for hele executable-stien.
 - `VERIFICERET` i GitHub Actions run 36546708701: Python-resolveren bruger et objekt med eksplicit `executable` og `prefix_args`, og den reelle PowerShell launcher-smoke bestod på både Python 3.10 og 3.12 sammen med testjobbene.
 - Ingen aktiv database, ekstern AI eller Windows Opgavestyring blev brugt i det fejlede workstation-forsøg.
-- `KRÆVER BRUGERTEST`: efter merge skal den samme isolerede IV-008 acceptkørsel gentages på workstationen. IV-008 er ikke fysisk afsluttet endnu.
+- `VERIFICERET` i GitHub: PR #14 er merged til `main` som `f7d6b3c` med Python-resolverrettelsen.
+- `KRÆVER BRUGERTEST`: synkronisér workstationen til mindst `f7d6b3c` og gentag den samme isolerede IV-008 acceptkørsel. IV-008 er ikke fysisk afsluttet endnu.
 - Se `docs/iv-008-local-runtime-link.md`.
 
 

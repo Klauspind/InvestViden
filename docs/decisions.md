@@ -28,6 +28,32 @@ Kode og projektdokumentation gemmes i `Klauspind/InvestViden`. Private inputkild
 
 Handover 2026-09-15 dokumenterer lokale ikke-committede desktopændringer, som ikke findes på GitHub `main`. Browserarbejdet skal derfor markere kodegrundlaget som ikke fuldt synkroniseret, indtil den aktuelle desktopkode er pushet eller uploadet sanitiseret.
 
+
+## D-008 — AI-signaler må være nyttige før promotion
+
+AI-udtrukne eller usikre signaler må være søgbare og indgå i analyser, selskabsvisninger og temavisninger før individuel review, når UI tydeligt markerer dem som `AI-udtrukket / ikke kontrolleret`. Dette gør dem ikke til aktiv viden. Stabil genbrug som aktiv viden kræver fortsat individuel menneskelig godkendelse eller korrektion.
+
+## D-009 — Governance skal passe til et personligt researchværktøj
+
+InvestViden er et privat, personligt researchsystem og skal ikke kopiere tung enterprise knowledge-governance. Højere menneskelig kontrol prioriteres især, når et udsagn promoveres til en investeringstese, vedvarende risikovurdering, prognose, genbrugeligt selskabsfaktum, værdiansættelsesparameter eller personligt investeringsstandpunkt.
+
+## D-010 — Models reason; software computes
+
+Fremtidige beslutningskritiske finansielle beregninger skal udføres deterministisk i kode, mens LLM'er bruges til analyse, syntese og forklaring. Beregnede outputs skal kunne spores til inputdata, tidspunkt samt beregningsmetode/version. Denne retning er en senere fase og må ikke forsinke normal drift.
+
+## D-011 — RAG tilføjes kun ved dokumenteret researchbehov
+
+Den strukturerede claim-model og lokale søgning er førstevalg. Embeddings eller vector retrieval må senere supplere systemet, hvis konkret researchfriktion dokumenterer et behov, men skal ikke erstatte den strukturerede investeringsmodel.
+
+## D-012 — InvestViden forbliver fysisk og logisk separat
+
+InvestViden deler ikke database eller backend med ArbejdsViden eller UdbudsViden. Der oprettes ikke et fælles `VidenCore`-package nu. Systemerne kan dele principper for source identity, hash, provenance, locators, processing state og AI-policy uden at dele domænemodel eller drift.
+
+## D-013 — Produktoplevelsen efter driftsaccept er research-first
+
+Efter sikker schema-4-cutover og normal daglig drift skal næste produktanalyse tage udgangspunkt i den faktiske researcharbejdsgang. Den langsigtede UI-retning er `Overblik | Selskaber | Signaler | Kilder | Analyse`, mens provider-, job-, token- og fejlstatus fortsat er tilgængelig som teknisk audit. Dette er ikke en godkendelse af en stor frontend-rewrite nu.
+
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`

@@ -1,3 +1,11 @@
+## 2026-09-29 — tværgående produktretning indarbejdet
+
+- Dokumenteret at stabil schema-4-drift og daglig anvendelse prioriteres før RAG, multi-agent, avanceret valuation og større frontendarbejde.
+- Præciseret governance: AI-udtrukne signaler må være søgbare/anvendelige med tydelig status før review; aktiv viden kræver fortsat individuel promotion.
+- Dokumenteret senere princip “Models reason; software computes”, research-first UI-retning og fortsat fysisk/logisk separation fra ArbejdsViden/UdbudsViden.
+- Opdateret IV-008-status: PR #14 er merged som `f7d6b3c`; fysisk workstation-gentest mangler fortsat.
+- Ingen produktkode, database, private kilder eller AI-transport er ændret.
+
 ## 2026-09-29 — IV-008 Python-launcher rettet efter fysisk Windows-test
 
 - Workstationen bestod 86/86 tests, fandt 4 Transskribinator episodeleveringer og bestod både lokal IV-008-konfiguration og read-only `-Check` på en isoleret kopi.
