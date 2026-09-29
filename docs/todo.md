@@ -33,7 +33,8 @@
 - Recovery finder `allow`-kilder uden extraction-run og uden eksisterende AI-jobitem, så et stop mellem import og draft kan fortsættes uden dublet.
 - `-Check` bruger SQLite read-only og er testet til ikke at oprette state; regressionstest kræver også byteidentisk eksisterende database før/efter check.
 - Consumer-state afvises under repositoryets beskyttede `data/`; aktiv legacy-database, ekstern AI og Windows Opgavestyring er uden for scope.
-- `IKKE TESTET`: GitHub Actions og fysisk workstation mod de 4 aktuelle Transskribinator-leveringer.
+- `VERIFICERET` i GitHub Actions run 36550196931: IV-009 PowerShell-smoke bestod på Python 3.10 og 3.12; første run importerede 2 og oprettede 2 drafts, andet run importerede 0 og oprettede 0 drafts. Hele suiten bestod 91/91 på begge versioner.
+- `KRÆVER BRUGERTEST`: fysisk workstation-accept mod de 4 aktuelle Transskribinator-leveringer.
 - Se `docs/iv-009-multi-episode-consumer.md`.
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
