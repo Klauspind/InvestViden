@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import sqlite3
 import sys
 from pathlib import Path
 
@@ -134,12 +135,12 @@ def inspect(delivery_root: Path, state_root: Path) -> dict[str, object]:
     if state_db.is_file():
         if state_db.resolve() == PROTECTED_DB:
             raise ValidationError("Consumeren maa ikke bruge den beskyttede legacy-database")
-        with KnowledgeBase(state_db) as kb:
-            kb.initialize()
-            result["database_schema"] = current_schema_version(kb.conn)
-            result["database_integrity"] = _integrity(kb)
-            result["sources"] = int(kb.conn.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
-            result["draft_jobs"] = int(kb.conn.execute("SELECT COUNT(*) FROM ai_jobs WHERE status='draft'").fetchone()[0])
+        uri = "file:" + state_db.resolve().as_posix() + "?mode=ro"
+        with sqlite3.connect(uri, uri=True) as conn:
+            result["database_schema"] = current_schema_version(conn)
+            result["database_integrity"] = str(conn.execute("PRAGMA integrity_check").fetchone()[0])
+            result["sources"] = int(conn.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
+            result["draft_jobs"] = int(conn.execute("SELECT COUNT(*) FROM ai_jobs WHERE status='draft'").fetchone()[0])
     return result
 
 
