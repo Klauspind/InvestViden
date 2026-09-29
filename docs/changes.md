@@ -1,3 +1,12 @@
+## 2026-09-29 — IV-009 persistent multi-episode consumer implementeret
+
+- Tilføjet separat lokal consumer-konfiguration og persistent schema-4 state uden for repositoryet.
+- Consumeren scanner flere Transskribinator episodeleveringer, importerer kun nye kilder og opretter én lokal ubekræftet Mistral-draft pr. kilde uden eksisterende jobitem.
+- Genkørsel er idempotent; et afbrudt forløb efter import men før draft kan fortsættes ved næste run.
+- `-Check` bruger read-only SQLite og opretter ikke state. Leveringsfiler kontrolleres uændrede efter rigtig kørsel.
+- Aktiv legacy-database, ekstern AI og Windows Opgavestyring anvendes ikke.
+- `VERIFICERET` i GitHub Actions run 36550196931: PowerShell-smoke og 91/91 tests bestod på både Python 3.10 og 3.12. Smoken dokumenterede 2 nye importer + 2 drafts på første run og 0 + 0 på genkørsel.
+
 ## 2026-09-29 — IV-008 fysisk workstation-accept bestået
 
 - Den rettede PowerShell/CMD-runner gennemførte den isolerede consumer-kæde fysisk på workstationen.

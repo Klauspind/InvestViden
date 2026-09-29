@@ -28,6 +28,10 @@ Kode og projektdokumentation gemmes i `Klauspind/InvestViden`. Private inputkild
 
 Handover 2026-09-15 dokumenterer lokale ikke-committede desktopændringer, som ikke findes på GitHub `main`. Browserarbejdet skal derfor markere kodegrundlaget som ikke fuldt synkroniseret, indtil den aktuelle desktopkode er pushet eller uploadet sanitiseret.
 
+## D-008 — Transskribinator-consumer bruger separat persistent schema-4 state
+
+Den løbende Transskribinator -> InvestViden-integration må ikke skrive til eller migrere den beskyttede legacy-database. IV-009 bruger derfor en særskilt persistent schema-4-database under lokal runtime uden for repositoryet. Persistensen er nødvendig for idempotens og crash-recovery på tværs af consumer-kørsler. AI-job oprettes kun som lokale, ubekræftede drafts; ekstern transport kræver fortsat særskilt menneskelig handling.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`

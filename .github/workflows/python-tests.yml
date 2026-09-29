@@ -34,7 +34,12 @@ jobs:
         shell: pwsh
         run: |
           $errors = @()
-          foreach ($file in @('KONFIGURER_INVESTVIDEN_MORGENFLOW.ps1', 'START_INVESTVIDEN_MORGENFLOW.ps1')) {
+          foreach ($file in @(
+            'KONFIGURER_INVESTVIDEN_MORGENFLOW.ps1',
+            'START_INVESTVIDEN_MORGENFLOW.ps1',
+            'KONFIGURER_INVESTVIDEN_CONSUMER.ps1',
+            'START_INVESTVIDEN_CONSUMER.ps1'
+          )) {
             $tokens = $null
             $parseErrors = $null
             [System.Management.Automation.Language.Parser]::ParseFile(
@@ -102,6 +107,74 @@ jobs:
           if ($runs.Count -ne 1) { throw "Forventede præcis én runtime; fandt $($runs.Count)." }
           if (-not (Test-Path -LiteralPath (Join-Path $runs[0].FullName 'schema4.sqlite') -PathType Leaf)) {
             throw 'IV-008 launcher smoke oprettede ikke den isolerede schema-4-database.'
+          }
+
+      - name: Run IV-009 launcher smoke
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $env:LOCALAPPDATA = Join-Path $env:RUNNER_TEMP 'iv009-localappdata'
+          $delivery = Join-Path $env:RUNNER_TEMP 'iv009-delivery'
+          $state = Join-Path $env:RUNNER_TEMP 'iv009-state'
+          $podcast = Join-Path $delivery 'Synthetic'
+          New-Item -ItemType Directory -Force -Path $podcast | Out-Null
+
+          function New-Episode([string]$id, [string]$title, [string]$package) {
+            return [ordered]@{
+              schema_version = '2.0'
+              id = $id
+              source = [ordered]@{
+                podcast = 'Synthetic'
+                title = $title
+                published = '2026-09-29'
+                language = 'da'
+              }
+              segments = @(
+                [ordered]@{
+                  id = 1
+                  start = 1.0
+                  end = 2.0
+                  text = "Synthetic IV-009 marker $id."
+                }
+              )
+              derivation = [ordered]@{
+                schema_version = 'podcast-legacy-derivation-v1'
+                package_id = $package
+                source_sha256 = ('a' * 64)
+                transcript_sha256 = ('b' * 64)
+                postprocess_input_sha256 = ('c' * 64)
+                canonical_schema_version = '1.0'
+                canonical_segment_count = 1
+              }
+              segment_accounting = [ordered]@{
+                input = 1
+                kept = 1
+                removed = 0
+                advertisement = 0
+                empty_after_cleaning = 0
+              }
+            }
+          }
+
+          (New-Episode 'episode-a' 'Episode A' 'trpkg-a') |
+            ConvertTo-Json -Depth 10 |
+            Set-Content -LiteralPath (Join-Path $podcast 'a.json') -Encoding utf8
+          (New-Episode 'episode-b' 'Episode B' 'trpkg-b') |
+            ConvertTo-Json -Depth 10 |
+            Set-Content -LiteralPath (Join-Path $podcast 'b.json') -Encoding utf8
+
+          ./KONFIGURER_INVESTVIDEN_CONSUMER.ps1 -DeliveryRoot $delivery -StateRoot $state
+          ./START_INVESTVIDEN_CONSUMER.ps1 -Check
+          if (Test-Path -LiteralPath $state) {
+            throw 'IV-009 read-only check oprettede state-root.'
+          }
+
+          ./START_INVESTVIDEN_CONSUMER.ps1
+          ./START_INVESTVIDEN_CONSUMER.ps1
+
+          $database = Join-Path $state 'knowledgebase.sqlite'
+          if (-not (Test-Path -LiteralPath $database -PathType Leaf)) {
+            throw 'IV-009 launcher smoke oprettede ikke consumer-databasen.'
           }
 
       - name: Run unit tests
