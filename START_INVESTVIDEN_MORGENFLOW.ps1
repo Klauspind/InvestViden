@@ -10,13 +10,28 @@ $protectedDb = [System.IO.Path]::GetFullPath((Join-Path $projectDir 'data\knowle
 
 function Resolve-Python {
     $python = Get-Command python -ErrorAction SilentlyContinue
-    if ($python) { return @($python.Source) }
+    if ($python) {
+        return [pscustomobject]@{
+            executable = [string]$python.Source
+            prefix_args = @()
+        }
+    }
 
     $bundled = Join-Path $env:USERPROFILE '.cache\codex-runtimes\codex-primary-runtime\dependencies\python\python.exe'
-    if (Test-Path -LiteralPath $bundled -PathType Leaf) { return @($bundled) }
+    if (Test-Path -LiteralPath $bundled -PathType Leaf) {
+        return [pscustomobject]@{
+            executable = [string]$bundled
+            prefix_args = @()
+        }
+    }
 
     $py = Get-Command py -ErrorAction SilentlyContinue
-    if ($py) { return @($py.Source, '-3') }
+    if ($py) {
+        return [pscustomobject]@{
+            executable = [string]$py.Source
+            prefix_args = @('-3')
+        }
+    }
 
     throw 'Python 3.10+ blev ikke fundet.'
 }
@@ -73,15 +88,15 @@ $workDir = Join-Path $runtimeRoot $stamp
 
 New-Item -ItemType Directory -Force -Path $runtimeRoot | Out-Null
 
-$argsList = @()
-if ($python.Count -gt 1) { $argsList += $python[1..($python.Count - 1)] }
+$pythonExe = [string]$python.executable
+$argsList = @($python.prefix_args)
 $argsList += @(
     $acceptScript,
     '--episode-root', $delivery,
     '--work-dir', $workDir
 )
 
-& $python[0] @argsList
+& $pythonExe @argsList
 $exitCode = $LASTEXITCODE
 
 if ($exitCode -ne 0) {
