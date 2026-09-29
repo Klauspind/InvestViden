@@ -16,13 +16,14 @@
 - IV-007 er dermed afsluttet. Ingen aktiv database, AI-transport eller Windows Opgavestyring blev anvendt.
 - Se `docs/iv-007-morning-consumer.md`.
 
-## Aktiv opgave 25.09.2026 — IV-008 lokal driftskobling
+## Aktiv opgave 29.09.2026 — IV-008 lokal driftskobling
 
-- `IMPLEMENTERET`: privat lokal konfiguration under `%LOCALAPPDATA%\InvestViden\config\morning-consumer.json`, read-only `-Check` og én manuel CMD/PowerShell-runner til den verificerede IV-007-kæde.
-- Flowet bruger en fast Transskribering-leveringsmappe, opretter ny isoleret runtime pr. kørsel og stopper ved lokal `draft`.
-- `VERIFICERET`: GitHub Actions run 36137895496 bestod PowerShell-syntakskontrol og **86/86 tests** på både Python 3.10 og 3.12.
-- Ingen aktiv database, ekstern AI eller Windows Opgavestyring indgår.
-- `KRÆVER BRUGERTEST`: fysisk workstation-accept af setup-script, `-Check` og CMD-runner.
+- `VERIFICERET` på workstation før fysisk runner-test: ren `main` blev fast-forward-opdateret til `9b019b7`, og **86/86 tests** bestod.
+- `VERIFICERET`: den aktive Transskribinator-consumerrod indeholder 4 episode-JSON-filer; én blev kopieret byteidentisk til en isoleret IV-008-acceptmappe. Setup-scriptet og read-only `-Check` bestod uden databaseoprettelse eller AI-kald.
+- `VERIFICERET FEJL`: den faktiske CMD/PowerShell-runner stoppede før consumer-scriptet, fordi PowerShell unrollede den éne Python-sti til en streng og `$python[0]` derfor blev første tegn (`C`) i stedet for hele executable-stien.
+- `IMPLEMENTERET` på rettelsesgren: Python-resolveren returnerer nu et objekt med eksplicit `executable` og `prefix_args`; CI får en reel PowerShell launcher-smoke ud over syntakskontrollen.
+- Ingen aktiv database, ekstern AI eller Windows Opgavestyring blev brugt i det fejlede workstation-forsøg.
+- `KRÆVER BRUGERTEST`: efter grøn CI/merge skal den samme isolerede IV-008 acceptkørsel gentages på workstationen. IV-008 er ikke fysisk afsluttet endnu.
 - Se `docs/iv-008-local-runtime-link.md`.
 
 
