@@ -74,11 +74,23 @@ består, en manuel accepttest er dokumenteret, og en migreret databasekopi match
 det eksisterende indhold. Den aktive database skiftes kun efter ejerens accept og
 med en dokumenteret rollback.
 
+
+## Efter schema-4-cutover — verificér den faktiske researcharbejdsgang
+
+Før næste større funktion bygges, skal InvestViden bruges i normal drift på rigtige private kilder. Registrér konkret friktion i flowet `intake -> AI -> signal/review -> søgning/analyse -> backup` og vælg derefter den mindste produktleverance, der løser et observeret problem.
+
+Produktoplevelsen kan gradvist bevæge sig mod `Overblik | Selskaber | Signaler | Kilder | Analyse`. AI-udtrukne signaler må være søgbare og indgå i analyser før review, hvis status/provenance er tydelig. Review er promotion til stabil/aktiv viden, ikke en forudsætning for at et signal overhovedet kan findes.
+
+Start ikke som del af denne overgang: multi-agent-platform, FinRobot-integration, fuld RAG/vector-stack, knowledge graph, fælles database/backend, `VidenCore`, Tauri/native desktop, brokerintegration eller stor frontend-rewrite.
+
+Senere finansielle beregninger skal være deterministiske og versionssporbare i kode; LLM'en analyserer og forklarer, men er ikke regnemaskinen for beslutningskritiske tal. Semantisk retrieval må først tilføjes, når konkret researchfriktion viser, at strukturerede claims og eksisterende søgning ikke er tilstrækkelige.
+
+
 ## Fase 5 – Porteføljebeslutningsstøtte
 
 - Vedligehold positioner og watchlist manuelt i første udgave; understøt senere
   kontrolleret filimport uden brokerlogin eller handelsadgang.
-- Vis kun synteser fra aktiv viden og link hver konklusion til kilderne.
+- Synteser må kombinere aktiv viden med tydeligt mærkede, ukontrollerede AI-signaler; link hver konklusion til kilder og vis reviewstatus/provenance.
 - Vis støttende og modstridende udsagn, risici, katalysatorer, ændringer og
   informationsalder uden at reducere dem til ét automatisk handelssignal.
 
