@@ -1,10 +1,22 @@
 # Handover – InvestViden
 
+
+## 29.09.2026 — produktretning efter tværgående arkitekturanalyse
+
+Den bekræftede retning er at færdiggøre schema-4/UI-overgangen og gøre InvestViden sikkert dagligt brugbart, før der startes RAG, multi-agent-analyse, avanceret valuation eller større frontendarbejde.
+
+InvestViden er et privat, personligt researchværktøj. AI-udtrukne/ukontrollerede signaler må være søgbare og kunne indgå i analyser, når deres status er tydelig; individuel review er promotion til mere stabil/aktiv viden og er fortsat påkrævet for genbrugelige teser, risikovurderinger, prognoser, selskabsfakta, valuation-parametre og personlige investeringsstandpunkter.
+
+Langsigtet UI-retning: `Overblik | Selskaber | Signaler | Kilder | Analyse`. Provider/job/token/fejl beholdes som teknisk audit frem for primær navigation. Finansielle beregninger skal senere følge princippet “Models reason; software computes” med deterministisk kode og sporbare input/metodeversioner. RAG/vector retrieval tilføjes kun ved dokumenteret behov. InvestViden forbliver separat fra ArbejdsViden og UdbudsViden uden fælles database/backend/`VidenCore` nu.
+
+Aktuel schema-status: koden understøtter schema 4 som seneste version; IV-005 har fysisk accepteret den isolerede schema-4 produktkæde. Den beskyttede legacy-fil, som faktisk blev fundet på workstationen, er schema 1 og tom; den historisk beskrevne database med 66 kilder / 4.074 udsagn er ikke fundet. Ingen aktiv migration er godkendt.
+
+
 ## 29.09.2026 — IV-008 fysisk forsøg fandt launcher-fejl
 
 `VERIFICERET` fra workstation-output: InvestViden `main` blev opdateret til `9b019b7`; 86/86 tests bestod. Transskribinatorens aktuelle consumerrod indeholdt 4 gyldige episode-JSON-filer. Én episode blev kopieret byteidentisk til isoleret acceptinput, lokal IV-008-konfiguration blev oprettet, og `START_INVESTVIDEN_MORGENFLOW.ps1 -Check` bestod uden database eller AI.
 
-Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en enkelt sti fra `Resolve-Python` blev unrolled til en streng, så `$python[0]` blev `C`. Consumer-scriptet nåede derfor ikke at køre, og IV-008 er endnu ikke fysisk accepteret. Rettelsen bruger et eksplicit resolverobjekt. `VERIFICERET` i GitHub Actions run 36546708701: den reelle PowerShell launcher-smoke og testjobbene bestod på både Python 3.10 og 3.12. Efter merge: synkronisér workstationen og gentag den isolerede accept med den allerede oprettede lokale konfiguration eller en kontrolleret ny acceptkonfiguration.
+Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en enkelt sti fra `Resolve-Python` blev unrolled til en streng, så `$python[0]` blev `C`. Consumer-scriptet nåede derfor ikke at køre, og IV-008 er endnu ikke fysisk accepteret. Rettelsen bruger et eksplicit resolverobjekt. `VERIFICERET` i GitHub Actions run 36546708701: den reelle PowerShell launcher-smoke og testjobbene bestod på både Python 3.10 og 3.12. PR #14 er nu merged til `main` som `f7d6b3c`. Synkronisér workstationen til mindst denne commit og gentag den isolerede accept med den allerede oprettede lokale konfiguration eller en kontrolleret ny acceptkonfiguration.
 
 ## 25.09.2026 — IV-008 lokal driftskobling implementeret
 
