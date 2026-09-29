@@ -16,14 +16,13 @@
 - IV-007 er dermed afsluttet. Ingen aktiv database, AI-transport eller Windows Opgavestyring blev anvendt.
 - Se `docs/iv-007-morning-consumer.md`.
 
-## Aktiv opgave 29.09.2026 — IV-008 lokal driftskobling
+## Status 29.09.2026 — IV-008 lokal driftskobling fysisk afsluttet
 
-- `VERIFICERET` på workstation før fysisk runner-test: ren `main` blev fast-forward-opdateret til `9b019b7`, og **86/86 tests** bestod.
-- `VERIFICERET`: den aktive Transskribinator-consumerrod indeholder 4 episode-JSON-filer; én blev kopieret byteidentisk til en isoleret IV-008-acceptmappe. Setup-scriptet og read-only `-Check` bestod uden databaseoprettelse eller AI-kald.
-- `VERIFICERET FEJL`: den faktiske CMD/PowerShell-runner stoppede før consumer-scriptet, fordi PowerShell unrollede den éne Python-sti til en streng og `$python[0]` derfor blev første tegn (`C`) i stedet for hele executable-stien.
-- `VERIFICERET` i GitHub Actions run 36546708701: Python-resolveren bruger et objekt med eksplicit `executable` og `prefix_args`, og den reelle PowerShell launcher-smoke bestod på både Python 3.10 og 3.12 sammen med testjobbene.
-- Ingen aktiv database, ekstern AI eller Windows Opgavestyring blev brugt i det fejlede workstation-forsøg.
-- `KRÆVER BRUGERTEST`: efter merge skal den samme isolerede IV-008 acceptkørsel gentages på workstationen. IV-008 er ikke fysisk afsluttet endnu.
+- `VERIFICERET` på workstation: rettelsen fra PR #14 blev synkroniseret, og den isolerede IV-008 PowerShell/CMD-runner gennemførte fysisk.
+- Resultatet viste schema 4, `source_imported=true`, `provenance_preserved=true`, verificeret intake-backup, `ai_permission=allow`, præcis ét lokalt `draft`-jobitem, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing` og uændret originalkilde.
+- `VERIFICERET`: `external_ai_calls=0` og `active_database_used=false`. Flowet stoppede som designet ved lokal draft.
+- Den aktive Transskribinator-consumerrod indeholder 4 episode-JSON-filer; IV-008 behandler bevidst kun præcis én episode og er derfor ikke den endelige multi-episode-driftsconsumer.
+- IV-008 er afsluttet. `NÆSTE`: IV-009 skal behandle flere Transskribinator-leveringer idempotent på tværs af kørsler uden at bruge den beskyttede legacy-database eller sende ekstern AI automatisk.
 - Se `docs/iv-008-local-runtime-link.md`.
 
 
