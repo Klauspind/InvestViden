@@ -1,5 +1,11 @@
 # Handover – InvestViden
 
+## 29.09.2026 — IV-008 fysisk forsøg fandt launcher-fejl
+
+`VERIFICERET` fra workstation-output: InvestViden `main` blev opdateret til `9b019b7`; 86/86 tests bestod. Transskribinatorens aktuelle consumerrod indeholdt 4 gyldige episode-JSON-filer. Én episode blev kopieret byteidentisk til isoleret acceptinput, lokal IV-008-konfiguration blev oprettet, og `START_INVESTVIDEN_MORGENFLOW.ps1 -Check` bestod uden database eller AI.
+
+Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en enkelt sti fra `Resolve-Python` blev unrolled til en streng, så `$python[0]` blev `C`. Consumer-scriptet nåede derfor ikke at køre, og IV-008 er endnu ikke fysisk accepteret. Rettelsen bruger et eksplicit resolverobjekt. `VERIFICERET` i GitHub Actions run 36546708701: den reelle PowerShell launcher-smoke og testjobbene bestod på både Python 3.10 og 3.12. Efter merge: synkronisér workstationen og gentag den isolerede accept med den allerede oprettede lokale konfiguration eller en kontrolleret ny acceptkonfiguration.
+
 ## 25.09.2026 — IV-008 lokal driftskobling implementeret
 
 - Tilføjet privat lokal konfiguration under `%LOCALAPPDATA%\InvestViden\config\morning-consumer.json`.
