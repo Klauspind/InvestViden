@@ -1,5 +1,11 @@
 # Handover – InvestViden
 
+## 29.09.2026 — IV-008 fysisk accepteret
+
+`VERIFICERET` på workstation efter merge af launcherrettelsen: den isolerede PowerShell/CMD-kørsel gennemførte med schema 4, `source_imported=true`, bevaret provenance, intake-backup `ok`, `ai_permission=allow`, ét lokalt `draft`-jobitem, nul AI-forsøg, prisestimat inden for loftet, idempotent genimport og uændret originalkilde. `external_ai_calls=0` og `active_database_used=false`.
+
+IV-008 er dermed fysisk afsluttet. Den aktuelle Transskribinator-consumerrod indeholder 4 gyldige episodeleveringer, mens IV-008 med vilje kræver præcis én. Næste aktive produkttrin er IV-009: en persistent schema-4 consumerdatabase uden for repositoryet, som kan importere flere nye leveringer idempotent på tværs af kørsler og kun oprette lokale, ubekræftede AI-jobkladder. Den beskyttede legacy-database og automatisk ekstern AI forbliver uden for scope.
+
 ## 29.09.2026 — IV-008 fysisk forsøg fandt launcher-fejl
 
 `VERIFICERET` fra workstation-output: InvestViden `main` blev opdateret til `9b019b7`; 86/86 tests bestod. Transskribinatorens aktuelle consumerrod indeholdt 4 gyldige episode-JSON-filer. Én episode blev kopieret byteidentisk til isoleret acceptinput, lokal IV-008-konfiguration blev oprettet, og `START_INVESTVIDEN_MORGENFLOW.ps1 -Check` bestod uden database eller AI.
