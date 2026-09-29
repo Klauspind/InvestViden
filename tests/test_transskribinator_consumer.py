@@ -141,6 +141,26 @@ class TransskribinatorConsumerTest(unittest.TestCase):
         self.assertEqual(0, result["external_ai_calls"])
         self.assertFalse(result["active_database_used"])
 
+    def test_check_does_not_modify_existing_consumer_database(self):
+        self.write_episode(
+            "episode.json",
+            episode_data("episode-readonly", "Readonly", "Synthetic readonly.", "trpkg-readonly"),
+        )
+        first = self.run_script()
+        self.assertEqual(0, first.returncode, first.stdout + first.stderr)
+        database = self.state / "knowledgebase.sqlite"
+        before = database.read_bytes()
+
+        check = self.run_script("--check")
+        self.assertEqual(0, check.returncode, check.stdout + check.stderr)
+        result = json.loads(check.stdout)
+        self.assertTrue(result["state_database_exists"])
+        self.assertEqual(4, result["database_schema"])
+        self.assertEqual("ok", result["database_integrity"])
+        self.assertEqual(1, result["sources"])
+        self.assertEqual(1, result["draft_jobs"])
+        self.assertEqual(before, database.read_bytes())
+
     def test_recovery_creates_missing_draft_for_already_imported_source(self):
         self.write_episode(
             "episode.json",
