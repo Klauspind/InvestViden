@@ -4,7 +4,7 @@
 
 Efter fysisk afslutning af IV-008 er næste aktive punkt IV-009. Den nye consumer bruger en særskilt persistent schema-4-database under lokal runtime, scanner flere Transskribinator episodeleveringer og genbruger normal InvestViden-intake. Kun nye kilder importeres. Lokale Mistral-job oprettes som ubekræftede drafts med nul AI-forsøg; ingen transport udføres.
 
-Idempotens gælder på tværs af kørsler via den persistente database. Recovery dækker også vinduet mellem import og draft: en `allow`-kilde uden extraction-run og uden eksisterende AI-jobitem får den manglende draft ved næste kørsel. Read-only check må hverken oprette state eller ændre en eksisterende database. Aktiv legacy-database og repositoryets `data/` er eksplicit uden for consumer-state. Næste gate er GitHub Actions; derefter fysisk workstation-accept mod de 4 aktuelle consumerleveringer.
+Idempotens gælder på tværs af kørsler via den persistente database. Recovery dækker også vinduet mellem import og draft: en `allow`-kilde uden extraction-run og uden eksisterende AI-jobitem får den manglende draft ved næste kørsel. Read-only check må hverken oprette state eller ændre en eksisterende database. Aktiv legacy-database og repositoryets `data/` er eksplicit uden for consumer-state. `VERIFICERET` i GitHub Actions run 36550196931: launcher-smoke og 91/91 tests bestod på både Python 3.10 og 3.12. Første smoke-run importerede 2 og oprettede 2 drafts; andet run importerede 0 og oprettede 0 drafts. Næste gate er fysisk workstation-accept mod de 4 aktuelle consumerleveringer.
 
 ## 29.09.2026 — IV-008 fysisk accepteret
 
