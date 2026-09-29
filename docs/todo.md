@@ -21,9 +21,9 @@
 - `VERIFICERET` på workstation før fysisk runner-test: ren `main` blev fast-forward-opdateret til `9b019b7`, og **86/86 tests** bestod.
 - `VERIFICERET`: den aktive Transskribinator-consumerrod indeholder 4 episode-JSON-filer; én blev kopieret byteidentisk til en isoleret IV-008-acceptmappe. Setup-scriptet og read-only `-Check` bestod uden databaseoprettelse eller AI-kald.
 - `VERIFICERET FEJL`: den faktiske CMD/PowerShell-runner stoppede før consumer-scriptet, fordi PowerShell unrollede den éne Python-sti til en streng og `$python[0]` derfor blev første tegn (`C`) i stedet for hele executable-stien.
-- `IMPLEMENTERET` på rettelsesgren: Python-resolveren returnerer nu et objekt med eksplicit `executable` og `prefix_args`; CI får en reel PowerShell launcher-smoke ud over syntakskontrollen.
+- `VERIFICERET` i GitHub Actions run 36546708701: Python-resolveren bruger et objekt med eksplicit `executable` og `prefix_args`, og den reelle PowerShell launcher-smoke bestod på både Python 3.10 og 3.12 sammen med testjobbene.
 - Ingen aktiv database, ekstern AI eller Windows Opgavestyring blev brugt i det fejlede workstation-forsøg.
-- `KRÆVER BRUGERTEST`: efter grøn CI/merge skal den samme isolerede IV-008 acceptkørsel gentages på workstationen. IV-008 er ikke fysisk afsluttet endnu.
+- `KRÆVER BRUGERTEST`: efter merge skal den samme isolerede IV-008 acceptkørsel gentages på workstationen. IV-008 er ikke fysisk afsluttet endnu.
 - Se `docs/iv-008-local-runtime-link.md`.
 
 
