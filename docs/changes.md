@@ -1,3 +1,10 @@
+## 2026-09-29 — IV-008 fysisk workstation-accept bestået
+
+- Den rettede PowerShell/CMD-runner gennemførte den isolerede consumer-kæde fysisk på workstationen.
+- `VERIFICERET`: schema 4, kildeimport, bevaret provenance, verificeret intake-backup, lokal Mistral-`draft`, nul AI-forsøg, idempotent genimport og uændret originalkilde.
+- `VERIFICERET`: `external_ai_calls=0` og `active_database_used=false`. Ingen aktiv legacy-database eller ekstern AI blev anvendt.
+- IV-008 er afsluttet; næste driftsbehov er en persistent, idempotent multi-episode consumer for den faktiske Transskribinator-leveringsmappe.
+
 ## 2026-09-29 — IV-008 Python-launcher rettet efter fysisk Windows-test
 
 - Workstationen bestod 86/86 tests, fandt 4 Transskribinator episodeleveringer og bestod både lokal IV-008-konfiguration og read-only `-Check` på en isoleret kopi.
