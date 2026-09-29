@@ -3,7 +3,7 @@
 - Workstationen bestod 86/86 tests, fandt 4 Transskribinator episodeleveringer og bestod både lokal IV-008-konfiguration og read-only `-Check` på en isoleret kopi.
 - Den faktiske CMD-runner fejlede før consumer-scriptet med `CommandNotFoundException`, fordi `$python[0]` indekserede første tegn i en enkelt Python-sti efter PowerShell output-unrolling.
 - Python-resolveren bruger nu et eksplicit objekt med executable og prefix-argumenter, så både `python` og `py -3` kan startes uden tvetydig array/string-adfærd.
-- GitHub Actions kører nu også den rigtige IV-008 PowerShell-launcher mod en syntetisk episode og kræver oprettet isoleret schema-4-runtime. Aktiv database og ekstern AI indgår ikke.
+- `VERIFICERET` i GitHub Actions run 36546708701: den rigtige IV-008 PowerShell-launcher kørte mod en syntetisk episode og oprettede isoleret schema-4-runtime på både Python 3.10 og 3.12. Aktiv database og ekstern AI indgår ikke.
 
 ## 2026-09-25 — IV-008 lokal driftskobling
 
