@@ -62,6 +62,10 @@ Tests dækker:
 5. ændret version af samme episodeidentitet afvises uden ny kilde eller draft;
 6. PowerShell-launcheren køres i CI med to syntetiske episoder og genkørsel.
 
+## Automatisk resultat
+
+`VERIFICERET` i GitHub Actions run 36550196931: 91/91 tests bestod på Python 3.10 og 3.12. IV-009 launcher-smoken importerede 2 episoder og oprettede 2 lokale drafts på første run; genkørsel gav 0 nye importer og 0 nye drafts.
+
 ## Workstation-accept efter merge
 
 Konfigurer mod den faktiske Transskribinator-consumerrod:
