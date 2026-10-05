@@ -17,22 +17,42 @@ from .repository import KnowledgeBase
 from .validation import ValidationError
 
 
-PRICING_VERSION = "mistral-standard-2026-09-14"
-INPUT_USD_PER_MILLION_TOKENS = 0.50
-OUTPUT_USD_PER_MILLION_TOKENS = 1.50
+PRICING_VERSION = "mistral-standard-2026-10-05"
+MODEL_PRICING_USD_PER_MILLION: dict[str, tuple[float, float]] = {
+    "mistral-small-2603": (0.15, 0.60),
+    "mistral-large-2512": (0.50, 1.50),
+}
+INPUT_USD_PER_MILLION_TOKENS = MODEL_PRICING_USD_PER_MILLION[DEFAULT_MODEL][0]
+OUTPUT_USD_PER_MILLION_TOKENS = MODEL_PRICING_USD_PER_MILLION[DEFAULT_MODEL][1]
 DEFAULT_COST_LIMIT_USD = 0.10
 PROMPT_OVERHEAD_TOKENS = 4_000
 
 Transport = Callable[[dict[str, Any], str, int], dict[str, Any]]
 
 
-def estimate_task_cost(task: OpenAITask, max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS) -> float:
+def model_pricing(model: str) -> tuple[float, float]:
+    pricing = MODEL_PRICING_USD_PER_MILLION.get(model)
+    if pricing is None:
+        raise ValidationError(
+            f"Ingen dokumenteret pris for Mistral-modellen {model}. "
+            "Brug en fast modelversion med registreret pris før joboprettelse."
+        )
+    return pricing
+
+
+def estimate_task_cost(
+    task: OpenAITask,
+    max_output_tokens: int = DEFAULT_MAX_OUTPUT_TOKENS,
+    *,
+    model: str = DEFAULT_MODEL,
+) -> float:
     if max_output_tokens != DEFAULT_MAX_OUTPUT_TOKENS:
         raise ValidationError("Jobkøens første version bruger fast 16.000 max output-tokens")
+    input_rate, output_rate = model_pricing(model)
     buffered_input = int(task.estimated_input_tokens * 1.25) + PROMPT_OVERHEAD_TOKENS
     return (
-        buffered_input * INPUT_USD_PER_MILLION_TOKENS
-        + max_output_tokens * OUTPUT_USD_PER_MILLION_TOKENS
+        buffered_input * input_rate
+        + max_output_tokens * output_rate
     ) / 1_000_000
 
 
@@ -46,20 +66,21 @@ def create_mistral_job(
     approvals: dict[str, str] | None = None,
     source_ids: list[str] | None = None,
 ) -> dict[str, Any]:
+    input_rate, output_rate = model_pricing(model)
     if source_ids is not None:
         limit = len(source_ids)
     tasks = plan_openai_extractions(kb, incoming_dir, limit, approvals, source_ids)
     if not tasks:
         raise ValidationError("Ingen kilder er klar til et Mistral-job")
-    estimated = sum(estimate_task_cost(task) for task in tasks)
+    estimated = sum(estimate_task_cost(task, model=model) for task in tasks)
     job_id = kb.create_ai_job(
         "mistral", model, [task.source_id for task in tasks], estimated, cost_limit_usd
     )
     result = kb.ai_job(job_id)
     result.update({
         "pricing_version": PRICING_VERSION,
-        "input_usd_per_million_tokens": INPUT_USD_PER_MILLION_TOKENS,
-        "output_usd_per_million_tokens": OUTPUT_USD_PER_MILLION_TOKENS,
+        "input_usd_per_million_tokens": input_rate,
+        "output_usd_per_million_tokens": output_rate,
     })
     return result
 
@@ -79,6 +100,8 @@ def execute_mistral_job(
     job = kb.ai_job(job_id)
     if job["provider"] != "mistral":
         raise ValidationError("Jobbet er ikke et Mistral-job")
+    model = str(job["model"] or DEFAULT_MODEL)
+    input_rate, output_rate = model_pricing(model)
     selected = kb.start_ai_job(job_id, retry_source_ids)
     for item in selected:
         source_id = str(item["source_version_id"])
@@ -90,7 +113,7 @@ def execute_mistral_job(
                 incoming_dir,
                 audit_dir,
                 preferences,
-                str(job["model"] or DEFAULT_MODEL),
+                model,
                 DEFAULT_MAX_OUTPUT_TOKENS,
                 DEFAULT_TIMEOUT_SECONDS,
                 DEFAULT_TEMPERATURE,
@@ -110,8 +133,8 @@ def execute_mistral_job(
             actual_cost = None
             if isinstance(prompt_tokens, int) and isinstance(completion_tokens, int):
                 actual_cost = (
-                    prompt_tokens * INPUT_USD_PER_MILLION_TOKENS
-                    + completion_tokens * OUTPUT_USD_PER_MILLION_TOKENS
+                    prompt_tokens * input_rate
+                    + completion_tokens * output_rate
                 ) / 1_000_000
             response_id = None
             if result["audits"]:
