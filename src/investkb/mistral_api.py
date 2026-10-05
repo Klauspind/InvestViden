@@ -118,7 +118,7 @@ def verify_mistral_access(
     )
     return {
         "models": len(model_ids),
-        "model_available": model in chat_model_ids,
+        "model_available": model in model_ids,
         "chat_models": chat_model_ids,
     }
 
