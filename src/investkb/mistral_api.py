@@ -21,7 +21,7 @@ from .validation import ValidationError, validate_extraction
 
 API_URL = "https://api.mistral.ai/v1/chat/completions"
 MODELS_URL = "https://api.mistral.ai/v1/models"
-DEFAULT_MODEL = "mistral-large-2512"
+DEFAULT_MODEL = "mistral-small-2603"
 DEFAULT_MAX_OUTPUT_TOKENS = 16_000
 DEFAULT_TIMEOUT_SECONDS = 600
 DEFAULT_TEMPERATURE = 0.0
@@ -108,9 +108,18 @@ def verify_mistral_access(
         for item in raw_items
         if isinstance(item, dict) and item.get("id")
     }
+    chat_model_ids = sorted(
+        str(item.get("id"))
+        for item in raw_items
+        if isinstance(item, dict)
+        and item.get("id")
+        and isinstance(item.get("capabilities"), dict)
+        and item["capabilities"].get("completion_chat") is True
+    )
     return {
         "models": len(model_ids),
-        "model_available": model in model_ids,
+        "model_available": model in chat_model_ids,
+        "chat_models": chat_model_ids,
     }
 
 
