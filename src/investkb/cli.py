@@ -131,10 +131,16 @@ def parser() -> argparse.ArgumentParser:
     mistral_api_status = sub.add_parser("mistral-status", help="Vis sikker Mistral API-status uden at vise nøglen")
     mistral_api_status.add_argument("--incoming", type=Path, default=Path("extractions/incoming"))
     mistral_api_status.add_argument("--config", type=Path, default=Path("config/settings.json"))
+    mistral_api_status.add_argument("--model", help="Kontrollér en bestemt fast Mistral-model")
     mistral_api_status.add_argument(
         "--verify",
         action="store_true",
         help="Kontrollér nøgle og model mod Mistral uden at sende en kilde",
+    )
+    mistral_api_status.add_argument(
+        "--list-models",
+        action="store_true",
+        help="Vis tilgængelige chatmodeller; kræver --verify og sender ingen kilde",
     )
 
     run_mistral = sub.add_parser("run-mistral", help="Forhåndsvis eller send nye kilder til Mistral API")
@@ -159,6 +165,9 @@ def parser() -> argparse.ArgumentParser:
     job_create.add_argument("--config", type=Path, default=Path("config/settings.json"))
     job_create.add_argument("--limit", type=int, default=1, help="Maksimalt 1-5 kilder")
     job_create.add_argument("--cost-limit", type=float, default=DEFAULT_COST_LIMIT_USD)
+    job_create.add_argument("--model", help="Brug en bestemt fast Mistral-model med dokumenteret pris")
+    job_create.add_argument("--source", action="append", default=[], metavar="SOURCE_ID",
+                            help="Medtag præcis denne kilde; kan gentages op til fem gange")
     job_create.add_argument("--approve-source", action="append", type=source_approval, default=[],
                             metavar="SOURCE_ID:SHA256")
     job_confirm = sub.add_parser("mistral-job-confirm", help="Bekræft pris og kilder for en jobkladde")
@@ -439,9 +448,11 @@ def run(args: argparse.Namespace) -> int:
             print(f"Klar til API: {api['ready']}")
             print(f"Afventer kildepolitik eller engangsgodkendelse: {api['policy_waiting']}")
         elif args.command == "mistral-status":
+            if args.list_models and not args.verify:
+                raise ValidationError("--list-models kræver --verify")
             preferences = json.loads(args.config.read_text(encoding="utf-8-sig")) if args.config.exists() else {}
             api_settings = preferences.get("mistral", {})
-            model = str(api_settings.get("model", DEFAULT_MISTRAL_MODEL))
+            model = str(args.model or api_settings.get("model", DEFAULT_MISTRAL_MODEL))
             api = mistral_status(kb, args.incoming)
             print("Mistral API-status")
             print(f"Model: {model}")
@@ -456,6 +467,10 @@ def run(args: argparse.Namespace) -> int:
             if args.verify:
                 verification = verify_mistral_access(model)
                 print(f"API-forbindelse: godkendt; {verification['models']} model-ID'er tilgængelige")
+                if args.list_models:
+                    print("Tilgængelige chatmodeller:")
+                    for model_id in verification["chat_models"]:
+                        print(f"  {model_id}")
                 if verification["model_available"]:
                     print(f"Standardmodel: tilgængelig ({model})")
                 else:
@@ -469,15 +484,16 @@ def run(args: argparse.Namespace) -> int:
                 _print_mistral_job(job)
         elif args.command == "mistral-job-create":
             preferences = json.loads(args.config.read_text(encoding="utf-8-sig")) if args.config.exists() else {}
-            model = str(preferences.get("mistral", {}).get("model", DEFAULT_MISTRAL_MODEL))
+            model = str(args.model or preferences.get("mistral", {}).get("model", DEFAULT_MISTRAL_MODEL))
             job = create_mistral_job(
                 kb, args.incoming, limit=args.limit, model=model,
                 cost_limit_usd=args.cost_limit, approvals=dict(args.approve_source),
+                source_ids=args.source or None,
             )
             print("Mistral-jobkladde oprettet. Ingen tekst er sendt.")
             print(
-                f"Prissats {PRICING_VERSION}: input USD {INPUT_USD_PER_MILLION_TOKENS:.2f}/M, "
-                f"output USD {OUTPUT_USD_PER_MILLION_TOKENS:.2f}/M"
+                f"Prissats {job['pricing_version']}: input USD {float(job['input_usd_per_million_tokens']):.2f}/M, "
+                f"output USD {float(job['output_usd_per_million_tokens']):.2f}/M"
             )
             _print_mistral_job(job)
             print(f"Kontrollér kilder og beløb, og bekræft særskilt med: .\\run.cmd mistral-job-confirm {job['id']}")
@@ -501,7 +517,12 @@ def run(args: argparse.Namespace) -> int:
                     retry_source_ids=args.retry_source or None,
                 )
                 _print_mistral_job(result)
-                print("Validerede svar ligger i indlæsningskøen og er ikke menneskeligt godkendt.")
+                if result["status"] == "completed":
+                    print("Validerede svar ligger i indlæsningskøen og er ikke menneskeligt godkendt.")
+                elif result["status"] == "partial":
+                    print("Nogle svar er valideret i indlæsningskøen; mindst én kilde fejlede og kræver særskilt genkørsel.")
+                else:
+                    print("Jobbet fejlede. Der er ingen nye validerede svar fra dette job i indlæsningskøen.")
         elif args.command == "run-mistral":
             preferences = json.loads(args.config.read_text(encoding="utf-8-sig")) if args.config.exists() else {}
             api_settings = preferences.get("mistral", {})
