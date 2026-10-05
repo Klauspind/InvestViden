@@ -22,7 +22,7 @@
     "target_root": "inbox/transskriptioner"
   },
   "mistral": {
-    "model": "mistral-large-2512",
+    "model": "mistral-small-2603",
     "temperature": 0.0,
     "max_output_tokens": 16000,
     "timeout_seconds": 600
