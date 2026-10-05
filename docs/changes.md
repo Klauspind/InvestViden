@@ -1,3 +1,19 @@
+## 2026-10-05 — Mistral-modelgate efter første kontrollerede eksterne pilot
+
+- Én fysisk Novo-kilde blev previewet og lokalt bekræftet, hvorefter brugeren eksplicit godkendte præcis ét eksternt Mistral-kald.
+- Det eksisterende job på `mistral-large-2512` nåede Mistral men sluttede sikkert `failed` med HTTP 403, fordi modellen ikke er tilgængelig på brugerens abonnement. Der blev ikke produceret et valideret extraction-svar eller aktive claims.
+- `VERIFICERET`: Mistral-nøglen virker via InvestVidens Python-netværksvej; `/v1/models` gav 46 model-ID'er. Den faktiske chatmodelliste indeholder den faste version `mistral-small-2603`.
+- PR #18 pinner `mistral-small-2603` for nye jobs, registrerer model-specifik prisberegning, afviser modeller uden dokumenteret pris, understøtter eksplicit model/kilde ved joboprettelse og retter den misvisende succesbesked efter et fejlet job.
+- Der er ikke indført automatisk model- eller provider-fallback. Eksisterende Large-jobs ændres ikke automatisk.
+- `KRÆVER BRUGERTEST`: efter merge skal Small 4 først verificeres mod kontoen og derefter bruges til en ny jobkladde for den samme Novo-kilde. Nyt eksternt kald kræver en ny særskilt brugergodkendelse.
+
+## 2026-10-05 — IV-009 fysisk workstation-accept bestået
+
+- `-Check` mod den faktiske Transskribinator-consumerrod fandt 11 gyldige leveringer, 0 ugyldige JSON-filer og oprettede ingen state-database.
+- Første persistente kørsel importerede 11 nye kilder og oprettede 11 lokale drafts. Resultatet viste schema 4, databaseintegritet `ok`, backupintegritet `ok`, 0 claims, 0 AI-forsøg, uændrede originalkilder og `active_database_used=false`.
+- Genkørsel importerede 0, genkendte 11 eksisterende og oprettede 0 nye drafts; totalerne forblev 11 kilder, 11 jobs og 11 jobitems. `backup_integrity=null` var forventet, fordi der ikke blev skrevet nye intake-data.
+- IV-009 er dermed fysisk afsluttet som persistent, idempotent multi-episode consumer. Den beskyttede legacy-database blev ikke brugt, og consumerkørslerne foretog ingen eksterne AI-kald.
+
 ## 2026-09-29 — IV-009 persistent multi-episode consumer implementeret
 
 - Tilføjet separat lokal consumer-konfiguration og persistent schema-4 state uden for repositoryet.
@@ -101,13 +117,11 @@
 - `VERIFICERET`: run 35984116366 bestod **79/79 tests** på begge Python-versioner.
 - `KRÆVER BRUGERTEST`: kort fysisk browserkontrol af UI'et; ingen aktiv database og intet rigtigt AI-kald er anvendt.
 
-
 ## 2026-09-23 — Rigtig morgenepisode verificeret i consumer-intake
 
 - Den nye episode afleveret af Transskriberingens fysiske morgenflow blev importeret til frisk midlertidig SQLite via normal intake.
 - Provenance/segmentregnskab blev bevaret, genkørsel gav ingen dublet, filen var uændret, og episoden havde 1554 segmenter.
 - Aktiv database og AI blev ikke anvendt.
-
 
 ## 2026-09-23 — Aktuel workstation-consumer verificeret mod Transskribering
 
@@ -121,7 +135,6 @@
 
 - `VERIFICERET` fra brugerens PowerShell-output på workstationen: én virkelig episode blev importeret i en frisk midlertidig SQLite-database. `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt i SQLite; gentaget scanning genkendte kilden uden dublet, og episodefilen var uændret. Regnskab: `input=1373`, `kept=1371`, `removed=2`.
 - Originalmediets og canonical-pakkens hashes blev videreført som producentoplysninger; de blev ikke genberegnet i consumer-testen. Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Normal installeret intake og samlet morgenforløb er fortsat `IKKE TESTET`; morgenjobbet forbliver deaktiveret.
-
 
 ## 2026-09-22 — IV-006: podcast-afledning helt til SQLite
 

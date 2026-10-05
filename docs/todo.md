@@ -1,5 +1,22 @@
 # Todo – InvestViden
 
+## Aktiv opgave 05.10.2026 — kontrolleret én-kilde Mistral Small 4-pilot
+
+- `VERIFICERET`: IV-009 er fysisk accepteret på workstationen mod 11 aktuelle Transskribinator-leveringer. Første persistente kørsel importerede 11 nye kilder og oprettede 11 lokale drafts; genkørsel gav 0 nye importer og 0 nye drafts. Schema 4, databaseintegritet og originalkilder var intakte; `active_database_used=false`.
+- `VERIFICERET`: én Novo-kilde (`src-04299b8e12cd8be3`, “Novo-aktien skraber bunden igen - er der håb eller skal man give op?”) blev valgt, previewet og særskilt bekræftet lokalt. Preview sendte ingen tekst.
+- `VERIFICERET`: efter eksplicit brugergodkendelse blev ét rigtigt Mistral-forsøg udført med det oprindelige job på `mistral-large-2512`. Mistral svarede HTTP 403 `This model is not available in your subscription tier`; jobbet sluttede `failed`, forsøg 1. Der blev ikke produceret et valideret extraction-svar eller aktive claims.
+- `VERIFICERET`: API-nøglen kan læses fra Windows-brugerprofilen uden at blive vist. `mistral-status --verify` nåede Mistral og fandt 46 model-ID'er; `mistral-large-2512` var ikke tilgængelig. Den faktiske kontoliste indeholdt blandt andet den faste version `mistral-small-2603`.
+- Implementeret i PR #18: pin `mistral-small-2603` for nye jobs, model-specifik prisberegning, eksplicit kilde-/modelvalg, sikker modellistning og korrekt fejltekst ved fejlede jobs. Ukendte modeller uden dokumenteret pris afvises før joboprettelse. Ingen automatisk model-fallback er indført.
+- `KRÆVER BRUGERTEST` efter merge: synkronisér workstationen, verificér `mistral-small-2603` via `mistral-status --verify --model mistral-small-2603`, opret en ny lokal jobkladde for præcis `src-04299b8e12cd8be3`, og kontroller nyt prisestimat før særskilt bekræftelse. Intet nyt eksternt kald må ske uden en ny eksplicit godkendelse af Small 4-jobbet.
+- Den beskyttede legacy-database forbliver uden for dette flow. De øvrige eksisterende Large-drafts konverteres ikke automatisk.
+
+## Status 05.10.2026 — IV-009 persistent multi-episode consumer afsluttet
+
+- `VERIFICERET` på workstation: `-Check` fandt 11 gyldige leveringer, 0 ugyldige JSON-filer, oprettede ingen state-database og foretog 0 eksterne AI-kald.
+- `VERIFICERET`: første persistente run importerede 11, oprettede 11 lokale Mistral-drafts, havde 0 claims og 0 AI-forsøg, schema 4 og `database_integrity=ok`; backupintegritet var `ok`, originalkilderne var uændrede, og den aktive legacy-database blev ikke brugt.
+- `VERIFICERET`: anden kørsel importerede 0, genkendte 11 eksisterende, oprettede 0 drafts og bevarede 11 kilder/11 jobs/11 jobitems. `backup_integrity=null` er forventet, fordi genkørslen ikke skrev nye intake-data.
+- IV-009 er afsluttet som persistent, idempotent multi-episode consumer. Se `docs/iv-009-multi-episode-consumer.md`.
+
 ## Status 25.09.2026 — IV-002 fysisk Windows-lukning afsluttet
 
 - `VERIFICERET`: Test A er bestået på workstationen mod den eksisterende isolerede schema-4-preview. Recovery viste `no_marker`, ingen lås, ingen jobs og ingen manglende kilder. Preview viste `eligible_sources=0`, `jobs=0`, `skipped_sources=1`; ingen kladder blev oprettet.
@@ -25,25 +42,12 @@
 - IV-008 er afsluttet. `NÆSTE`: IV-009 skal behandle flere Transskribinator-leveringer idempotent på tværs af kørsler uden at bruge den beskyttede legacy-database eller sende ekstern AI automatisk.
 - Se `docs/iv-008-local-runtime-link.md`.
 
-
-## Aktiv opgave 29.09.2026 — IV-009 persistent multi-episode consumer
-
-- `IMPLEMENTERET` på gren: separat persistent schema-4 consumer-state, multi-episode intake og lokal draft-oprettelse uden ekstern AI.
-- Intake genbruger eksisterende hash-/episodeidentitet. Genkørsel importerer ikke eksisterende kilder igen.
-- Recovery finder `allow`-kilder uden extraction-run og uden eksisterende AI-jobitem, så et stop mellem import og draft kan fortsættes uden dublet.
-- `-Check` bruger SQLite read-only og er testet til ikke at oprette state; regressionstest kræver også byteidentisk eksisterende database før/efter check.
-- Consumer-state afvises under repositoryets beskyttede `data/`; aktiv legacy-database, ekstern AI og Windows Opgavestyring er uden for scope.
-- `VERIFICERET` i GitHub Actions run 36550196931: IV-009 PowerShell-smoke bestod på Python 3.10 og 3.12; første run importerede 2 og oprettede 2 drafts, andet run importerede 0 og oprettede 0 drafts. Hele suiten bestod 91/91 på begge versioner.
-- `KRÆVER BRUGERTEST`: fysisk workstation-accept mod de 4 aktuelle Transskribinator-leveringer.
-- Se `docs/iv-009-multi-episode-consumer.md`.
-
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
 
 - `VERIFICERET` fra workstation-output: den beskyttede database `C:\\Users\\b306123\\InvestViden\\data\\knowledgebase.sqlite` rapporterer schema **1**, ikke schema 2 som tidligere historisk dokumentation antog.
 - Første migrationsforsøg stoppede før kopiering, fordi verifieren krævede schema 2. Der blev ikke oprettet preview-database, og den aktive database blev ikke migreret eller erstattet.
 - IV-004-verifieren er udvidet til eksplicit at acceptere schema 1 og 2, kontrollere forventede legacy-tabeller og behandle eventuelt manglende `source_provenance` i schema 1 som 0 rækker før migration.
 - `KRÆVER BRUGERTEST`: kør den opdaterede verifier mod den faktiske schema-1-database efter synkronisering af branch/main og kontroller alle sammenligninger før UI-start.
-
 
 ## Status 25.09.2026 — IV-003 fysisk UI-accept gennemført
 
@@ -53,14 +57,12 @@
 - `IKKE TESTET`: et vellykket rigtigt Mistral-kald med konfigureret API-nøgle. Det er ikke nødvendigt for IV-003 og kræver fortsat særskilt brugerbeslutning.
 - `VERIFICERET` automatisk: samlet HTTP-accepttest dækker reklame-/introfilter samt Mistral `draft -> confirmed`; hele suiten var **79/79** på Python 3.10 og 3.12 før IV-004-verifierændringen. Efter IV-004-verifierændringen bestod **81/81** på begge versioner.
 
-
 ## Status 23.09.2026 — rigtig morgenepisode accepteret af InvestViden-consumer
 
 - `VERIFICERET` på arbejds-workstationen: consumer-outputtet fra Transskriberingens nye fysiske podcastmorgenflow blev importeret via den aktuelle InvestViden-intake til en frisk midlertidig SQLite-database.
 - Én kilde blev importeret; provenance og segmentregnskab blev bevaret; gentaget scan genkendte kilden uden dublet; inputfilen var uændret. Episoden havde 1554 segmenter.
 - Ingen aktiv InvestViden-database eller AI-tjeneste blev brugt.
 - Dette verificerer consumer-kompatibiliteten for den automatiserbare upstream-kæde, men gør ikke InvestVidens aktive schema-2-database eller øvrige produktflow færdigt.
-
 
 ## Status 23.09.2026 — aktuel workstation-installation og samlet upstream-consumer verificeret
 
@@ -69,7 +71,6 @@
 - Én kilde blev importeret; `derivation`, `segment_accounting` og episodefilens SHA-256 blev gemt. Gentaget scan genkendte kilden uden dublet, og inputfilen var uændret.
 - Ingen aktiv database, AI-kald eller planlagt opgave blev brugt. Upstream media/canonical hashes er producentoplysninger og blev ikke genberegnet i consumer-trinnet.
 - `NÆSTE`: deltag som consumer i den samlede isolerede morgenorkestrering. Aktiv schema-2-database og normal driftsmigration forbliver separat blokeret af eksisterende sikkerhedsbeslutninger.
-
 
 ## Gennemført integration
 

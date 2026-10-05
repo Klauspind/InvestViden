@@ -1,5 +1,15 @@
 # Handover – InvestViden
 
+## 05.10.2026 — IV-009 afsluttet; kontrolleret Small 4-pilot er næste gate
+
+IV-009 er nu fysisk accepteret på workstationen mod 11 aktuelle Transskribinator-leveringer. `-Check` fandt 11/11 gyldige episode-JSON-filer, oprettede ingen state-database og udførte ingen eksterne AI-kald. Første persistente run importerede 11 nye kilder og oprettede 11 lokale drafts i separat schema 4; genkørsel gav 0 nye importer og 0 nye drafts. Databaseintegritet var `ok`, originalkilderne var uændrede, og den beskyttede legacy-database blev ikke brugt. Se `docs/iv-009-multi-episode-consumer.md`.
+
+Efter IV-009 blev én rigtig Novo-kilde valgt som første kontrollerede AI-pilot: `src-04299b8e12cd8be3`, “Novo-aktien skraber bunden igen - er der håb eller skal man give op?”. Preview og lokal jobbekræftelse sendte ingen tekst. Brugeren godkendte derefter eksplicit ét eksternt Mistral-kald. Jobbet på `mistral-large-2512` nåede Mistral, men sluttede `failed` med HTTP 403 `This model is not available in your subscription tier`, forsøg 1. Der kom intet valideret extraction-svar tilbage og ingen claims blev gjort aktive.
+
+`VERIFICERET`: Mistral API-nøglen er konfigureret i Windows-brugerprofilen og læses uden at blive vist. `mistral-status --verify` nåede Mistral og rapporterede 46 model-ID'er; Large 3-modellen var ikke tilgængelig. Den faktiske chatmodelliste indeholder `mistral-small-2603`. PR #18 pinner denne faste model for nye jobs, registrerer model-specifik prisberegning, afviser modeller uden dokumenteret pris, giver eksplicit model- og kildevalg, viser tilgængelige chatmodeller via den eksisterende Python-netværksvej og retter den misvisende succesbesked efter et fejlet job. Der er ingen automatisk fallback, og eksisterende Large-drafts omskrives ikke.
+
+`KRÆVER BRUGERTEST` efter merge: synkronisér workstationen; verificér `mistral-small-2603` med `mistral-status --verify --model mistral-small-2603`; opret derefter en **ny** lokal jobkladde for præcis `src-04299b8e12cd8be3` med Small 4 og kontroller det nye prisestimat. Bekræftelsen af den gamle Large-jobkladde må ikke genbruges som modelskifte. Før et nyt eksternt Small 4-kald skal brugeren igen udtrykkeligt godkende kilde, model, estimat og prisloft. Først efter et valideret svar fortsættes med `process-ai --dry-run`, individuel menneskelig review og kontrol af approved-only aktiv søgning.
+
 ## 29.09.2026 — IV-009 multi-episode consumer under implementering
 
 Efter fysisk afslutning af IV-008 er næste aktive punkt IV-009. Den nye consumer bruger en særskilt persistent schema-4-database under lokal runtime, scanner flere Transskribinator episodeleveringer og genbruger normal InvestViden-intake. Kun nye kilder importeres. Lokale Mistral-job oprettes som ubekræftede drafts med nul AI-forsøg; ingen transport udføres.
@@ -26,7 +36,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `VERIFICERET`: GitHub Actions run 36137895496 bestod PowerShell-parserkontrol og **86/86 tests** på Python 3.10 og 3.12.
 - `KRÆVER BRUGERTEST`: fysisk setup/check/run på workstationen. Aktiv database, ekstern AI og Windows Opgavestyring er fortsat uden for scope.
 
-
 ## 25.09.2026 — IV-007 fysisk morgen-consumer accept bestået
 
 - `VERIFICERET`: workstation-kørslen af `scripts/verify_morning_consumer_flow.py` bestod mod en færdig Transskribering episodelevering.
@@ -34,7 +43,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `VERIFICERET`: prisestimat var inden for loftet, genimport blev `existing`, originalkilden var uændret, `external_ai_calls=0` og `active_database_used=false`.
 - IV-007 er afsluttet. Næste produkttrin er en installeret lokal driftskobling med fast leverings-/intakesti og én manuel kommando, stadig stoppende ved lokal `draft`.
 - Automatisk ekstern AI, aktiv legacy-database og Windows Opgavestyring er fortsat uden for scope.
-
 
 ## 25.09.2026 — IV-007 isoleret morgen-consumer implementeret
 
@@ -44,7 +52,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `VERIFICERET`: GitHub Actions run 36128867833 bestod **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12.
 - `KRÆVER BRUGERTEST`: én fysisk kørsel mod en færdig episodelevering efter merge. Aktiv database og Windows Opgavestyring er fortsat uden for scope.
 
-
 ## 25.09.2026 — IV-002 fysisk Windows-accept afsluttet
 
 - `VERIFICERET`: read-only Test A bestod på workstationen.
@@ -52,7 +59,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - Brugeren rapporterede succes for preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
 - Den aktive legacy-database blev ikke brugt; testen omfattede ingen eksterne AI-kald og ingen Windows Opgavestyring.
 - IV-002 kan lukkes som afgrænset ugentlig kladderunner. Næste produktintegration er et samlet isoleret morgenflow fra Transskribering-output til InvestViden-intake og lokal jobkladde.
-
 
 ## 25.09.2026 — IV-002 Test A fysisk bestået
 
@@ -77,7 +83,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `VERIFICERET`: GitHub Actions PR-run 36103274600: **83/83 tests** på Python 3.10 og **83/83 tests** på Python 3.12.
 - `VERIFICERET` 2026-09-25: den efterfølgende workstation-kørsel bestod på isoleret schema 4; se afsnittet ovenfor. Ingen aktiv database eller API-nøgle blev anvendt.
 
-
 ## 25.09.2026 — IV-003 fysisk UI-accept og Mistral fail-closed
 
 - `VERIFICERET`: workstation-preview på isoleret syntetisk schema 4 blev oprettet med 2 kilder / 2 udsagn, `integrity_check=ok`, og den beskyttede legacy-database blev ikke brugt.
@@ -86,14 +91,12 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `IKKE TESTET`: vellykket rigtigt Mistral-kald. Konfigurer ikke nøgle som del af IV-003; eksternt kald kræver fortsat særskilt eksplicit brugerbeslutning.
 - IV-003 kan afsluttes for fysisk UI-/konceptaccept. Næste produktarbejde bør ikke blokere på gendannelse af den historiske vidensbase.
 
-
 ## 24.09.2026 — schema-1 fund på faktisk workstation-database
 
 - `VERIFICERET` fra brugerens PowerShell-output: den beskyttede database i den gamle workstation-mappe har schema 1. Tidligere dokumentation om schema 2 var historisk og er nu korrigeret.
 - Den første IV-004-kørsel stoppede fail-closed, fordi verifieren kun accepterede schema 2. Ingen preview-database blev oprettet, og UI-starteren nægtede efterfølgende at starte.
 - Verifieren er ændret til eksplicit schema 1/2-understøttelse med regressionstest, herunder schema 1 uden `source_provenance`; kildedatabasen skal forblive uændret.
 - `VERIFICERET`: faktisk schema-1 -> schema-4 migrationskopi på workstationen bestod alle kontroller, men den fundne legacy-fil indeholdt 0 kilder og 0 udsagn. Den historiske database med tidligere dokumenterede 66 kilder / 4.074 udsagn er ikke fundet. Ingen aktiv migration er godkendt.
-
 
 ## 24.09.2026 — IV-003 gratis UI-gate
 
@@ -103,13 +106,11 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - `KRÆVER BRUGERTEST`: fysisk browserkontrol på workstationen; stop før `Send bekræftet job nu`.
 - Næste efter browseraccept: IV-004 migrationsverifikation på en frisk kopi af aktiv schema-2; den aktive database forbliver beskyttet.
 
-
 ## 23.09.2026 — upstream morgenflow consumer-verificeret
 
 - `VERIFICERET`: en rigtig ny episode fra Transskriberingens samlede morgenflow blev accepteret af normal InvestViden-intake på frisk midlertidig SQLite.
 - Én kilde, bevaret provenance/segmentregnskab, ingen dublet ved genkørsel, uændret inputfil; 1554 segmenter.
 - Dette ændrer ikke sikkerhedsgrænsen for den aktive schema-2-database og afslutter ikke InvestViden som produkt.
-
 
 ## 23.09.2026 — aktuel workstation-consumer og upstream-kæde
 
@@ -118,7 +119,6 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 - Én kilde blev oprettet; derivation, segmentregnskab og episodehash blev bevaret; gentaget scan genkendte kilden uden dublet; inputfilen forblev uændret.
 - Ingen aktiv database, AI-kald eller planlagt opgave blev anvendt. Consumeren genberegnede ikke upstream media/canonical hashes.
 - Næste integrationsarbejde er samlet isoleret morgenorkestrering; aktiv schema-2-database/migration behandles fortsat separat efter eksisterende sikkerhedsregler.
-
 
 **Statusdato:** 2026-09-22
 **Repository:** `Klauspind/InvestViden`  

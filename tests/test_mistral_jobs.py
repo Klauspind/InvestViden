@@ -46,7 +46,7 @@ class MistralJobTest(unittest.TestCase):
         extraction["claims"][0]["review_status"] = "approved"
         return {
             "id": response_id + "-" + source_id,
-            "model": "mistral-large-2512",
+            "model": "mistral-small-2603",
             "choices": [{
                 "finish_reason": "stop",
                 "message": {"content": json.dumps(extraction, ensure_ascii=False)},
@@ -59,10 +59,13 @@ class MistralJobTest(unittest.TestCase):
         job = create_mistral_job(self.kb, self.incoming, limit=1)
 
         self.assertEqual("draft", job["status"])
+        self.assertEqual("mistral-small-2603", job["model"])
         self.assertEqual(1, len(job["items"]))
         self.assertGreater(job["estimated_cost_usd"], 0)
         self.assertLessEqual(job["estimated_cost_usd"], 0.10)
-        self.assertEqual("mistral-standard-2026-09-14", job["pricing_version"])
+        self.assertEqual("mistral-standard-2026-10-05", job["pricing_version"])
+        self.assertEqual(0.15, job["input_usd_per_million_tokens"])
+        self.assertEqual(0.60, job["output_usd_per_million_tokens"])
         self.assertEqual(0, job["items"][0]["attempt_count"])
         self.assertFalse(self.incoming.exists())
 
@@ -74,6 +77,26 @@ class MistralJobTest(unittest.TestCase):
         self.assertEqual([], calls)
         self.kb.confirm_ai_job(job["id"])
         self.assertEqual("confirmed", self.kb.ai_job(job["id"])["status"])
+
+    def test_explicit_source_and_model_use_registered_pricing(self):
+        job = create_mistral_job(
+            self.kb,
+            self.incoming,
+            model="mistral-small-2603",
+            source_ids=[self.source_ids[1]],
+        )
+        self.assertEqual("mistral-small-2603", job["model"])
+        self.assertEqual(self.source_ids[1], job["items"][0]["source_version_id"])
+        self.assertEqual(0.15, job["input_usd_per_million_tokens"])
+        self.assertEqual(0.60, job["output_usd_per_million_tokens"])
+
+        with self.assertRaisesRegex(ValidationError, "Ingen dokumenteret pris"):
+            create_mistral_job(
+                self.kb,
+                self.incoming,
+                model="mistral-medium-2604",
+                source_ids=[self.source_ids[0]],
+            )
 
     def test_price_limit_and_source_limit_are_hard_guards(self):
         with self.assertRaisesRegex(ValidationError, "overstiger prisloftet"):
