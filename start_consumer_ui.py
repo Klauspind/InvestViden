@@ -10,7 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT / "src"))
 
-from investkb.operational_web_app import serve_operational  # noqa: E402
+from investkb.operational_navigation import serve_operational  # noqa: E402
 
 
 def default_database() -> Path:
