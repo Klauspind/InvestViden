@@ -1,5 +1,17 @@
 # Handover – InvestViden
 
+## 06.10.2026 — IV-010 fysisk accepteret; research er nu standard arbejdsflade
+
+IV-010 er afsluttet efter den første konkrete BRUG → OBSERVÉR → EVALUÉR-iteration. PR #23 er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`, og GitHub Actions bestod på Python 3.10 og 3.12.
+
+`VERIFICERET` ved fysisk workstation-test i den rigtige consumer-UI: alle fire acceptpunkter fungerer. Nye AI-signaler kan vurderes direkte på detaljesiden, tilbage-linket vender tilbage til samme sted i gennemgangslisten, **Research** er standardsøgeområdet og viser kildeunderbyggede AI-kandidater sammen med menneskeligt verificeret viden, mens **Aktiv viden** fortsat kun viser `approved`/`corrected`.
+
+D-010 er den gældende produktregel: manuel review af alle AI-kandidater er ikke længere en forudsætning for researchbrug. Kildeunderbyggede `ai_extracted` kandidater må indgå i research, men de skal forblive tydeligt mærket som ikke menneskeligt verificerede. AI-confidence alene må ikke auto-godkende et udsagn.
+
+D-011 er samtidig gældende arbejdsregel for databeskyttelsesindsats: de normale investeringskilder er overvejende offentlig viden, så projektet skal ikke bruge uforholdsmæssigt meget tid på ekstra dobbeltkontroller eller sikkerhedslag alene for offentligt kildeindhold. Provenance, almindelig databaseintegritet, tydelig reviewstatus samt beskyttelse af credentials og eventuelle reelt private data bevares.
+
+`NÆSTE`: fortsæt **BRUG → OBSERVÉR → EVALUÉR** med Research som normal arbejdsflade. Start ikke en ny udviklingsopgave, før reel brug viser en konkret friktion, mangel eller nyttig produktgate.
+
 ## 06.10.2026 — aktiv consumer-evidens opdateret; MVP-gate lukket
 
 Brugeren godkendte eksplicit en kontrolleret genbehandling af den accepterede tidskode-evidens mod den separate persistente schema-4 consumer-database. Dette var en reel skriveoperation mod consumer-state, ikke mod den beskyttede legacy-database.
