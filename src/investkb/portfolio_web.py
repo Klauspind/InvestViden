@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 import secrets
 from http import HTTPStatus
 from typing import Any
@@ -48,7 +49,88 @@ def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict
     return details
 
 
-def _decision_support(entry: dict[str, Any], details: list[dict[str, Any]]) -> str:
+def _coverage_query(entry: dict[str, Any]) -> str:
+    company = str(entry["company_name"]).strip()
+    tokens = [token for token in re.findall(r"\w+", company, flags=re.UNICODE) if len(token) >= 4]
+    return tokens[0] if tokens else company
+
+
+def _source_coverage(kb: Any, entry: dict[str, Any]) -> dict[str, Any]:
+    company = str(entry["company_name"]).strip()
+    query = _coverage_query(entry)
+    raw_terms = [company]
+    if query and query.casefold() != company.casefold():
+        raw_terms.append(query)
+    ticker = str(entry.get("ticker") or "").strip()
+    if ticker:
+        raw_terms.append(ticker)
+
+    terms: list[str] = []
+    seen: set[str] = set()
+    for value in raw_terms:
+        normalized = value.casefold().strip()
+        if normalized and normalized not in seen:
+            seen.add(normalized)
+            terms.append(normalized)
+
+    if not terms:
+        return {
+            "query": company,
+            "total": 0,
+            "processed": 0,
+            "unprocessed": 0,
+            "unprocessed_sources": [],
+        }
+
+    matches = []
+    parameters: list[Any] = []
+    for term in terms:
+        pattern = f"%{term}%"
+        matches.append(
+            "(lower(COALESCE(sv.title,'')) LIKE ? OR lower(COALESCE(sv.publisher,'')) LIKE ?)"
+        )
+        parameters.extend([pattern, pattern])
+
+    rows = kb.conn.execute(
+        f"""SELECT sv.id, sv.title, sv.publisher, sv.published_at,
+                    CASE WHEN EXISTS (
+                        SELECT 1 FROM extraction_runs r WHERE r.source_id=sv.id
+                    ) THEN 1 ELSE 0 END AS processed,
+                    (SELECT i.job_id
+                       FROM ai_job_items i JOIN ai_jobs j ON j.id=i.job_id
+                      WHERE i.source_version_id=sv.id
+                      ORDER BY j.created_at DESC, j.rowid DESC LIMIT 1) AS latest_job_id,
+                    (SELECT j.status
+                       FROM ai_job_items i JOIN ai_jobs j ON j.id=i.job_id
+                      WHERE i.source_version_id=sv.id
+                      ORDER BY j.created_at DESC, j.rowid DESC LIMIT 1) AS latest_job_status
+               FROM source_versions sv
+               JOIN sources s ON s.id=sv.logical_source_id
+              WHERE sv.is_current=1
+                AND sv.archived_at IS NULL
+                AND s.archived_at IS NULL
+                AND ({' OR '.join(matches)})
+              ORDER BY COALESCE(sv.published_at, sv.imported_at) DESC, sv.id""",
+        parameters,
+    ).fetchall()
+
+    source_rows = [dict(row) for row in rows]
+    processed = sum(1 for row in source_rows if int(row["processed"]) == 1)
+    unprocessed_sources = [row for row in source_rows if int(row["processed"]) == 0]
+    return {
+        "query": query or company,
+        "total": len(source_rows),
+        "processed": processed,
+        "unprocessed": len(unprocessed_sources),
+        "unprocessed_sources": unprocessed_sources[:8],
+    }
+
+
+def _decision_support(
+    entry: dict[str, Any],
+    details: list[dict[str, Any]],
+    coverage: dict[str, Any],
+) -> str:
     positive = [item for item in details if item.get("sentiment") == "positive"]
     negative = [item for item in details if item.get("sentiment") == "negative"]
     mixed = [item for item in details if item.get("sentiment") in {"mixed", "unclear"}]
@@ -96,6 +178,34 @@ def _decision_support(entry: dict[str, Any], details: list[dict[str, Any]]) -> s
     else:
         claims_html = "".join(claim_cards)
 
+    coverage_query = str(coverage["query"])
+    ai_jobs_url = "/ai-jobs?" + urlencode({"q": coverage_query})
+    source_cards = []
+    for source in coverage["unprocessed_sources"]:
+        job_id = str(source.get("latest_job_id") or "")
+        job_status = str(source.get("latest_job_status") or "")
+        if job_id:
+            action_url = ai_jobs_url + "#" + job_id
+            action_text = f"Åbn eksisterende job · {job_status}"
+        else:
+            action_url = ai_jobs_url
+            action_text = "Vælg til Mistral"
+        source_cards.append(
+            f'''<article class="card"><div class="meta"><span class="badge">Ubehandlet kilde</span>
+<span>{_escape(source.get("published_at"))}</span><span>{_escape(source.get("publisher"))}</span></div>
+<h3>{_escape(source.get("title"))}</h3><a href="{_escape(action_url)}">{_escape(action_text)}</a></article>'''
+        )
+    unprocessed_list = "".join(source_cards)
+    if int(coverage["unprocessed"]) > len(coverage["unprocessed_sources"]):
+        unprocessed_list += (
+            f'<p class="muted">Viser de {len(coverage["unprocessed_sources"])} nyeste af '
+            f'{int(coverage["unprocessed"])} relevante ubehandlede kilder.</p>'
+        )
+    coverage_action = (
+        f'<div class="actions"><a class="button" href="{_escape(ai_jobs_url)}">Udvid research</a></div>'
+        if int(coverage["unprocessed"]) else ""
+    )
+
     return f'''
 <h2>Beslutningsbillede · {_escape(entry["company_name"])}</h2>
 <p class="muted">Dette er en struktureret researchoversigt, ikke en automatisk køb/hold/sælg-anbefaling.</p>
@@ -105,6 +215,15 @@ def _decision_support(entry: dict[str, Any], details: list[dict[str, Any]]) -> s
   <div class="stat"><span>AI-kandidater</span><b>{len(ai_candidates)}</b><span class="muted">ikke menneskeligt verificeret</span></div>
   <div class="stat"><span>Positiv / negativ / blandet</span><b>{len(positive)} / {len(negative)} / {len(mixed)}</b><span class="muted">efter kildens udsagn</span></div>
 </div>
+<h2>Research-dækning</h2>
+<div class="grid">
+  <div class="stat"><span>Relevante kilder</span><b>{int(coverage["total"])}</b><span class="muted">match på registreret kildemetadata</span></div>
+  <div class="stat"><span>AI-behandlede</span><b>{int(coverage["processed"])}</b><span class="muted">har mindst ét udtræk</span></div>
+  <div class="stat"><span>Ubehandlede</span><b>{int(coverage["unprocessed"])}</b><span class="muted">kan udvide Research</span></div>
+</div>
+<p class="muted">Kildedækningen er en prioriteringshjælp baseret på titel, udgiver og selskabsnavn/ticker — ikke semantisk fuldtekstsøgning i hele transskriptionen.</p>
+{coverage_action}
+{unprocessed_list}
 <div class="grid">
   <div class="card"><h3>Risici</h3>{point_list(risks, "Ingen strukturerede risikopunkter i de fundne udsagn.")}</div>
   <div class="card"><h3>Katalysatorer</h3>{point_list(catalysts, "Ingen strukturerede katalysatorer i de fundne udsagn.")}</div>
@@ -160,7 +279,8 @@ def make_portfolio_handler(app: Any, BaseHandler: type):
             if focused:
                 with app.database() as kb:
                     details = _research_details(self, kb, focused)
-                decision_html = _decision_support(focused, details)
+                    coverage = _source_coverage(kb, focused)
+                decision_html = _decision_support(focused, details, coverage)
 
             body = f'''
 <h1>Min portefølje</h1>
