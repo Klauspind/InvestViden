@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Status 06.10.2026 — IV-010 fysisk accepteret; researchflow aktivt
+
+- `VERIFICERET`: PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
+- `VERIFICERET`: GitHub Actions run `37473184460` bestod på Python 3.10 og 3.12 efter den afsluttende dokumentationscommit; kodeændringen var ligeledes grøn i run `37472970799`.
+- `VERIFICERET` ved fysisk workstation-brugertest: alle fire IV-010-punkter fungerer i den rigtige consumer-UI. Reviewhandlinger findes på detaljesiden, tilbage-navigationen vender tilbage til udsagnets placering, **Research** er standardområdet, og **Aktiv viden** viser kun menneskeligt godkendte/rettede udsagn.
+- `VERIFICERET`: kildeunderbyggede `ai_extracted` kandidater kan nu bruges i Research uden at blive automatisk ophøjet til `approved`; statusforskellen er synlig i UI.
+- `BRUGERBESLUTNING`: manuel review af alle kandidater er ikke nødvendig før researchbrug. Confidence alene må ikke auto-godkende. Se D-010.
+- `BRUGERBESLUTNING`: sikkerheds- og backupindsats skal være proportional med datarisikoen. Offentligt investeringskildeindhold skal ikke udløse ekstra dobbeltkontroller alene for sikkerhedens skyld; nødvendige integritets-, provenance- og private-data-kontroller bevares. Se D-011.
+- IV-010 er **AFSLUTTET**.
+- `NÆSTE`: fortsæt **BRUG → OBSERVÉR → EVALUÉR** med normal Research-brug. Næste konkrete udviklingsopgave skal først vælges, når en reel brugssituation viser en konkret friktion eller mangel.
+
 ## Status 06.10.2026 — aktiv consumer-evidens opdateret; MVP-gate lukket
 
 - `VERIFICERET`: brugeren godkendte eksplicit den kontrollerede genbehandling mod den separate persistente schema-4 consumer-database.
@@ -89,7 +100,7 @@
 
 ## Status 24.09.2026 — faktisk legacy-database er schema 1
 
-- `VERIFICERET` fra workstation-output: den beskyttede database `C:\\Users\\b306123\\InvestViden\\data\\knowledgebase.sqlite` rapporterer schema **1**, ikke schema 2 som tidligere historisk dokumentation antog.
+- `VERIFICERET` fra workstation-output: den beskyttede database `C:\Users\b306123\InvestViden\data\knowledgebase.sqlite` rapporterer schema **1**, ikke schema 2 som tidligere historisk dokumentation antog.
 - Første migrationsforsøg stoppede før kopiering, fordi verifieren krævede schema 2. Der blev ikke oprettet preview-database, og den aktive database blev ikke migreret eller erstattet.
 - IV-004-verifieren er udvidet til eksplicit at acceptere schema 1 og 2, kontrollere forventede legacy-tabeller og behandle eventuelt manglende `source_provenance` i schema 1 som 0 rækker før migration.
 - `KRÆVER BRUGERTEST`: kør den opdaterede verifier mod den faktiske schema-1-database efter synkronisering af branch/main og kontroller alle sammenligninger før UI-start.
