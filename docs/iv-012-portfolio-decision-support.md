@@ -66,8 +66,15 @@ Begrundelse:
 
 ## Status
 
-- `IMPLEMENTERET`: branch `iv-012-portfolio-mvp` indeholder den afgrænsede MVP.
-- `VERIFICERET`: GitHub Actions run `37528775241` bestod på Python 3.10 og 3.12 inklusive hele unit-testpakken og eksisterende IV-008/IV-009 smoke-tests.
+- `VERIFICERET`: PR #27 er merged til `main` som `dc73747f8dbabfb5707860625bffb131e5976563`.
+- `VERIFICERET`: GitHub Actions run `37529305588` bestod på Python 3.10 og 3.12 efter merge, inklusive hele unit-testpakken og IV-008/IV-009 smoke-tests.
 - `VERIFICERET`: syntetisk UI-test opretter en Novo Nordisk-position, gemmer den i separat `portfolio.sqlite`, viser Research-baseret beslutningsbillede med risiko/katalysator/betingelse og dokumenterer, at knowledgebasen ikke får en porteføljetabel.
 - `VERIFICERET`: IV-012-testene bruger ingen ekstern AI-transport.
-- `KRÆVER BRUGERTEST`: fysisk Windows-UI mod den persistente consumer-database, herunder opret/rediger/fjern, genstartspersistens og beslutningsbillede på en reel virksomhed.
+- `VERIFICERET` ved fysisk workstation-test 2026-10-06: porteføljepost blev oprettet, vist og bevaret efter lukning/genstart af InvestViden.
+- `VERIFICERET` ved fysisk workstation-test: Novo viste 0 Research-udsagn, hvilket matchede Research-søgningen; samtidig fandtes ca. 50 Novo-relaterede registrerede kilder, som endnu ikke var AI-behandlet.
+- `VERIFICERET` ved fysisk workstation-test: en Tesla-watchlistpost koblede korrekt til eksisterende Research og viste 1 kildeunderbygget AI-kandidat, 0 menneskeligt verificerede udsagn, positiv sentiment samt strukturerede risici, katalysatorer og betingelser/usikkerheder med link tilbage til det underliggende udsagn.
+- IV-012 er **AFSLUTTET og fysisk accepteret**.
+
+## Observation til næste iteration
+
+Den væsentligste produktbegrænsning efter IV-012 er ikke porteføljefunktionen, men **Research-dækningen**. Den aktive database indeholder mange registrerede, endnu ubehandlede kilder. For eksempel findes mange Novo-relaterede kilder, mens der endnu ikke findes Novo-Research-udsagn. Et naturligt næste produkttrin er derfor at prioritere og AI-behandle kilder ud fra portefølje/watchlist i stedet for at behandle den samlede kildebestand vilkårligt.
