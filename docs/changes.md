@@ -1,12 +1,15 @@
-## 2026-10-06 — Historisk podcastbackfill til consumer-state
+## 2026-10-06 — Historisk podcastbackfill fysisk UI-accepteret
 
 - `VERIFICERET` på workstation: 960 historiske podcasttransskriptioner blev importeret til den separate persistente schema-4 consumer-state efter hashvalidering, isoleret database-preflight og verificeret backup.
 - Importen gav `source_delta=960`, databaseintegritet `ok`, `external_ai_calls=0`, `ai_jobs_changed=false`, `ai_attempts_changed=false` og `claims_changed=false`.
 - Alle 960 historiske kilder blev sat til `ai_permission=ask`; backfillen oprettede derfor ingen nye AI-job eller AI-forsøg.
+- Fysisk UI-accept blev gennemført mod en frisk verificeret kopi af consumer-databasen. Oversigten viste 971 registrerede kilder, og historiske kilder var synlige med “Spørg for hver AI-kørsel”.
+- UI-previewet brugte eksplicit den midlertidige databasekopi; den persistente consumer-database blev ikke skrevet til af selve UI-testen.
+- Eksisterende nyere `allow`-kilder forblev synlige med deres tidligere politik. De 960 historiske kilder gav ingen nye AI-signaler, job eller forsøg.
 - 101 episodegrupper med uløste transskriptionsversioner blev holdt uden for importen. Én ikke-importklar stagingpost (`EP-1049`) blev også ekskluderet.
 - Originale arkivfiler blev ikke flyttet eller slettet. Den beskyttede legacy-database blev ikke brugt.
-- `KRÆVER BRUGERTEST`: den almindelige `START_INVESTVIDEN.cmd` peger fortsat på standarddatabasen, så de 960 kilders synlighed i brugerens normale UI/launcher er endnu ikke fysisk accepteret.
-- Se `docs/historical-podcast-import-2026-10-06.md`.
+- Den almindelige `START_INVESTVIDEN.cmd` er ikke ændret til permanent at bruge consumer-state; sådan launcher-/runtime-kobling er et separat driftsspørgsmål og ikke nødvendigt for backfill-accepten.
+- Se `docs/historical-podcast-import-2026-10-06.md` og `docs/historical-podcast-ui-acceptance-2026-10-06.md`.
 
 ## 2026-10-06 — Første rigtige Large 3-flow og source-verificerbar evidensgate
 
