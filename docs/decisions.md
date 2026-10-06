@@ -6,6 +6,8 @@ AI-output er kandidater. Et udsagn bliver først aktiv viden efter individuel me
 
 For aktuelle AI-afledte kilder må `approved`/`corrected` kun sættes, når den registrerede evidens kan knyttes til den aktuelle, hash-verificerede kildekopi. For Mistral/OpenAI-kandidater kræves et ordret evidensuddrag, som kan genfindes i kildekopien; forskelle i whitespace alene accepteres. Historiske/backfill-udsagn må fortsat importeres som `ai_extracted` uden at opfylde denne aktive-viden-gate.
 
+D-001 afgrænser status **aktiv viden**. Den forhindrer ikke, at tydeligt mærkede AI-kandidater bruges som researchinput efter D-010.
+
 ## D-002 — SQLite er autoritativ
 
 SQLite bærer den autoritative tilstand for kilder, hashes, provenance, udsagnsversioner og reviewhistorik. Afledte rapporter og eksporter skal kunne genskabes.
@@ -39,6 +41,23 @@ Den løbende Transskribinator -> InvestViden-integration må ikke skrive til ell
 For aktuelle Mistral/OpenAI-kandidater fra tidskodede podcasttransskriptioner er modellens `evidence.excerpt` ikke autoritativ evidens. `start_ref` og `end_ref` bruges som locatorer, hvorefter InvestViden ved lokal `process-ai`-indlæsning udleder den ordrette passage fra den hash-verificerede kildekopi. Den lokalt udledte passage gemmes som database-evidens til menneskelig review og den eksisterende approval-gate.
 
 Den originale AI-svarfil omskrives ikke og arkiveres uændret som provenance. Tidskoder må ikke automatisk ophøje et udsagn til aktiv viden: mennesket skal fortsat vurdere, om hele udsagnet faktisk understøttes af passagen. Hvis en lokal passage ikke kan udledes, forbliver kandidatflowet fail-closed. Der indføres ingen schema-migration som følge af denne beslutning.
+
+## D-010 — Kildeunderbyggede AI-kandidater må bruges i research
+
+Manuel gennemgang af alle AI-kandidater er ikke en forudsætning for, at InvestViden kan bruges som researchværktøj.
+
+Et aktuelt `ai_extracted` udsagn må indgå i almindelig researchsøgning, når den eksisterende evidenskontrol vurderer, at den registrerede evidens kan knyttes til den aktuelle kildekopi. Udsagnet beholder status `ai_extracted` og skal i UI, rapporter og afledte analyser kunne skelnes tydeligt fra `approved` og `corrected` viden.
+
+AI'ens egen confidence-procent må ikke i sig selv ændre reviewstatus eller udløse automatisk menneskelig godkendelse. `approved` og `corrected` betyder fortsat, at et menneske individuelt har vurderet udsagnet.
+
+Researchvisningen må derfor kombinere:
+
+- menneskeligt verificeret `approved`/`corrected` viden, og
+- kildeunderbyggede aktuelle AI-kandidater, tydeligt mærket som ikke menneskeligt verificeret.
+
+Et særskilt filter for **Aktiv viden** skal fortsat give mulighed for kun at se menneskeligt verificerede udsagn. Kandidater med utilstrækkeligt kildegrundlag må ikke få mærket kildeunderbygget og bør ikke indgå i standard-researchvisningen.
+
+Rapportfunktionen må fortsat medtage ikke-afviste kandidater, når status følger med. Fremtidige analyser skal bevare samme skelnen mellem AI-kandidat og menneskeligt verificeret viden.
 
 ## Åbne afklaringer
 
