@@ -8,6 +8,7 @@ from http.server import ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, quote, urlencode, urlparse
 
+from .ai_workflow import process_ai_inbox
 from .operational_web_app import OperationalInvestVidenWebApp, make_operational_handler
 
 
@@ -26,6 +27,25 @@ def _focus_job_in_html(body: bytes) -> bytes:
         text,
     )
     return focused.encode("utf-8")
+
+
+def _add_pending_recovery(body: bytes, csrf_token: str, has_pending: bool) -> bytes:
+    if not has_pending:
+        return body
+    text = body.decode("utf-8")
+    marker = "<h1>Mistral-job</h1>"
+    if marker not in text:
+        return body
+    recovery = f"""
+<div class="notice">
+<strong>Valideret AI-svar venter på lokal indlæsning.</strong>
+<p>Dette trin sender ikke noget nyt til Mistral. Det indlæser kun allerede modtagne og validerede svar som AI-kandidater.</p>
+<form method="post" action="/ai-jobs">
+<input type="hidden" name="csrf_token" value="{csrf_token}">
+<button name="action" value="recover">Indlæs ventende valideret svar</button>
+</form>
+</div>"""
+    return text.replace(marker, marker + recovery, 1).encode("utf-8")
 
 
 def _job_redirect(path: str, referer: str | None) -> str:
@@ -55,10 +75,27 @@ def make_navigation_handler(app: OperationalInvestVidenWebApp):
 
     class NavigationHandler(BaseHandler):
         def _send(self, body: bytes, status: HTTPStatus = HTTPStatus.OK) -> None:
-            super()._send(_focus_job_in_html(body), status)
+            focused = _focus_job_in_html(body)
+            has_pending = app.ai_incoming.exists() and any(
+                path.is_file() and path.suffix.lower() in {".json", ".jsonl"}
+                for path in app.ai_incoming.iterdir()
+            )
+            super()._send(_add_pending_recovery(focused, app.csrf_token, has_pending), status)
 
         def _redirect(self, path: str) -> None:
             super()._redirect(_job_redirect(path, self.headers.get("Referer")))
+
+        def _ai_job_action(self, fields: dict[str, list[str]]) -> None:
+            if fields.get("action", [""])[0] != "recover":
+                super()._ai_job_action(fields)
+                return
+            with app.database() as kb:
+                processed = process_ai_inbox(kb, app.ai_incoming, app.ai_processed, False)
+            message = (
+                f"Lokal recovery gennemført: {processed['claims']} AI-kandidater er indlæst i Research. "
+                "Der blev ikke foretaget et nyt Mistral-kald."
+            )
+            self._redirect("/ai-jobs?" + urlencode({"message": message}))
 
     return NavigationHandler
 
