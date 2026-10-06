@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Aktiv supportopgave 06.10.2026 — historisk podcastbackfill synlig i normal runtime
+
+- `VERIFICERET`: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state efter hashkontrol, isoleret preflight og verificeret backup.
+- `VERIFICERET`: efter import er databaseintegritet `ok`, `source_delta=960`, `external_ai_calls=0`, `ai_jobs_changed=false`, `ai_attempts_changed=false` og `claims_changed=false`.
+- `VERIFICERET`: alle 960 historiske kilder har `ai_permission=ask`; importen oprettede derfor ingen nye AI-job eller AI-forsøg.
+- 101 episodegrupper med uløste transskriptionsversioner er parkeret og blev ikke importeret. `EP-1049` blev ekskluderet som ikke-importklar.
+- Originale arkivfiler blev ikke flyttet eller slettet, og den beskyttede legacy-database blev ikke brugt.
+- `KRÆVER BRUGERTEST`: den normale `START_INVESTVIDEN.cmd` bruger fortsat standarddatabasen `data/knowledgebase.sqlite`; de 960 kilder er derfor endnu ikke fysisk accepteret som synlige i brugerens normale UI/runtime.
+- `NÆSTE`: lav den mindste sikre read-only/UI-start mod consumerens eksisterende schema-4 database og verificér, at de historiske kilder kan ses. Ingen migration, AI-kørsel eller behandling af de 101 konfliktgrupper er nødvendig for dette trin.
+- Se `docs/historical-podcast-import-2026-10-06.md`.
+
 ## Aktiv opgave 06.10.2026 — source-verificerbar evidens før aktiv viden
 
 - `VERIFICERET`: Mistral pay-as-you-go er aktiveret. Både `mistral-small-2603` og `mistral-large-2512` svarede på et minimalt syntetisk API-kald; Large 3 kørte på `service_tier=standard`.
@@ -109,14 +120,6 @@
 
 **VERIFICERET etape C:** CLI kræver eksplicit eksisterende schema-4-database; preview er standard, recovery er read-only, og Windows-launcheren kræver præcis bekræftelse før apply. Samlet suite: **70/70 tests**.
 
-**Mål:** Byg den kontrollerede ugentlige runner fra desktop-handoveren på det nu synkroniserede kodegrundlag.
-
-**Acceptkriterier, herunder resterende:**
-- Genkørsel i samme ISO-uge dublerer ikke et allerede afsluttet ugentligt job; afbrudt uge kræver sikker manuel recovery.
-- Runneren respekterer kildens AI-politik og særskilt menneskelig godkendelse; eksterne kald er ikke del af draft-runneren.
-- Mistral-jobkøens prisloft og øvrige sikkerhedsværn genbruges.
-- Lokal log uden secrets eller privat kildetekst.
-- Verificeret SQLite-backup efter ændringer; 30 relevante backups beholdes.
 - Delvise fejl kan fortsættes uden at genkøre succesfulde kilder, men recovery må ikke ske automatisk før dokumenteret afstemning.
 - Windows Opgavestyring konfigureres ikke i første leverance.
 - `VERIFICERET`: lokal Test A og den kontrollerede skriveaccept er bestået på isoleret schema 4. Windows Opgavestyring er fortsat ikke del af leverancen.
