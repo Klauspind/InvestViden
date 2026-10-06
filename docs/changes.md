@@ -1,3 +1,13 @@
+## 2026-10-06 — IV-010 researchflow fysisk accepteret
+
+- PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
+- `VERIFICERET`: GitHub Actions bestod på Python 3.10 og 3.12 for kodeændringen og den afsluttende dokumentation.
+- `VERIFICERET` ved fysisk workstation-brugertest: alle fire acceptpunkter bestod i den rigtige consumer-UI. Reviewhandlinger findes direkte på detaljesiden, tilbage-navigationen bevarer placeringen i reviewlisten, **Research** er standardområdet, og **Aktiv viden** viser kun `approved`/`corrected`.
+- Kildeunderbyggede `ai_extracted` kandidater må nu indgå i research uden at blive automatisk menneskeligt godkendt. De markeres tydeligt som ikke menneskeligt verificerede; confidence alene ændrer ikke reviewstatus.
+- D-010 dokumenterer den nye researchregel. D-011 dokumenterer brugerens beslutning om proportional sikkerhedsindsats for overvejende offentligt investeringskildeindhold.
+- Ingen schemaændring, migration eller ny ekstern AI-kørsel indgik i IV-010.
+- IV-010 er afsluttet. Projektet fortsætter med **BRUG → OBSERVÉR → EVALUÉR**.
+
 ## 2026-10-06 — Aktiv consumer-evidens opdateret og MVP-gate lukket
 
 - Brugeren godkendte eksplicit en kontrolleret `process-ai`-genbehandling mod den separate persistente schema-4 consumer-database.
