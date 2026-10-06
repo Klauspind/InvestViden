@@ -10,6 +10,7 @@ from urllib.parse import parse_qs, quote, urlencode, urlparse
 
 from .ai_workflow import process_ai_inbox
 from .operational_web_app import OperationalInvestVidenWebApp, make_operational_handler
+from .portfolio_web import make_portfolio_handler
 
 
 JOB_ID_PATTERN = re.compile(r"ai-job-[0-9a-f]+")
@@ -48,6 +49,15 @@ def _add_pending_recovery(body: bytes, csrf_token: str, has_pending: bool) -> by
     return text.replace(marker, marker + recovery, 1).encode("utf-8")
 
 
+def _add_portfolio_navigation(body: bytes) -> bytes:
+    text = body.decode("utf-8")
+    if 'href="/portfolio"' in text or "</nav>" not in text:
+        return body
+    return text.replace(
+        "</nav>", '<a href="/portfolio">Min portefølje</a></nav>', 1
+    ).encode("utf-8")
+
+
 def _job_redirect(path: str, referer: str | None) -> str:
     parsed = urlparse(path)
     if parsed.path != "/ai-jobs":
@@ -71,7 +81,7 @@ def _job_redirect(path: str, referer: str | None) -> str:
 
 
 def make_navigation_handler(app: OperationalInvestVidenWebApp):
-    BaseHandler = make_operational_handler(app)
+    BaseHandler = make_portfolio_handler(app, make_operational_handler(app))
 
     class NavigationHandler(BaseHandler):
         def _send(self, body: bytes, status: HTTPStatus = HTTPStatus.OK) -> None:
@@ -80,7 +90,8 @@ def make_navigation_handler(app: OperationalInvestVidenWebApp):
                 path.is_file() and path.suffix.lower() in {".json", ".jsonl"}
                 for path in app.ai_incoming.iterdir()
             )
-            super()._send(_add_pending_recovery(focused, app.csrf_token, has_pending), status)
+            recovered = _add_pending_recovery(focused, app.csrf_token, has_pending)
+            super()._send(_add_portfolio_navigation(recovered), status)
 
         def _redirect(self, path: str) -> None:
             super()._redirect(_job_redirect(path, self.headers.get("Referer")))

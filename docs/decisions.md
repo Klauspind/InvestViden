@@ -67,6 +67,14 @@ Det nødvendige minimum bevares: provenance og kildehenvisning, almindelig datab
 
 D-011 ændrer ikke forbuddet mod automatisk brokeradgang eller handel og ændrer ikke betydningen af `approved`/`corrected`.
 
+## D-012 — Personlig portefølje-state holdes separat fra knowledgebase
+
+Den første portefølje/watchlist-version gemmer personlige porteføljeoplysninger i en separat lokal SQLite-fil `portfolio.sqlite` ved siden af den persistente consumer-database. IV-012 migrerer eller udvider derfor ikke den fysisk accepterede schema-4 knowledgebase.
+
+Portefølje-state er manuel brugerinput og kan indeholde personlige beholdningsoplysninger. Filen er lokal runtime-data og må ikke pushes til GitHub. Den kan kobles read-only til Research-udsagn fra knowledgebasen, men den ændrer ikke udsagnenes reviewstatus og udløser ingen ekstern AI-kørsel.
+
+Beslutningsstøtten må efter D-010 bruge både menneskeligt verificeret viden og kildeunderbyggede AI-kandidater, når status vises tydeligt. Den må ikke fremstille en automatisk køb/hold/sælg-score og må ikke integrere med broker eller udføre handel.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
