@@ -33,7 +33,7 @@ Gør eksisterende Research personligt anvendeligt ved at koble lokale portefølj
 
 ## Datavalg
 
-IV-012 ændrer ikke den fysisk accepterede consumer-knowledgebase. Personlige porteføljeoplysninger gemmes i en separat lokal SQLite-fil `portfolio.sqlite` ved siden af consumer-databasen.
+IV-012 ændrer ikke den fysisk accepterede consumer-knowledgebase. Personlige porteføljeoplysninger gemmes i en separat lokal SQLite-fil `portfolio.sqlite` ved siden af consumer-databasen. Se D-012.
 
 Begrundelse:
 
@@ -66,5 +66,8 @@ Begrundelse:
 
 ## Status
 
-- `IMPLEMENTERES`: branch `iv-012-portfolio-mvp`.
-- `IKKE TESTET` fysisk på workstation endnu.
+- `IMPLEMENTERET`: branch `iv-012-portfolio-mvp` indeholder den afgrænsede MVP.
+- `VERIFICERET`: GitHub Actions run `37528775241` bestod på Python 3.10 og 3.12 inklusive hele unit-testpakken og eksisterende IV-008/IV-009 smoke-tests.
+- `VERIFICERET`: syntetisk UI-test opretter en Novo Nordisk-position, gemmer den i separat `portfolio.sqlite`, viser Research-baseret beslutningsbillede med risiko/katalysator/betingelse og dokumenterer, at knowledgebasen ikke får en porteføljetabel.
+- `VERIFICERET`: IV-012-testene bruger ingen ekstern AI-transport.
+- `KRÆVER BRUGERTEST`: fysisk Windows-UI mod den persistente consumer-database, herunder opret/rediger/fjern, genstartspersistens og beslutningsbillede på en reel virksomhed.
