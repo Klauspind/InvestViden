@@ -186,6 +186,7 @@
 - ISO-uge-markør og eksklusiv lås; ufuldstændig uge stopper for manuel afstemning.
 - Backup efter ændringer valideres med hash og SQLite integrity check, inden ældre relevante backups slettes; retention 30.
 - Seks syntetiske offline-tests bestået med stub-moduler, der dækker preview, gentagen uge, politik, reserverede kilder, crash-marker, retention og forkert backup-hash.
+- Kode og tests gemt på `feature/iv-002-weekly-drafts`; ingen API-kald eller adgang til aktiv database.
 
 ### IKKE TESTET / resterende
 
