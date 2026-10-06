@@ -1,5 +1,17 @@
 # Handover – InvestViden
 
+## 06.10.2026 — IV-013 fysisk accepteret; porteføljestyret Research-dækning er klar til brug
+
+IV-013 er afsluttet. PR #28 er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`, og GitHub Actions run `37534628566` bestod på Python 3.10 og 3.12 efter merge.
+
+`VERIFICERET` ved fysisk workstation-test i den persistente consumer-UI: Novo-porteføljeposten viser relevante ubehandlede kilder direkte i beslutningsbilledet. Kilder med eksisterende `draft`/`failed` jobs har direkte links til jobhistorikken, mens kilder uden job kan vælges til det eksisterende Mistral-flow. UI'en viste de 8 nyeste af 89 relevante ubehandlede Novo-kilder.
+
+`VERIFICERET`: **Udvid research** åbner Mistral-job med filteret `Novo`. Den filtrerede jobkladdevisning viste 83 kilder uden eksisterende job, som kunne vælges. Brugeren valgte én kilde og oprettede en lokal jobkladde; UI'en bekræftede `Ingen tekst er sendt`, og listen faldt fra 83 til 82 valgbare kilder. Acceptance-testen foretog dermed ikke et nyt eksternt AI-kald.
+
+IV-013 ændrer ikke schema, portefølje-schema eller reviewstatus og indfører ikke automatisk AI-kørsel. Flowet er nu: **Portefølje → Research-dækning → vælg relevante ubehandlede kilder → eksisterende Mistral-flow → Research → opdateret beslutningsbillede**. Metadata-match er bevidst en enkel prioriteringshjælp og ikke semantisk fuldtekstsøgning.
+
+`NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Brug den nye portefølje-/Research-kæde i normal drift og AI-behandl kun relevante kilder efter behov. Start ikke massebehandling af de resterende historiske kilder eller ny udvikling, før konkret brug viser en friktion, mangel eller nødvendig produktgate.
+
 ## 06.10.2026 — IV-010 fysisk accepteret; research er nu standard arbejdsflade
 
 IV-010 er afsluttet efter den første konkrete BRUG → OBSERVÉR → EVALUÉR-iteration. PR #23 er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`, og GitHub Actions bestod på Python 3.10 og 3.12.
