@@ -28,6 +28,18 @@ def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict
     for row in rows.values():
         detail = kb.claim_detail(str(row["id"]))
         detail["match_excerpt"] = row.get("match_excerpt")
+        points: dict[str, list[str]] = {
+            "thesis": [],
+            "risk": [],
+            "catalyst": [],
+            "condition": [],
+        }
+        for point in kb.conn.execute(
+            "SELECT point_type, text FROM claim_points WHERE claim_id=? ORDER BY point_type, position",
+            (str(row["id"]),),
+        ):
+            points[str(point["point_type"])].append(str(point["text"]))
+        detail["points"] = points
         details.append(detail)
     details.sort(
         key=lambda item: (str(item.get("published_at") or ""), str(item.get("id") or "")),
