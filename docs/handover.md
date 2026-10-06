@@ -1,5 +1,15 @@
 # Handover – InvestViden
 
+## 06.10.2026 — 960 historiske podcasttransskriptioner importeret; runtime-synlighed er næste gate
+
+`VERIFICERET` på workstation via brugerens fysiske PowerShell-output: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state. Før aktiv skrivning bestod hele importen en isoleret database-preflight med alle 960 kilder. Den aktive import tog en verificeret backup, sluttede med `database_integrity=ok` og `source_delta=960`, og ændrede hverken AI-job, AI-forsøg eller claims. Der blev foretaget 0 eksterne AI-kald.
+
+Alle 960 historiske kilder er importeret med `ai_permission=ask`, så backfillen ikke automatisk bliver til eksterne AI-opgaver. Originale arkivfiler blev ikke flyttet eller slettet, og den beskyttede legacy-database blev ikke brugt. 101 episodegrupper med forskellige transskriptionsversioner er bevidst holdt uden for importen; lokal kvalitetsanalyse gav ikke et sikkert automatisk valg. `EP-1049` blev ekskluderet som ikke-importklar.
+
+`KRÆVER BRUGERTEST`: importen ligger i consumerens schema-4 database, mens den almindelige `START_INVESTVIDEN.cmd` fortsat bruger standarddatabasen `data/knowledgebase.sqlite`. De 960 kilder er derfor endnu ikke fysisk accepteret som synlige gennem brugerens normale InvestViden-UI/runtime. Dette er næste og eneste nødvendige supporttrin for backfillen. Der skal ikke migreres legacy-database, køres AI eller arbejdes videre med de 101 konfliktgrupper som del af denne gate.
+
+Se `docs/historical-podcast-import-2026-10-06.md`.
+
 ## 06.10.2026 — første rigtige Mistral-flow virker; evidensgate er næste acceptance
 
 Mistral pay-as-you-go er nu aktiveret. `VERIFICERET`: både `mistral-small-2603` og `mistral-large-2512` svarer på minimale syntetiske API-kald, og Large 3 kører på standard service tier. Den tidligere 403/429-blokering var dermed kontoplan/API-adgang, ikke InvestVidens extraction-payload.
@@ -69,7 +79,7 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 ## 25.09.2026 — IV-002 fysisk Windows-accept afsluttet
 
 - `VERIFICERET`: read-only Test A bestod på workstationen.
-- `VERIFICERET`: skriveaccepten blev derefter kørt på en frisk syntetisk schema-4-database med én `allow`-kilde og isolerede state-/backupmapper.
+- `VERIFICERET`: skriveaccepten blev derefter kørt på en frisk syntetisk schema 4 med én `allow`-kilde og isolerede state-/backupmapper.
 - Brugeren rapporterede succes for preview, `apply`, recovery-afstemning og genkørsel/idempotenskontrol.
 - Den aktive legacy-database blev ikke brugt; testen omfattede ingen eksterne AI-kald og ingen Windows Opgavestyring.
 - IV-002 kan lukkes som afgrænset ugentlig kladderunner. Næste produktintegration er et samlet isoleret morgenflow fra Transskribering-output til InvestViden-intake og lokal jobkladde.
