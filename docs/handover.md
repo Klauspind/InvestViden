@@ -1,14 +1,18 @@
 # Handover – InvestViden
 
-## 06.10.2026 — 960 historiske podcasttransskriptioner importeret; runtime-synlighed er næste gate
+## 06.10.2026 — historisk podcastbackfill afsluttet og fysisk UI-accepteret
 
 `VERIFICERET` på workstation via brugerens fysiske PowerShell-output: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state. Før aktiv skrivning bestod hele importen en isoleret database-preflight med alle 960 kilder. Den aktive import tog en verificeret backup, sluttede med `database_integrity=ok` og `source_delta=960`, og ændrede hverken AI-job, AI-forsøg eller claims. Der blev foretaget 0 eksterne AI-kald.
 
 Alle 960 historiske kilder er importeret med `ai_permission=ask`, så backfillen ikke automatisk bliver til eksterne AI-opgaver. Originale arkivfiler blev ikke flyttet eller slettet, og den beskyttede legacy-database blev ikke brugt. 101 episodegrupper med forskellige transskriptionsversioner er bevidst holdt uden for importen; lokal kvalitetsanalyse gav ikke et sikkert automatisk valg. `EP-1049` blev ekskluderet som ikke-importklar.
 
-`KRÆVER BRUGERTEST`: importen ligger i consumerens schema-4 database, mens den almindelige `START_INVESTVIDEN.cmd` fortsat bruger standarddatabasen `data/knowledgebase.sqlite`. De 960 kilder er derfor endnu ikke fysisk accepteret som synlige gennem brugerens normale InvestViden-UI/runtime. Dette er næste og eneste nødvendige supporttrin for backfillen. Der skal ikke migreres legacy-database, køres AI eller arbejdes videre med de 101 konfliktgrupper som del af denne gate.
+`VERIFICERET` ved fysisk UI-accept: en frisk verificeret kopi af consumerens schema-4 database blev startet i den aktuelle InvestViden-UI. Oversigten viste **971 registrerede kilder** (11 tidligere consumer-kilder + 960 historiske), preview-banneret viste eksplicit den midlertidige databasekopi, og historiske kilder var synlige under Kildepolitikker med “Spørg for hver AI-kørsel”. Eksisterende nyere `allow`-kilder forblev synlige med “Tillad ekstern AI”. UI'et viste fortsat de eksisterende 32 AI-signaler; backfillen skabte ikke nye signaler, job eller AI-forsøg.
 
-Se `docs/historical-podcast-import-2026-10-06.md`.
+Søgningen i UI er udsagns-/videnssøgning og er ikke en fuldtekstsøgetest af de 960 rå transskriptioner. Det er ikke et krav for denne backfill-accept. Den almindelige `START_INVESTVIDEN.cmd` er heller ikke ændret til permanent at bruge consumer-state; permanent launcher-/runtime-kobling er et separat driftsspørgsmål og er ikke nødvendigt for at betragte oprydning og backfill som afsluttet.
+
+`NÆSTE`: tilbage til den allerede aktive MVP-gate for source-verificerbar evidens på én frisk kilde. De 101 konfliktgrupper skal forblive parkeret, medmindre brugeren senere eksplicit genåbner dem.
+
+Se `docs/historical-podcast-import-2026-10-06.md` og `docs/historical-podcast-ui-acceptance-2026-10-06.md`.
 
 ## 06.10.2026 — første rigtige Mistral-flow virker; evidensgate er næste acceptance
 
@@ -38,7 +42,7 @@ Efter IV-009 blev én rigtig Novo-kilde valgt som første kontrollerede AI-pilot
 
 Efter fysisk afslutning af IV-008 er næste aktive punkt IV-009. Den nye consumer bruger en særskilt persistent schema-4-database under lokal runtime, scanner flere Transskribinator episodeleveringer og genbruger normal InvestViden-intake. Kun nye kilder importeres. Lokale Mistral-job oprettes som ubekræftede drafts med nul AI-forsøg; ingen transport udføres.
 
-Idempotens gælder på tværs af kørsler via den persistente database. Recovery dækker også vinduet mellem import og draft: en `allow`-kilde uden extraction-run og uden eksisterende AI-jobitem får den manglende draft ved næste kørsel. Read-only check må hverken oprette state eller ændre en eksisterende database. Aktiv legacy-database og repositoryets `data/` er eksplicit uden for consumer-state. `VERIFICERET` i GitHub Actions run 36550196931: launcher-smoke og 91/91 tests bestod på både Python 3.10 og 3.12. Første smoke-run importerede 2 og oprettede 2 drafts; andet run importerede 0 og oprettede 0 drafts. Næste gate er fysisk workstation-accept mod de 4 aktuelle consumerleveringer.
+Idempotens gælder på tværs af kørsler via den persistente database. Recovery dækker også vinduet mellem import og draft: en `allow`-kilde uden extraction-run og uden eksisterende AI-jobitem får den manglende draft ved næste run. Read-only check må hverken oprette state eller ændre en eksisterende database. Aktiv legacy-database og repositoryets `data/` er eksplicit uden for consumer-state. `VERIFICERET` i GitHub Actions run 36550196931: launcher-smoke og 91/91 tests bestod på både Python 3.10 og 3.12. Første smoke-run importerede 2 og oprettede 2 drafts; andet run importerede 0 og oprettede 0 drafts. Næste gate er fysisk workstation-accept mod de 4 aktuelle consumerleveringer.
 
 ## 29.09.2026 — IV-008 fysisk accepteret
 
