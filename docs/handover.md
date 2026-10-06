@@ -1,5 +1,19 @@
 # Handover – InvestViden
 
+## 06.10.2026 — første rigtige Mistral-flow virker; evidensgate er næste acceptance
+
+Mistral pay-as-you-go er nu aktiveret. `VERIFICERET`: både `mistral-small-2603` og `mistral-large-2512` svarer på minimale syntetiske API-kald, og Large 3 kører på standard service tier. Den tidligere 403/429-blokering var dermed kontoplan/API-adgang, ikke InvestVidens extraction-payload.
+
+Første rigtige Large 3-flow blev gennemført på `src-256795459ce7aa09` (“Is the yield curve inverted?”): job `completed`, item `validated`, 10 udsagn bestod `process-ai --dry-run` og blev indlæst som `ai_extracted` med verificeret backup. En nyere kilde, `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, publiceret 2026-10-01), gennemførte samme flow og gav 10 nye kandidater. Ingen af disse udsagn er automatisk aktiv viden.
+
+Den strenge evidenskontrol på den nyere kilde fandt en reel MVP-fejl: **0/10** `evidence.excerpt` kunne genfindes i den kontrollerede kildekopi, heller ikke efter ren whitespace-normalisering. Uddragene var parafraser, selv om extraction-instruksen bad om ordret evidens. Det er derfor ikke forsvarligt at godkende disse 10 som aktiv viden.
+
+PR #19 (`iv-verbatim-evidence-gate`) er den afgrænsede rettelse. Approval/correction for aktuelle Mistral/OpenAI-kandidater kræver nu en læsbar kontrolleret kildekopi, matchende SHA-256 og et evidensuddrag, der kan genfindes ordret med tolerance for whitespace. Extraction-schemaet beskriver eksplicit, at `evidence.excerpt` skal kopieres direkte fra `source_text`, ikke parafraseres. Ingestion/backfill ændres ikke; historiske eller ældre kandidater kan fortsat importeres som `ai_extracted` og behøver ikke gennemgås nu.
+
+`VERIFICERET`: GitHub Actions run `37435232565` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests. D-001 er opdateret med den nye aktive-viden-gate. Den beskyttede legacy-database er ikke migreret eller skrevet til af ændringen.
+
+`KRÆVER BRUGERTEST` efter merge: synkronisér workstationen og brug én **frisk, endnu ubehandlet aktuel kilde** til en ny Large 3-extraction. Kontroller først, at de nye evidensuddrag kan genfindes i kildekopien. Godkend derefter højst ét tydeligt kildebelagt udsagn og verificér, at det bliver aktivt/søgbart. De 10 nuværende kandidater med parafraseret evidens skal forblive ikke-aktive; reparér ikke historisk backfill som del af denne MVP-gate.
+
 ## 05.10.2026 — IV-009 afsluttet; kontrolleret Small 4-pilot er næste gate
 
 IV-009 er nu fysisk accepteret på workstationen mod 11 aktuelle Transskribinator-leveringer. `-Check` fandt 11/11 gyldige episode-JSON-filer, oprettede ingen state-database og udførte ingen eksterne AI-kald. Første persistente run importerede 11 nye kilder og oprettede 11 lokale drafts i separat schema 4; genkørsel gav 0 nye importer og 0 nye drafts. Databaseintegritet var `ok`, originalkilderne var uændrede, og den beskyttede legacy-database blev ikke brugt. Se `docs/iv-009-multi-episode-consumer.md`.
@@ -93,7 +107,7 @@ Den faktiske CMD-kørsel stoppede ved PowerShell-linjen, der startede Python: en
 
 ## 24.09.2026 — schema-1 fund på faktisk workstation-database
 
-- `VERIFICERET` fra brugerens PowerShell-output: den beskyttede database i den gamle workstation-mappe har schema 1. Tidligere dokumentation om schema 2 var historisk og er nu korrigeret.
+- `VERIFICERET` fra workstation-output: den beskyttede database i den gamle workstation-mappe har schema 1. Tidligere dokumentation om schema 2 var historisk og er nu korrigeret.
 - Den første IV-004-kørsel stoppede fail-closed, fordi verifieren kun accepterede schema 2. Ingen preview-database blev oprettet, og UI-starteren nægtede efterfølgende at starte.
 - Verifieren er ændret til eksplicit schema 1/2-understøttelse med regressionstest, herunder schema 1 uden `source_provenance`; kildedatabasen skal forblive uændret.
 - `VERIFICERET`: faktisk schema-1 -> schema-4 migrationskopi på workstationen bestod alle kontroller, men den fundne legacy-fil indeholdt 0 kilder og 0 udsagn. Den historiske database med tidligere dokumenterede 66 kilder / 4.074 udsagn er ikke fundet. Ingen aktiv migration er godkendt.

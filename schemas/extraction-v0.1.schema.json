@@ -29,9 +29,13 @@
     },
     "evidence": {
       "type": "object",
+      "description": "Kildeevidens. excerpt skal, når det bruges, være et sammenhængende ordret uddrag kopieret direkte fra source_text og må ikke parafraseres eller opsummeres.",
       "additionalProperties": false,
       "properties": {
-        "excerpt": {"type": ["string", "null"]},
+        "excerpt": {
+          "type": ["string", "null"],
+          "description": "Et sammenhængende ordret uddrag kopieret direkte fra source_text. Parafrasér eller opsummér ikke. Bevar kildens ordlyd; forskelle i whitespace alene er acceptable."
+        },
         "start_ref": {"type": ["string", "null"]},
         "end_ref": {"type": ["string", "null"]}
       },
@@ -67,4 +71,3 @@
     }
   }
 }
-

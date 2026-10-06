@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Aktiv opgave 06.10.2026 — source-verificerbar evidens før aktiv viden
+
+- `VERIFICERET`: Mistral pay-as-you-go er aktiveret. Både `mistral-small-2603` og `mistral-large-2512` svarede på et minimalt syntetisk API-kald; Large 3 kørte på `service_tier=standard`.
+- `VERIFICERET`: første rigtige Large 3-extraction på `src-256795459ce7aa09` (“Is the yield curve inverted?”) gennemførte `completed/validated`; 10 udsagn blev dry-run-valideret og derefter indlæst som `ai_extracted` med verificeret backup.
+- `VERIFICERET`: en nyere kilde `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, 2026-10-01) gennemførte samme flow og gav 10 `ai_extracted` kandidater.
+- `VERIFICERET`: alle 10 evidensuddrag fra den nyere kilde kunne **ikke** genfindes i den kontrollerede kildekopi, hverken ordret eller efter ren whitespace-normalisering. Mistral havde parafraseret evidensen. Ingen af de 10 er menneskeligt godkendt.
+- Implementeret i PR #19: Mistral/OpenAI-kandidater kan ikke sættes til `approved`/`corrected`, medmindre kildekopien kan læses, hash matcher, og evidensuddraget kan genfindes ordret med tolerance for whitespace. Extraction-schemaet præciserer samtidig, at `evidence.excerpt` skal kopieres ordret fra `source_text`. Ingestion og historisk backfill er uændret; historiske udsagn kan fortsat ligge som `ai_extracted`.
+- `VERIFICERET`: GitHub Actions run `37435232565` bestod på både Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests.
+- `KRÆVER BRUGERTEST` efter merge: synkronisér workstationen og kør én frisk Large 3-extraction på en endnu ubehandlet aktuel kilde. Kontroller derefter, at de nye evidensuddrag faktisk kan genfindes i kildekopien, før ét udsagn godkendes som aktiv viden.
+- `NÆSTE`: fysisk accept af den nye evidensgate på én frisk kilde. De allerede indlæste kandidater med parafraseret evidens forbliver ikke-aktive; der er ingen grund til at reparere historisk backfill nu.
+
 ## Aktiv opgave 05.10.2026 — kontrolleret én-kilde Mistral Small 4-pilot
 
 - `VERIFICERET`: IV-009 er fysisk accepteret på workstationen mod 11 aktuelle Transskribinator-leveringer. Første persistente kørsel importerede 11 nye kilder og oprettede 11 lokale drafts; genkørsel gav 0 nye importer og 0 nye drafts. Schema 4, databaseintegritet og originalkilder var intakte; `active_database_used=false`.
