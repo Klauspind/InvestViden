@@ -1,3 +1,15 @@
+## 2026-10-06 — Første rigtige Large 3-flow og source-verificerbar evidensgate
+
+- Mistral pay-as-you-go blev aktiveret. `mistral-small-2603` og `mistral-large-2512` bestod begge et minimalt syntetisk API-kald; Large 3 kørte på standard service tier.
+- Første vellykkede rigtige extraction blev kørt med `mistral-large-2512` på `src-256795459ce7aa09` (“Is the yield curve inverted?”). Jobbet sluttede `completed`, item blev `validated`, 10 udsagn bestod `process-ai --dry-run` og blev derefter indlæst som `ai_extracted` med verificeret backup.
+- En nyere kilde, `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, 2026-10-01), gennemførte samme kontrollerede flow og gav 10 nye `ai_extracted` kandidater.
+- Fysisk evidenskontrol viste, at **0/10** evidensuddrag fra den nyere kilde kunne genfindes i den kontrollerede kildekopi, både ved ordret søgning og efter whitespace-normalisering. Modellen havde parafraseret evidensen, selv om prompten bad om ordret evidens.
+- PR #19 gør derfor approval fail-closed for aktuelle Mistral/OpenAI-kandidater: `approved`/`corrected` kræver læsbar kildekopi, matchende SHA-256 og et evidensuddrag, der kan genfindes ordret med tolerance for whitespace. Historisk ingestion/backfill ændres ikke og kan fortsat ligge som `ai_extracted`.
+- Extraction-schemaets beskrivelser præciserer, at `evidence.excerpt` skal være et sammenhængende ordret uddrag kopieret fra `source_text`, ikke en parafrase.
+- Fire nye syntetiske regressionstests dækker parafrase, whitespace, manglende excerpt og hash-mismatch.
+- `VERIFICERET`: GitHub Actions run `37435232565` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests.
+- Ingen aktiv legacy-database blev migreret eller skrevet til af denne ændring. Ingen AI-kandidat blev automatisk ophøjet til aktiv viden.
+
 ## 2026-10-05 — Mistral-modelgate efter første kontrollerede eksterne pilot
 
 - Én fysisk Novo-kilde blev previewet og lokalt bekræftet, hvorefter brugeren eksplicit godkendte præcis ét eksternt Mistral-kald.
@@ -174,7 +186,6 @@
 - ISO-uge-markør og eksklusiv lås; ufuldstændig uge stopper for manuel afstemning.
 - Backup efter ændringer valideres med hash og SQLite integrity check, inden ældre relevante backups slettes; retention 30.
 - Seks syntetiske offline-tests bestået med stub-moduler, der dækker preview, gentagen uge, politik, reserverede kilder, crash-marker, retention og forkert backup-hash.
-- Kode og tests gemt på `feature/iv-002-weekly-drafts`; ingen API-kald eller adgang til aktiv database.
 
 ### IKKE TESTET / resterende
 
