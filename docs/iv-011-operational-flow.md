@@ -39,3 +39,11 @@ Gør den eksisterende schema-4 consumer-state til den entydige normale driftsvej
 - Automatisk menneskelig godkendelse.
 - Ny porteføljemodel eller brokerintegration.
 - Fuldtekstsøgning gennem alle rå transskriptioner; kildefund i denne iteration er metadata-/titelbaseret.
+
+## Status
+
+- `IMPLEMENTERET`: branch `iv-011-operational-flow` indeholder den afgrænsede driftsændring.
+- `VERIFICERET`: GitHub Actions run `37518076357` bestod på både Python 3.10 og Python 3.12. IV-008- og IV-009-launchersmoke samt hele unit-testpakken bestod.
+- `VERIFICERET`: IV-011-testen bruger falsk Mistral-transport og dokumenterer `kildesøgning -> lokal jobkladde -> separat bekræftelse -> send -> validering -> automatisk lokal indlæsning -> Research`, uden rigtige eksterne AI-kald.
+- `VERIFICERET`: den syntetiske kandidat forbliver `ai_extracted`; IV-011 indfører ingen automatisk menneskelig godkendelse og ingen schemaændring.
+- `KRÆVER BRUGERTEST`: normal `START_INVESTVIDEN.cmd` skal efter merge prøves på workstationen mod den eksisterende consumer-database. Første fysiske gate er read-only/start og kildefund. Et rigtigt Mistral-kald udføres kun efter en ny, udtrykkelig brugerbekræftelse.
