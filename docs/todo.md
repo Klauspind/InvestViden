@@ -1,5 +1,15 @@
 # Todo – InvestViden
 
+## Status 06.10.2026 — aktiv consumer-evidens opdateret; MVP-gate lukket
+
+- `VERIFICERET`: brugeren godkendte eksplicit den kontrollerede genbehandling mod den separate persistente schema-4 consumer-database.
+- `VERIFICERET`: read-only preflight viste `integrity_check=ok`, korrekt hash for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning.
+- `VERIFICERET`: `process-ai` gennemførte mod den aktive consumer-database. Eftertilstanden havde `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
+- `VERIFICERET`: alle 12 claims har nu version 2 som current i den aktive consumer-database; version 2 blev oprettet ved den aktive kørsel `2026-10-06T11:28:30+00:00`. Acceptance-kopien havde sin separate version 2 fra `2026-10-06T10:47:16+00:00`, så de to forløb er adskilte.
+- `AFKLARING`: CLI-teksten `Verificeret backup` fra `process-ai` beskriver en verificeret **post-write** backup. Koden indlæser først AI-output og kalder derefter `backup_database`. Det ændrer ikke den verificerede aktuelle datatilstand, men kommandoen etablerede ikke en ny pre-write backup for denne skrivning.
+- `SENERE / PARKING LOT`: overvej pre-write backup i `process-ai`. Det er ikke nødvendigt for den nu accepterede MVP og skal ikke udvide det aktive scope nu.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Ingen yderligere udvikling af evidensgaten nu, medmindre reel brug viser et konkret behov.
+
 ## Status 06.10.2026 — source-verificerbar evidens fysisk accepteret
 
 - `VERIFICERET`: PR #20 (`Derive podcast review evidence locally from timestamps`) er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`. GitHub Actions run `37444380838` bestod på Python 3.10 og 3.12.
@@ -9,7 +19,7 @@
 - `VERIFICERET`: brugeren vurderede individuelt `claim-5424953f199c1b90e70d` og godkendte det. Status gik `ai_extracted -> approved`, evidensgaten rapporterede `can_approve=True`, reviewhistorikken blev registreret, og claimet blev aktivt søgbart, herunder på `10-årige amerikanske obligationsrente`.
 - `VERIFICERET`: ingen af de øvrige 11 kandidater blev automatisk godkendt. Den aktive persistente consumer-database blev ikke ændret under acceptance-forløbet.
 - Den tidligere observation står fortsat ved magt: modellens eget `evidence.excerpt` er ikke autoritativt for tidskodede podcastclaims. Tidskoder bruges som locatorer, lokal passage udledes deterministisk fra hash-verificeret kilde, og mennesket vurderer den semantiske støtte før aktiv viden.
-- `NÆSTE`: ingen yderligere udvikling af denne MVP-gate nu. Hvis den kontrollerede genbehandling skal køres mod den aktive persistente consumer-database, kræver det en ny, udtrykkelig brugerbeslutning, fordi det er en reel skriveoperation. Se `docs/local-evidence-acceptance.md`.
+- Den efterfølgende driftsbeslutning er nu gennemført mod den aktive consumer-database; se statusafsnittet ovenfor.
 
 ## Status 06.10.2026 — historisk podcastbackfill afsluttet
 
