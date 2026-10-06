@@ -40,10 +40,23 @@ Gør den eksisterende schema-4 consumer-state til den entydige normale driftsvej
 - Ny porteføljemodel eller brokerintegration.
 - Fuldtekstsøgning gennem alle rå transskriptioner; kildefund i denne iteration er metadata-/titelbaseret.
 
+## Fysisk observation og recovery 06.10.2026
+
+Den første rigtige workstation-kørsel gennem den nye UI nåede Mistral og producerede et valideret svar, men den efterfølgende lokale indlæsning stoppede med `sqlite3.IntegrityError: UNIQUE constraint failed: claims.id`. Samtidig var AI-jobbet allerede afsluttet, så et nyt klik på send gav korrekt beskeden om, at jobbet ikke længere var bekræftet/klar til genkørsel.
+
+Årsagen er, at strict structured output gør det valgfrie `claim_id` nullable-men-tilstedeværende. Et eksternt modelgenereret claim-id må ikke være autoritativ databaseidentitet og kan kollidere med et eksisterende claim-id.
+
+Den afgrænsede rettelse er:
+
+- For `mistral` og `openai` fjernes modelgenereret `claim_id` kun fra den in-memory kopi, der indlæses i databasen. Den rå AI-svarfil ændres ikke og arkiveres byte-uændret.
+- InvestViden bruger derefter sin eksisterende lokale source/fingerprint-baserede claim-identitet.
+- Hvis et valideret svar allerede ligger i incoming efter en sådan lokal indlæsningsfejl, viser Mistral-siden en særskilt **Indlæs ventende valideret svar**-handling. Den foretager ingen ny ekstern AI-kørsel.
+
 ## Status
 
-- `IMPLEMENTERET`: branch `iv-011-operational-flow` indeholder den afgrænsede driftsændring.
-- `VERIFICERET`: GitHub Actions run `37518076357` bestod på både Python 3.10 og Python 3.12. IV-008- og IV-009-launchersmoke samt hele unit-testpakken bestod.
-- `VERIFICERET`: IV-011-testen bruger falsk Mistral-transport og dokumenterer `kildesøgning -> lokal jobkladde -> separat bekræftelse -> send -> validering -> automatisk lokal indlæsning -> Research`, uden rigtige eksterne AI-kald.
-- `VERIFICERET`: den syntetiske kandidat forbliver `ai_extracted`; IV-011 indfører ingen automatisk menneskelig godkendelse og ingen schemaændring.
-- `KRÆVER BRUGERTEST`: normal `START_INVESTVIDEN.cmd` skal efter merge prøves på workstationen mod den eksisterende consumer-database. Første fysiske gate er read-only/start og kildefund. Et rigtigt Mistral-kald udføres kun efter en ny, udtrykkelig brugerbekræftelse.
+- `VERIFICERET`: PR #24 (`IV-011: Complete operational consumer flow`) er merged til `main` som `b1d7c705dfaf596c3c8be81a1570f5e01d464f55`; normal consumer-start, behandlet/ubehandlet status, kildefund og det syntetiske end-to-end-flow blev testet på Python 3.10 og 3.12.
+- `VERIFICERET` ved fysisk workstation-test: normal start bruger den rigtige consumer-database, overblik viser 971 kilder / 3 AI-behandlede / 968 ubehandlede, og Research-søgning på `Novo` viser matchende ubehandlede kilder.
+- `VERIFICERET`: jobnavigationen efter bekræftelse blev rettet i PR #25 og testet på Python 3.10 og 3.12.
+- `VERIFICERET`: claim-id-recoverytesten reproducerer en modelgenereret ID-kollision mod et eksisterende claim og dokumenterer, at indlæsningen nu lykkes med lokalt claim-id, mens den rå svarfil bevares uændret. GitHub Actions run `37525725715` bestod på Python 3.10 og 3.12.
+- `VERIFICERET`: recovery-UI markerer eksplicit, at handlingen kun indlæser allerede modtaget/valideret output og ikke sender noget nyt til Mistral.
+- `KRÆVER BRUGERTEST`: efter merge skal workstationen synkroniseres og UI'en genstartes. Det allerede modtagne validerede svar skal derefter indlæses via recovery-knappen; der skal ikke foretages et nyt Mistral-kald. Efter recovery skal kandidaterne være synlige i Research.
