@@ -1,3 +1,14 @@
+## 2026-10-06 — Lokal tidskode-evidens fysisk accepteret
+
+- PR #20 (`Derive podcast review evidence locally from timestamps`) er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`.
+- `VERIFICERET`: GitHub Actions run `37444380838` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests.
+- `VERIFICERET` på workstation mod en isoleret schema-4-kopi af den persistente consumer-database: databaseintegritet `ok`, claim-antal 32/32 før testen og ingen skrivning til den aktive consumer-database.
+- Dry-run af det arkiverede rå Mistral-svar for `src-413121415a0e870f` gav 12 kandidater, `local_evidence_derived=12`, `local_evidence_missing=0` og `claims_before=32`, `claims_after=32`.
+- Rigtig `process-ai` mod acceptance-kopien gav 12/12 ordrette lokale evidenspassager fra den hash-verificerede kildekopi; alle 12 forblev `ai_extracted`, og den rå Mistral-fil blev bevaret byte-uændret.
+- Brugeren vurderede individuelt `claim-5424953f199c1b90e70d` og godkendte det. Status gik `ai_extracted -> approved`, evidensgaten var opfyldt, reviewhistorikken blev registreret, og claimet blev aktivt søgbart.
+- Ingen af de øvrige 11 kandidater blev automatisk godkendt. MVP-kæden `AI-kandidat -> lokal hash-verificeret evidens -> individuel menneskelig vurdering -> aktiv viden` er dermed fysisk accepteret på isoleret kopi.
+- Ingen schema-migration, ny ekstern AI-kørsel eller aktiv databaseændring indgik i acceptance-forløbet. Se `docs/local-evidence-acceptance.md`.
+
 ## 2026-10-06 — Historisk podcastbackfill fysisk UI-accepteret
 
 - `VERIFICERET` på workstation: 960 historiske podcasttransskriptioner blev importeret til den separate persistente schema-4 consumer-state efter hashvalidering, isoleret database-preflight og verificeret backup.
