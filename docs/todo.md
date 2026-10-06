@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Status 06.10.2026 — IV-013 fysisk accepteret; porteføljestyret Research-dækning aktiv
+
+- `VERIFICERET`: PR #28 (`IV-013: Add portfolio-driven research coverage`) er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`.
+- `VERIFICERET`: GitHub Actions run `37534628566` bestod efter merge på Python 3.10 og 3.12.
+- `VERIFICERET` ved fysisk workstation-test: Novo-porteføljeposten viste relevante ubehandlede kilder med både direkte links til eksisterende `draft`/`failed` jobs og **Vælg til Mistral** for kilder uden job. UI'en viste de 8 nyeste af 89 relevante ubehandlede kilder.
+- `VERIFICERET`: **Udvid research** åbnede Mistral-job med filteret `Novo`; 83 kilder uden eksisterende job var valgbare i det kendte flow.
+- `VERIFICERET`: brugeren oprettede én ny lokal jobkladde fra den filtrerede liste. UI'en bekræftede `Ingen tekst er sendt`, og listen faldt fra 83 til 82 valgbare kilder. Acceptance-testen udløste dermed ikke et eksternt AI-kald.
+- `VERIFICERET`: ingen schemaændring eller migration indgår i IV-013; eksisterende reviewstatus og AI-sikkerhedsflow er uændret.
+- IV-013 er **AFSLUTTET**. Se `docs/iv-013-portfolio-research-coverage.md`.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR** med portefølje-/Research-flowet. AI-behandl relevante kilder efter behov; start ikke automatisk massebehandling af de resterende historiske kilder uden et konkret nyt behov.
+
 ## Status 06.10.2026 — IV-010 fysisk accepteret; researchflow aktivt
 
 - `VERIFICERET`: PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
@@ -15,7 +26,7 @@
 
 - `VERIFICERET`: brugeren godkendte eksplicit den kontrollerede genbehandling mod den separate persistente schema-4 consumer-database.
 - `VERIFICERET`: read-only preflight viste `integrity_check=ok`, korrekt hash for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning.
-- `VERIFICERET`: `process-ai` gennemførte mod den aktive consumer-database. Eftertilstanden havde `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
+- `VERIFICERET`: `process-ai` gennemførte mod den aktive consumer-database. Eftertilstanden havde fortsat `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
 - `VERIFICERET`: alle 12 claims har nu version 2 som current i den aktive consumer-database; version 2 blev oprettet ved den aktive kørsel `2026-10-06T11:28:30+00:00`. Acceptance-kopien havde sin separate version 2 fra `2026-10-06T10:47:16+00:00`, så de to forløb er adskilte.
 - `AFKLARING`: CLI-teksten `Verificeret backup` fra `process-ai` beskriver en verificeret **post-write** backup. Koden indlæser først AI-output og kalder derefter `backup_database`. Det ændrer ikke den verificerede aktuelle datatilstand, men kommandoen etablerede ikke en ny pre-write backup for denne skrivning.
 - `SENERE / PARKING LOT`: overvej pre-write backup i `process-ai`. Det er ikke nødvendigt for den nu accepterede MVP og skal ikke udvide det aktive scope nu.
@@ -61,7 +72,7 @@
 - `VERIFICERET`: IV-009 er fysisk accepteret på workstationen mod 11 aktuelle Transskribinator-leveringer. Første persistente kørsel importerede 11 nye kilder og oprettede 11 lokale drafts; genkørsel gav 0 nye importer og 0 nye drafts. Schema 4, databaseintegritet og originalkilder var intakte; `active_database_used=false`.
 - `VERIFICERET`: én Novo-kilde (`src-04299b8e12cd8be3`, “Novo-aktien skraber bunden igen - er der håb eller skal man give op?”) blev valgt, previewet og særskilt bekræftet lokalt. Preview sendte ingen tekst.
 - `VERIFICERET`: efter eksplicit brugergodkendelse blev ét rigtigt Mistral-forsøg udført med det oprindelige job på `mistral-large-2512`. Mistral svarede HTTP 403 `This model is not available in your subscription tier`; jobbet sluttede `failed`, forsøg 1. Der blev ikke produceret et valideret extraction-svar eller aktive claims.
-- `VERIFICERET`: API-nøglen kan læses fra Windows-brugerprofilen uden at blive vist. `mistral-status --verify` nåede Mistral og fandt 46 model-ID'er; `mistral-large-2512` var ikke tilgængelig. Den faktiske kontoliste indeholdt blandt andet den faste version `mistral-small-2603`.
+- `VERIFICERET`: API-nøglen kan læses fra Windows-brugerprofilen uden at blive vist. `mistral-status --verify` nåede Mistral og fandt 46 model-ID'er; `mistral-large-2512` var ikke tilgængelig. Den faktiske chatmodelliste indeholdt blandt andet den faste version `mistral-small-2603`.
 - Implementeret i PR #18: pin `mistral-small-2603` for nye jobs, model-specifik prisberegning, eksplicit kilde-/modelvalg, sikker modellistning og korrekt fejltekst ved fejlede jobs. Ukendte modeller uden dokumenteret pris afvises før joboprettelse. Ingen automatisk model-fallback er indført.
 - `KRÆVER BRUGERTEST` efter merge: synkronisér workstationen, verificér `mistral-small-2603` via `mistral-status --verify --model mistral-small-2603`, opret en ny lokal jobkladde for præcis `src-04299b8e12cd8be3`, og kontroller nyt prisestimat før særskilt bekræftelse. Intet nyt eksternt kald må ske uden en ny eksplicit godkendelse af Small 4-jobbet.
 - Den beskyttede legacy-database forbliver uden for dette flow. De øvrige eksisterende Large-drafts konverteres ikke automatisk.
@@ -150,9 +161,9 @@
 
 **VERIFICERET 2026-09-19:** Standardstien `data/knowledgebase.sqlite` og alle ikke-schema-4-databaser afvises før `apply=True` kan skrive. Hele repository-suiten består med 59/59 tests, herunder integration på en frisk, midlertidig schema-4-database. Koden er ikke anvendt mod aktiv database og foretager ingen API-kald.
 
-**VERIFICERET etape B:** Skrivebeskyttet recovery-afstemning, planlagte kilde-id'er før databasecommit samt test af 6+ kilder, job-/prisgrænser, ny kildeversion, stale lock, crash efter commit og backupfejl. Samlet suite: **65/65 tests**. Ingen automatisk retry, jobbekræftelse eller låserydning.
+**VERIFICERET etape B:** Recovery-journalen registrerer planlagte kilde-id'er før første databasecommit. Afstemningen er read-only og identificerer reserverede/manglende kilder og databasejobs uden retry, jobbekræftelse eller låserydning. Batch-/prisgrænser, ny kildeversion, stale lock, crash efter commit og backupfejl er dækket. Samlet suite: **65/65 tests**.
 
-**VERIFICERET etape C:** CLI kræver eksplicit eksisterende schema-4-database; preview er standard, recovery er read-only, og Windows-launcheren kræver præcis bekræftelse før apply. Samlet suite: **70/70 tests**.
+**VERIFICERET etape C:** CLI har intet database-default for ugekommandoerne, kræver en eksisterende schema-4-fil og har read-only preview/recovery. CMD-launcheren bruger preview som standard og kræver `OPRET KLADDER` før apply. PowerShell-verifikationen udfører kun recovery og preview. Samlet suite: **70/70 tests**.
 
 - Delvise fejl kan fortsættes uden at genkøre succesfulde kilder, men recovery må ikke ske automatisk før dokumenteret afstemning.
 - Windows Opgavestyring konfigureres ikke i første leverance.
