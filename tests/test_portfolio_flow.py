@@ -68,6 +68,21 @@ class PortfolioFlowTest(unittest.TestCase):
             }],
         })
 
+        unprocessed = self.root / "novo-pipeline.txt"
+        unprocessed.write_text(
+            "Novo pipeline discussion that has not been AI processed yet.",
+            encoding="utf-8",
+        )
+        self.unprocessed_id, _ = self.kb.import_source(
+            unprocessed,
+            "podcast_transcript",
+            title="Novo pipeline and future products",
+            publisher="Synthetic Podcast",
+            published_at="2026-10-05",
+            source_store=self.root / "sources",
+            ai_permission="ask",
+        )
+
         self.server, self.app = create_operational_server(self.kb.db_path, 0)
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)
         self.thread.start()
@@ -116,6 +131,18 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Successful new indication", page)
         self.assertIn("Kildeunderbygget · ikke menneskeligt verificeret", page)
         self.assertIn("ikke en automatisk køb/hold/sælg-anbefaling", page)
+
+        self.assertIn("Research-dækning", page)
+        self.assertIn("<span>Relevante kilder</span><b>2</b>", page)
+        self.assertIn("<span>AI-behandlede</span><b>1</b>", page)
+        self.assertIn("<span>Ubehandlede</span><b>1</b>", page)
+        self.assertIn("Novo pipeline and future products", page)
+        self.assertIn("Udvid research", page)
+        self.assertIn("/ai-jobs?q=Novo", page)
+
+        jobs = self.get("/ai-jobs?q=Novo")
+        self.assertIn(self.unprocessed_id, jobs)
+        self.assertIn("Novo pipeline and future products", jobs)
 
         portfolio_path = self.kb.db_path.parent / "portfolio.sqlite"
         self.assertTrue(portfolio_path.is_file())
