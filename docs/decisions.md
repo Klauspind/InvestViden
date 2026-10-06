@@ -34,6 +34,12 @@ Handover 2026-09-15 dokumenterer lokale ikke-committede desktopændringer, som i
 
 Den løbende Transskribinator -> InvestViden-integration må ikke skrive til eller migrere den beskyttede legacy-database. IV-009 bruger derfor en særskilt persistent schema-4-database under lokal runtime uden for repositoryet. Persistensen er nødvendig for idempotens og crash-recovery på tværs af consumer-kørsler. AI-job oprettes kun som lokale, ubekræftede drafts; ekstern transport kræver fortsat særskilt menneskelig handling.
 
+## D-009 — Tidskodede podcastclaims bruger lokalt udledt evidens
+
+For aktuelle Mistral/OpenAI-kandidater fra tidskodede podcasttransskriptioner er modellens `evidence.excerpt` ikke autoritativ evidens. `start_ref` og `end_ref` bruges som locatorer, hvorefter InvestViden ved lokal `process-ai`-indlæsning udleder den ordrette passage fra den hash-verificerede kildekopi. Den lokalt udledte passage gemmes som database-evidens til menneskelig review og den eksisterende approval-gate.
+
+Den originale AI-svarfil omskrives ikke og arkiveres uændret som provenance. Tidskoder må ikke automatisk ophøje et udsagn til aktiv viden: mennesket skal fortsat vurdere, om hele udsagnet faktisk understøttes af passagen. Hvis en lokal passage ikke kan udledes, forbliver kandidatflowet fail-closed. Der indføres ingen schema-migration som følge af denne beslutning.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
