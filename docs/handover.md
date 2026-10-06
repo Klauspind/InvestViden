@@ -1,5 +1,17 @@
 # Handover – InvestViden
 
+## 06.10.2026 — aktiv consumer-evidens opdateret; MVP-gate lukket
+
+Brugeren godkendte eksplicit en kontrolleret genbehandling af den accepterede tidskode-evidens mod den separate persistente schema-4 consumer-database. Dette var en reel skriveoperation mod consumer-state, ikke mod den beskyttede legacy-database.
+
+`VERIFICERET` på workstation: read-only preflight viste `integrity_check=ok`, korrekt SHA-256 for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning. `process-ai` gennemførte derefter mod den aktive consumer-database. Eftertilstanden havde fortsat `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 claims fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
+
+`VERIFICERET`: de 12 claims har version 2 som current i den aktive consumer-database, oprettet ved den aktive kørsel `2026-10-06T11:28:30+00:00`. Den isolerede acceptance-kopi havde sin separate version 2 fra `2026-10-06T10:47:16+00:00`. Det dokumenterer, at den aktive database faktisk blev opdateret ved den efterfølgende, eksplicit godkendte driftskørsel og ikke under acceptance-testen.
+
+`AFKLARING`: `process-ai` viser teksten `Verificeret backup`, men den aktuelle CLI-rækkefølge indlæser først AI-output og kalder derefter `backup_database`. Den rapporterede backup fra denne kørsel er derfor en verificeret **post-write** backup, ikke en ny pre-write backup. Dette ændrer ikke den verificerede aktuelle datatilstand. En pre-write backup for `process-ai` er gemt som `SENERE / PARKING LOT` og skal ikke udvide den afsluttede MVP nu.
+
+Aktuel arbejdsregel er derfor **BRUG → OBSERVÉR → EVALUÉR**. Ingen yderligere udvikling af evidensgaten er nødvendig nu. Ældre `NÆSTE`/`KRÆVER BRUGERTEST`-formuleringer i de historiske statusafsnit nedenfor skal læses som historiske, medmindre de gentages i denne øverste status.
+
 ## 06.10.2026 — lokal tidskode-evidens fysisk accepteret
 
 Den aktive MVP-gate for source-verificerbar evidens er fysisk lukket på workstationen mod en isoleret schema-4-kopi af den persistente consumer-database. PR #20 er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`; GitHub Actions run `37444380838` bestod på Python 3.10 og 3.12.
