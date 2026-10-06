@@ -49,7 +49,7 @@ class LocalTimestampEvidenceWorkflowTest(unittest.TestCase):
             "extracted_at": "2026-10-06T09:00:00+00:00",
             "claims": [
                 {
-                    "claim_type": "macro_view",
+                    "claim_type": "macroeconomic",
                     "summary": "Amerikansk gæld og bedre vækst bidrager til højere renter.",
                     "speaker": None,
                     "sentiment": "neutral",
