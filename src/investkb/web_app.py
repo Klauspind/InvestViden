@@ -30,6 +30,7 @@ STATUS_LABELS = {
 }
 
 LANE_LABELS = {
+    "research": "Research",
     "active": "Aktiv viden",
     "signals": "Nye signaler",
     "archive": "Arkiv",
@@ -49,15 +50,17 @@ EVENT_LABELS = {
 }
 
 
-def _navigation(params: dict[str, list[str]]) -> tuple[str, str]:
+def _navigation(params: dict[str, list[str]], claim_id: str | None = None) -> tuple[str, str]:
     if params.get("origin", [""])[0] == "search":
-        lane = params.get("lane", ["active"])[0]
+        lane = params.get("lane", ["research"])[0]
         if lane not in LANE_LABELS:
-            lane = "active"
+            lane = "research"
         target = "/search?" + urlencode({"q": params.get("q", [""])[0], "lane": lane})
         label = {"archive": "Tilbage til arkivsøgning", "clarification": "Tilbage til afklaringslisten",
                  "noise": "Tilbage til reklame og intro"}.get(lane, "Tilbage til søgning")
         return target, label
+    if claim_id:
+        return f"/review#{quote(claim_id)}", "Tilbage til gennemgang"
     return "/review", "Tilbage til gennemgang"
 
 
@@ -351,7 +354,6 @@ Tillad ekstern AI ændrer ingen reviewstatus. Eksisterende kilder beholder deres
                     raise ValidationError("Inputmappen er ikke registreret")
                 with app.database() as kb:
                     plan = plan_input(kb, root)
-                # Keep at most two bounded previews; only server-side snapshots can be applied.
                 while len(app.input_plans) >= 2:
                     app.input_plans.pop(next(iter(app.input_plans)))
                 token = secrets.token_urlsafe(24)
@@ -498,18 +500,18 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
             reviews = stats["review_counts"]
             body = f"""
 <h1>Din lokale investeringsviden</h1>
-<p class="muted">Nye AI-signaler holdes adskilt fra godkendt viden. Intet sendes til AI fra denne side.</p>
+<p class="muted">Research kan bruge både menneskeligt verificeret viden og kildeunderbyggede AI-signaler. AI-signaler markeres tydeligt og bliver ikke automatisk godkendt.</p>
 <div class="grid">
   <div class="stat"><span>Kilder</span><b>{stats['sources']}</b><span class="muted">registrerede kilder</span></div>
   <div class="stat"><span>Nye signaler</span><b>{reviews.get('ai_extracted', 0)}</b><a href="/review">Gennemgå køen</a></div>
-  <div class="stat"><span>Aktiv viden</span><b>{reviews.get('approved', 0) + reviews.get('corrected', 0)}</b><a href="/search">Søg i godkendt viden</a></div>
+  <div class="stat"><span>Aktiv viden</span><b>{reviews.get('approved', 0) + reviews.get('corrected', 0)}</b><a href="/search?lane=active">Søg kun i menneskeligt verificeret viden</a></div>
   <div class="stat"><span>Arkiv/afklaring</span><b>{reviews.get('rejected', 0) + reviews.get('uncertain', 0)}</b><span class="muted">afvist eller usikkert</span></div>
 </div>
 <div class="warning"><strong>Sikker forhåndsvisning:</strong> Denne UI bruger databasen<br><code>{_escape(app.db_path)}</code></div>
 <h2>Arbejdsgang</h2>
 <div class="grid"><div class="card"><h3>1. Saml kilder</h3><p>Podcasttransskriptioner og andre dokumenter registreres med hash og kildeoplysninger.</p></div>
-<div class="card"><h3>2. Udled signaler</h3><p>Mistral foreslår udsagn. De er ikke godkendt viden endnu.</p></div>
-<div class="card"><h3>3. Gennemgå</h3><p>Du sammenholder udsagn med evidensen og godkender, retter eller afviser.</p></div></div>"""
+<div class="card"><h3>2. Udled signaler</h3><p>Mistral foreslår udsagn. Kildeunderbyggede kandidater kan bruges i research, men er ikke menneskeligt verificeret.</p></div>
+<div class="card"><h3>3. Gennemgå efter behov</h3><p>Vigtige udsagn kan åbnes, kontrolleres mod evidensen og godkendes, rettes eller afvises.</p></div></div>"""
             self._send(_page("Overblik", body, message))
 
         def _review(self, params: dict[str, list[str]]) -> None:
@@ -522,7 +524,7 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
                     _escape(value) for value in (row.get("start_ref"), row.get("end_ref")) if value
                 )
                 cards.append(f"""
-<article class="card">
+<article class="card" id="{_escape(row['id'])}">
   <div class="meta"><span class="badge">{_label(row['review_status'])}</span>
     <span>Sikkerhed: {float(row['confidence']):.0%}</span><span>{_escape(row['provider'])} · {_escape(row['model'])}</span></div>
   <h3><a href="/claim?id={quote(str(row['id']))}&amp;origin=review">{_escape(row['summary'])}</a></h3>
@@ -544,7 +546,7 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
 </article>""")
             if not cards:
                 cards.append('<div class="card"><h3>Køen er tom</h3><p>Der er ingen nye AI-signaler, som mangler gennemgang.</p></div>')
-            body = f"<h1>Gennemgå nye signaler</h1><p class=\"muted\">{len(rows)} udsagn venter. Godkend kun når udsagnet stemmer med kildepassagen.</p>{''.join(cards)}"
+            body = f"<h1>Gennemgå nye signaler</h1><p class=\"muted\">{len(rows)} udsagn venter. Du behøver ikke gennemgå dem alle på forhånd; kontrollér især de udsagn, som bliver vigtige for din research.</p>{''.join(cards)}"
             self._send(_page("Gennemgå", body, message))
 
         def _claim(self, params: dict[str, list[str]]) -> None:
@@ -563,11 +565,15 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
                 if source_context else
                 '<h2>Omkringliggende kildetekst</h2><div class="card muted">Passagen kunne ikke genfindes ordret i en læsbar kildekopi. Der vises derfor ingen omkringliggende tekst.</div>'
             )
-            back_url, back_label = _navigation(params)
+            back_url, back_label = _navigation(params, claim_id)
             assessment = item["evidence_assessment"]
             issues = "".join(f"<li>{_escape(issue)}</li>" for issue in assessment["issues"])
             provenance = f'<h2>Kildegrundlag og provenance</h2><div class="warning"><ul>{issues}</ul></div>' if issues else ""
-            actions = self._legacy_actions(item, params) if item["dataset"] == "legacy" else ""
+            actions = self._legacy_actions(item, params) if item["dataset"] == "legacy" else self._current_actions(item, params)
+            research_notice = ""
+            if item["review_status"] == "ai_extracted" and assessment["can_approve"]:
+                research_notice = ('<div class="notice"><strong>Kildeunderbygget AI-kandidat.</strong> '
+                                   'Udsagnet kan indgå i research, men er ikke menneskeligt verificeret.</div>')
             history_rows = "".join(
                 f"<tr><td>{_escape(event['created_at'])}</td><td>{_escape(EVENT_LABELS.get(event['event_type'], event['event_type']))}<br>{_label(event['previous_status'])} → {_label(event['new_status'])}</td><td><a href=\"#version-{event['version_number']}\">Version {event['version_number']}</a></td><td>{_escape(event['note'])}</td><td>{_escape(event['reviewer'])}</td></tr>"
                 for event in item["history"]
@@ -582,6 +588,7 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
 <p><a href="{_escape(back_url)}">← {_escape(back_label)}</a></p><h1>{_escape(item['summary'])}</h1>
 <div class="meta"><span class="badge">{_label(item['review_status'])}</span>{_legacy_badge(item)}<span>Sikkerhed: {float(item['confidence']):.0%}</span>
 <span>{_escape(item['source_title'])}</span><span>Registreret kildedato: {_escape(item['published_at'])}</span></div>
+{research_notice}
 <div class="evidence"><strong>Registreret kildepassage</strong><p>{_escape(item['excerpt']) or '<em>Ingen passage.</em>'}</p>
 <p class="muted">Reference: {_escape(item['start_ref'])}–{_escape(item['end_ref'])}</p></div>
 {provenance}
@@ -592,6 +599,33 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
 <div class="card"><h3>AI-oprindelse</h3><p>{_escape(item['provider'])}<br>{_escape(item['model'])}</p></div></div>
 <h2>Versions- og godkendelseshistorik</h2><div class="history"><table><thead><tr><th>Tidspunkt</th><th>Handling og status</th><th>Version</th><th>Notat</th><th>Aktør</th></tr></thead><tbody>{history_rows}</tbody></table></div>{versions}"""
             self._send(_page("Udsagn", body, params.get("message", [None])[0]))
+
+        def _current_actions(self, item: dict[str, Any], params: dict[str, list[str]]) -> str:
+            hidden = "".join(
+                f'<input type="hidden" name="{key}" value="{_escape(value)}">'
+                for key, value in {
+                    "csrf_token": app.csrf_token, "claim_id": item["id"], "return_to": "claim",
+                    **{key: params.get(key, [""])[0] for key in ("origin", "q", "lane")},
+                }.items()
+            )
+            can_approve = bool(item["evidence_assessment"]["can_approve"])
+            approve_disabled = " disabled" if not can_approve or item["review_status"] in {"approved", "corrected"} else ""
+            correct_disabled = "" if can_approve else " disabled"
+            advice = (
+                "Kildeevidensen er teknisk verificerbar. Godkend kun, hvis du også mener, at passagen faktisk understøtter hele udsagnet."
+                if can_approve else
+                "Kildeevidensen er ikke tilstrækkeligt verificerbar til godkendelse. Udsagnet kan afvises eller sættes til senere afklaring."
+            )
+            return f"""<section class="card"><h2>Vurder udsagnet</h2><p>{advice}</p>
+<form method="post" action="/review">{hidden}
+<label>Notat om din beslutning<textarea name="note"></textarea></label>
+<div class="actions"><button name="action" value="approve"{approve_disabled}>Godkend som aktiv viden</button>
+<button class="secondary" name="action" value="uncertain">Afklar senere</button>
+<button class="danger" name="action" value="reject">Afvis</button></div></form>
+<details><summary>Ret og godkend</summary><form method="post" action="/review">{hidden}
+<label>Rettet udsagn<textarea name="summary" required>{_escape(item['summary'])}</textarea></label>
+<label>Hvorfor rettes det?<input type="text" name="note" required></label>
+<button name="action" value="correct"{correct_disabled}>Ret og godkend</button></form></details></section>"""
 
         def _legacy_actions(self, item: dict[str, Any], params: dict[str, list[str]]) -> str:
             hidden = "".join(
@@ -623,24 +657,56 @@ Efter import tages en verificeret databasebackup. Import opretter kilder, aldrig
 <label>Hvorfor rettes det?<input type="text" name="note" required></label>
 <button name="action" value="correct"{disabled}>Ret og godkend</button></form></details></section>"""
 
+        def _research_rows(self, kb: KnowledgeBase, query: str) -> list[dict[str, Any]]:
+            active = kb.search_claims(query, "active", limit=100)
+            signals = kb.search_claims(query, "signals", limit=100)
+            source_backed = []
+            for row in signals:
+                if row["review_status"] != "ai_extracted":
+                    continue
+                detail = kb.claim_detail(str(row["id"]))
+                if detail["evidence_assessment"]["can_approve"]:
+                    source_backed.append(row)
+            rows = active + source_backed
+            rows.sort(
+                key=lambda row: (str(row.get("published_at") or ""), float(row.get("confidence") or 0)),
+                reverse=True,
+            )
+            return rows[:100]
+
         def _search(self, params: dict[str, list[str]]) -> None:
             query = params.get("q", [""])[0].strip()
-            lane = params.get("lane", ["active"])[0]
+            lane = params.get("lane", ["research"])[0]
+            if lane not in LANE_LABELS:
+                raise ValidationError("Ukendt søgeområde")
             with app.database() as kb:
-                rows = kb.search_claims(query, lane)
+                rows = self._research_rows(kb, query) if lane == "research" else kb.search_claims(query, lane)
             options = "".join(
                 f'<option value="{key}"{(" selected" if key == lane else "")}>{label}</option>'
                 for key, label in LANE_LABELS.items()
             )
-            results = "".join(f"""
-<article class="card"><div class="meta"><span class="badge">{_label(row['review_status'])}</span>{_legacy_badge(row)}
+            result_cards = []
+            for row in rows:
+                research_badge = ""
+                if lane == "research" and row["review_status"] == "ai_extracted":
+                    research_badge = '<span class="badge">Kildeunderbygget · ikke menneskeligt verificeret</span>'
+                result_cards.append(f"""
+<article class="card"><div class="meta"><span class="badge">{_label(row['review_status'])}</span>{research_badge}{_legacy_badge(row)}
 <span>{_escape(row['source_title'])}</span><span>{_escape(row['published_at'])}</span></div>
 <h3><a href="{_escape(_claim_url(str(row['id']), {'origin': ['search'], 'q': [query], 'lane': [lane]}))}">{_escape(row['summary'])}</a></h3>
-<p class="muted">{_escape(row['match_excerpt'])}</p>{('<p>Afklaringsnotat: ' + _escape(row['review_note']) + '</p>') if lane == 'clarification' else ''}</article>""" for row in rows)
+<p class="muted">{_escape(row['match_excerpt'])}</p>{('<p>Afklaringsnotat: ' + _escape(row['review_note']) + '</p>') if lane == 'clarification' else ''}</article>""")
+            results = "".join(result_cards)
             if not rows:
                 results = '<div class="card">Ingen resultater i det valgte område.</div>'
+            explanation = (
+                '<p class="notice"><strong>Research</strong> viser menneskeligt verificeret viden sammen med AI-kandidater, '
+                'hvor den registrerede evidens kan verificeres mod den aktuelle kildekopi. Kandidaterne er tydeligt markeret og bliver ikke automatisk godkendt.</p>'
+                if lane == "research" else
+                '<p class="muted">Vælg Aktiv viden, hvis du kun vil se menneskeligt godkendte eller rettede udsagn.</p>'
+            )
             body = f"""<h1>Søg i InvestViden</h1>
 <p class="muted">Søgningen matcher udsagn, personer, virksomheder, temaer, kildetitler og evidens.</p>
+{explanation}
 <p class="muted">Genkendelige sponsorintroer skjules i de normale områder og bevares under <strong>Reklame og intro</strong>.</p>
 <form class="search" method="get" action="/search"><label>Søgeord<input type="search" name="q" value="{_escape(query)}" autofocus></label>
 <label>Område<select name="lane">{options}</select></label><button>Søg</button></form>
