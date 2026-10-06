@@ -38,6 +38,6 @@ Gør InvestViden praktisk anvendelig til løbende research uden at udviske forsk
 
 ## Status
 
-- `IMPLEMENTERET`: ændringen ligger på branchen `iv-research-usable-ai-signals` og PR #23.
-- `VERIFICERET`: GitHub Actions run `37472970799` bestod på både Python 3.10 og 3.12. Begge jobs bestod IV-008 smoke, IV-009 smoke og den fulde unit-testpakke inklusive de nye IV-010-tests.
-- `KRÆVER BRUGERTEST`: efter merge skal den rigtige consumer-UI åbnes, og brugeren skal kontrollere detaljehandlinger, tilbage-navigation og Research/ Aktiv viden-filtrene på reelle udsagn.
+- `IMPLEMENTERET`: PR #23 er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
+- `VERIFICERET`: GitHub Actions run `37473184460` bestod efter den sidste dokumentationscommit på både Python 3.10 og 3.12. Den foregående kodecommit blev ligeledes verificeret i run `37472970799`, inklusive IV-008 smoke, IV-009 smoke og de nye IV-010-tests.
+- `KRÆVER BRUGERTEST`: synkronisér workstationen og åbn den rigtige consumer-UI. Kontrollér detaljehandlinger, tilbage-navigation og forskellen mellem standardområdet Research og filteret Aktiv viden på reelle udsagn.
