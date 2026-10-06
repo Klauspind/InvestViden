@@ -57,5 +57,8 @@ Resultatet er en prioriteringshjælp, ikke automatisk relevansgodkendelse. Bruge
 
 ## Status
 
-- `IMPLEMENTERES`: branch `iv-013-portfolio-research-coverage`.
+- `IMPLEMENTERET`: branch `iv-013-portfolio-research-coverage` viser Research-dækning direkte i porteføljens beslutningsbillede og genbruger det eksisterende Mistral-flow.
+- `VERIFICERET`: GitHub Actions run `37534348209` bestod på Python 3.10 og 3.12, inklusive hele unit-testpakken og eksisterende IV-008/IV-009 smoke-tests.
+- `VERIFICERET`: den syntetiske porteføljetest har én AI-behandlet og én ubehandlet Novo-kilde, viser dækningen 2/1/1, viser den ubehandlede kilde og navigerer til `/ai-jobs?q=Novo` uden eksternt AI-kald.
+- `VERIFICERET`: ingen schemaændring eller migration indgår i IV-013.
 - `KRÆVER BRUGERTEST`: fysisk dækning og navigation i den persistente consumer-UI efter merge.
