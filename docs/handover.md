@@ -1,5 +1,17 @@
 # Handover – InvestViden
 
+## 06.10.2026 — lokal tidskode-evidens fysisk accepteret
+
+Den aktive MVP-gate for source-verificerbar evidens er fysisk lukket på workstationen mod en isoleret schema-4-kopi af den persistente consumer-database. PR #20 er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`; GitHub Actions run `37444380838` bestod på Python 3.10 og 3.12.
+
+`VERIFICERET`: den isolerede databasekopi og kilden havde `integrity_check=ok`, og claim-antallet var 32/32 før testen. Dry-run af det arkiverede rå Mistral-svar for `src-413121415a0e870f` gav 12 kandidater, `local_evidence_derived=12`, `local_evidence_missing=0` og ingen ændring i claim-antallet. Rigtig `process-ai` mod kopien bevarede alle 12 som kandidater, udledte 12/12 ordrette evidenspassager fra den hash-verificerede kildekopi og bevarede den rå AI-svarfil byte-uændret.
+
+Brugeren vurderede individuelt `claim-5424953f199c1b90e70d` og godkendte det. `VERIFICERET`: status gik `ai_extracted -> approved`, evidensgaten rapporterede `can_approve=True`, reviewhistorikken blev registreret, og claimet blev aktivt søgbart, herunder på `10-årige amerikanske obligationsrente`. Ingen af de øvrige 11 kandidater blev automatisk godkendt.
+
+Den aktive persistente consumer-database blev ikke ændret under acceptance-forløbet. MVP-kæden **AI-kandidat -> lokal hash-verificeret evidens -> individuel menneskelig vurdering -> aktiv viden** er dermed fysisk accepteret på isoleret kopi. Se `docs/local-evidence-acceptance.md` og D-009.
+
+`NÆSTE`: ingen yderligere udvikling af evidensgaten nu. Hvis den samme kontrollerede genbehandling skal køres mod den aktive persistente consumer-database, er det en reel skriveoperation og kræver en ny, udtrykkelig brugerbeslutning først.
+
 ## 06.10.2026 — historisk podcastbackfill afsluttet og fysisk UI-accepteret
 
 `VERIFICERET` på workstation via brugerens fysiske PowerShell-output: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state. Før aktiv skrivning bestod hele importen en isoleret database-preflight med alle 960 kilder. Den aktive import tog en verificeret backup, sluttede med `database_integrity=ok` og `source_delta=960`, og ændrede hverken AI-job, AI-forsøg eller claims. Der blev foretaget 0 eksterne AI-kald.
