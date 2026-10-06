@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Status 06.10.2026 — source-verificerbar evidens fysisk accepteret
+
+- `VERIFICERET`: PR #20 (`Derive podcast review evidence locally from timestamps`) er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`. GitHub Actions run `37444380838` bestod på Python 3.10 og 3.12.
+- `VERIFICERET`: fysisk workstation-accept blev gennemført på en isoleret schema-4-kopi af den persistente consumer-database. Både kilde- og acceptance-database havde `integrity_check=ok`, og claim-antallet var 32/32 før testen.
+- `VERIFICERET`: dry-run af det arkiverede rå Mistral-svar for `src-413121415a0e870f` gav `files=1`, `claims=12`, `local_evidence_derived=12`, `local_evidence_missing=0` og ændrede ikke claim-antallet (`32 -> 32`).
+- `VERIFICERET`: rigtig `process-ai` mod acceptance-kopien efterlod 12/12 kandidater som `ai_extracted`, gav 12/12 ordrette lokale evidenspassager fra den hash-verificerede kildekopi og bevarede den rå Mistral-fil byte-uændret.
+- `VERIFICERET`: brugeren vurderede individuelt `claim-5424953f199c1b90e70d` og godkendte det. Status gik `ai_extracted -> approved`, evidensgaten rapporterede `can_approve=True`, reviewhistorikken blev registreret, og claimet blev aktivt søgbart, herunder på `10-årige amerikanske obligationsrente`.
+- `VERIFICERET`: ingen af de øvrige 11 kandidater blev automatisk godkendt. Den aktive persistente consumer-database blev ikke ændret under acceptance-forløbet.
+- Den tidligere observation står fortsat ved magt: modellens eget `evidence.excerpt` er ikke autoritativt for tidskodede podcastclaims. Tidskoder bruges som locatorer, lokal passage udledes deterministisk fra hash-verificeret kilde, og mennesket vurderer den semantiske støtte før aktiv viden.
+- `NÆSTE`: ingen yderligere udvikling af denne MVP-gate nu. Hvis den kontrollerede genbehandling skal køres mod den aktive persistente consumer-database, kræver det en ny, udtrykkelig brugerbeslutning, fordi det er en reel skriveoperation. Se `docs/local-evidence-acceptance.md`.
+
 ## Status 06.10.2026 — historisk podcastbackfill afsluttet
 
 - `VERIFICERET`: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state efter hashkontrol, isoleret preflight og verificeret backup.
@@ -12,9 +23,9 @@
 - Originale arkivfiler blev ikke flyttet eller slettet, og den beskyttede legacy-database blev ikke brugt.
 - Den almindelige `START_INVESTVIDEN.cmd` er ikke permanent koblet til consumer-state af denne opgave. Hvis det ønskes senere, er det en separat drifts-/produktbeslutning og ikke nødvendigt for den afsluttede backfill.
 - Se `docs/historical-podcast-import-2026-10-06.md` og `docs/historical-podcast-ui-acceptance-2026-10-06.md`.
-- `NÆSTE`: fortsæt den allerede aktive MVP-gate for source-verificerbar evidens på én frisk kilde; backfillen skal ikke udvides med de 101 konfliktgrupper nu.
+- `NÆSTE`: backfillen skal ikke udvides med de 101 konfliktgrupper nu.
 
-## Aktiv opgave 06.10.2026 — source-verificerbar evidens før aktiv viden
+## Tidligere aktiv opgave 06.10.2026 — source-verificerbar evidens før aktiv viden
 
 - `VERIFICERET`: Mistral pay-as-you-go er aktiveret. Både `mistral-small-2603` og `mistral-large-2512` svarede på et minimalt syntetisk API-kald; Large 3 kørte på `service_tier=standard`.
 - `VERIFICERET`: første rigtige Large 3-extraction på `src-256795459ce7aa09` (“Is the yield curve inverted?”) gennemførte `completed/validated`; 10 udsagn blev dry-run-valideret og derefter indlæst som `ai_extracted` med verificeret backup.
@@ -22,8 +33,7 @@
 - `VERIFICERET`: alle 10 evidensuddrag fra den nyere kilde kunne **ikke** genfindes i den kontrollerede kildekopi, hverken ordret eller efter ren whitespace-normalisering. Mistral havde parafraseret evidensen. Ingen af de 10 er menneskeligt godkendt.
 - Implementeret i PR #19: Mistral/OpenAI-kandidater kan ikke sættes til `approved`/`corrected`, medmindre kildekopien kan læses, hash matcher, og evidensuddraget kan genfindes ordret med tolerance for whitespace. Extraction-schemaet præciserer samtidig, at `evidence.excerpt` skal kopieres ordret fra `source_text`. Ingestion og historisk backfill er uændret; historiske udsagn kan fortsat ligge som `ai_extracted`.
 - `VERIFICERET`: GitHub Actions run `37435232565` bestod på både Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests.
-- `KRÆVER BRUGERTEST` efter merge: synkronisér workstationen og kør én frisk Large 3-extraction på en endnu ubehandlet aktuel kilde. Kontroller derefter, at de nye evidensuddrag faktisk kan genfindes i kildekopien, før ét udsagn godkendes som aktiv viden.
-- `NÆSTE`: fysisk accept af den nye evidensgate på én frisk kilde. De allerede indlæste kandidater med parafraseret evidens forbliver ikke-aktive; der er ingen grund til at reparere historisk backfill nu.
+- Dette trin er nu fysisk lukket af acceptance-statussen ovenfor og `docs/local-evidence-acceptance.md`.
 
 ## Aktiv opgave 05.10.2026 — kontrolleret én-kilde Mistral Small 4-pilot
 
