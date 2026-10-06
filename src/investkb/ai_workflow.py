@@ -63,15 +63,21 @@ def _local_timestamp_excerpt(text: str, start_ref: str | None, end_ref: str | No
 
 
 def _prepare_local_evidence(kb: KnowledgeBase, extraction: dict) -> tuple[dict, int, int]:
-    """Replace AI podcast excerpts with deterministic local transcript passages.
+    """Prepare external AI output for local ingestion without rewriting the raw file.
 
-    The incoming AI response is never rewritten on disk. The returned copy is used
-    only for database ingestion, so the archived response preserves the model's raw
-    output while active review uses source-derived evidence.
+    External models may emit a claim_id because strict structured-output schemas make
+    optional fields nullable-but-present. Those model-provided database identifiers
+    are never authoritative: InvestViden derives/reuses claim IDs locally from source
+    and fingerprint. Podcast evidence is likewise replaced in-memory with a
+    deterministic passage from the controlled transcript copy.
     """
     prepared = copy.deepcopy(extraction)
     if str(prepared.get("provider") or "") not in LOCAL_EVIDENCE_PROVIDERS:
         return prepared, 0, 0
+
+    for claim in prepared.get("claims", []):
+        if isinstance(claim, dict):
+            claim.pop("claim_id", None)
 
     source = kb.conn.execute(
         "SELECT source_type, stored_path, sha256 FROM source_versions WHERE id=?",
