@@ -59,6 +59,14 @@ Et særskilt filter for **Aktiv viden** skal fortsat give mulighed for kun at se
 
 Rapportfunktionen må fortsat medtage ikke-afviste kandidater, når status følger med. Fremtidige analyser skal bevare samme skelnen mellem AI-kandidat og menneskeligt verificeret viden.
 
+## D-011 — Sikkerhedsarbejde skal være proportionalt med datarisikoen
+
+De investeringskilder, der aktuelt behandles i den normale researchstrøm, er overvejende offentlig viden. Projektet skal derfor ikke bruge uforholdsmæssigt meget tid på ekstra dobbeltkontroller, backup-lag eller databeskyttelsesmekanismer alene for offentligt kildeindhold.
+
+Det nødvendige minimum bevares: provenance og kildehenvisning, almindelig databaseintegritet, tydelig status for AI-kandidater versus menneskeligt verificeret viden samt mulighed for rimelig backup/rollback ved større ændringer. Credentials, API-nøgler, eventuelle personlige porteføljeoplysninger og andre reelt private data skal fortsat behandles som private.
+
+D-011 ændrer ikke forbuddet mod automatisk brokeradgang eller handel og ændrer ikke betydningen af `approved`/`corrected`.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
