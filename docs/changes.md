@@ -1,3 +1,14 @@
+## 2026-10-06 — IV-013 porteføljestyret Research-dækning fysisk accepteret
+
+- PR #28 (`IV-013: Add portfolio-driven research coverage`) er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`.
+- `VERIFICERET`: GitHub Actions run `37534628566` bestod efter merge på Python 3.10 og 3.12.
+- Beslutningsbilledet viser nu Research-dækning for en portefølje-/watchlistpost og genbruger det eksisterende Mistral-jobflow frem for at oprette et nyt AI-flow.
+- `VERIFICERET` ved fysisk workstation-test med Novo: UI'en viste de 8 nyeste af 89 relevante ubehandlede kilder. Kilder med eksisterende jobs havde direkte links med status, mens kilder uden job kunne vælges til Mistral.
+- `VERIFICERET`: **Udvid research** åbnede Mistral-job filtreret på `Novo`; 83 kilder uden eksisterende job var valgbare.
+- Brugeren oprettede én lokal jobkladde fra dette flow. UI'en bekræftede, at ingen tekst var sendt, og den valgbare filtrerede liste faldt fra 83 til 82. Acceptance-testen udløste derfor ikke et eksternt AI-kald.
+- Ingen schemaændring eller migration indgik i IV-013. Ingen AI-kandidat blev automatisk godkendt.
+- IV-013 er afsluttet. Næste standard er **BRUG → OBSERVÉR → EVALUÉR** med portefølje-/Research-flowet; massebehandling af historiske kilder er ikke en del af IV-013.
+
 ## 2026-10-06 — IV-010 researchflow fysisk accepteret
 
 - PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
