@@ -4,6 +4,8 @@
 
 AI-output er kandidater. Et udsagn bliver først aktiv viden efter individuel menneskelig godkendelse eller korrektion.
 
+For aktuelle AI-afledte kilder må `approved`/`corrected` kun sættes, når den registrerede evidens kan knyttes til den aktuelle, hash-verificerede kildekopi. For Mistral/OpenAI-kandidater kræves et ordret evidensuddrag, som kan genfindes i kildekopien; forskelle i whitespace alene accepteres. Historiske/backfill-udsagn må fortsat importeres som `ai_extracted` uden at opfylde denne aktive-viden-gate.
+
 ## D-002 — SQLite er autoritativ
 
 SQLite bærer den autoritative tilstand for kilder, hashes, provenance, udsagnsversioner og reviewhistorik. Afledte rapporter og eksporter skal kunne genskabes.
