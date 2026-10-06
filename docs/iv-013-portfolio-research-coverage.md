@@ -57,8 +57,12 @@ Resultatet er en prioriteringshjælp, ikke automatisk relevansgodkendelse. Bruge
 
 ## Status
 
-- `IMPLEMENTERET`: branch `iv-013-portfolio-research-coverage` viser Research-dækning direkte i porteføljens beslutningsbillede og genbruger det eksisterende Mistral-flow.
-- `VERIFICERET`: GitHub Actions run `37534348209` bestod på Python 3.10 og 3.12, inklusive hele unit-testpakken og eksisterende IV-008/IV-009 smoke-tests.
+- `VERIFICERET`: PR #28 er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`.
+- `VERIFICERET`: GitHub Actions run `37534628566` bestod på Python 3.10 og 3.12 efter merge, inklusive unit tests og eksisterende IV-008/IV-009 smoke-tests.
 - `VERIFICERET`: den syntetiske porteføljetest har én AI-behandlet og én ubehandlet Novo-kilde, viser dækningen 2/1/1, viser den ubehandlede kilde og navigerer til `/ai-jobs?q=Novo` uden eksternt AI-kald.
+- `VERIFICERET` ved fysisk workstation-test: Novo-porteføljeposten viste relevante ubehandlede kilder, herunder både direkte links til eksisterende `draft`/`failed` jobs og kilder uden job med **Vælg til Mistral**. UI'en viste de 8 nyeste af 89 relevante ubehandlede kilder.
+- `VERIFICERET` ved fysisk workstation-test: **Udvid research** åbnede Mistral-job med filteret `Novo`; 83 kilder uden eksisterende job var valgbare i det eksisterende jobflow.
+- `VERIFICERET` ved fysisk workstation-test: én af de viste Novo-kilder blev valgt til en ny jobkladde. UI'en bekræftede `Jobkladde ... er oprettet. Ingen tekst er sendt.`, og den filtrerede liste faldt fra 83 til 82 valgbare kilder. Der blev dermed ikke udløst et eksternt AI-kald af acceptance-testen.
 - `VERIFICERET`: ingen schemaændring eller migration indgår i IV-013.
-- `KRÆVER BRUGERTEST`: fysisk dækning og navigation i den persistente consumer-UI efter merge.
+- IV-013 er **AFSLUTTET**.
+- `NÆSTE`: brug portefølje-/Research-flowet i normal drift. Behandl kun relevante kilder efter behov; start ikke automatisk massebehandling af de resterende historiske kilder som del af IV-013.
