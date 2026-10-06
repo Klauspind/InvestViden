@@ -1,15 +1,18 @@
 # Todo – InvestViden
 
-## Aktiv supportopgave 06.10.2026 — historisk podcastbackfill synlig i normal runtime
+## Status 06.10.2026 — historisk podcastbackfill afsluttet
 
 - `VERIFICERET`: 960 historiske podcasttransskriptioner er importeret til den separate persistente schema-4 consumer-state efter hashkontrol, isoleret preflight og verificeret backup.
 - `VERIFICERET`: efter import er databaseintegritet `ok`, `source_delta=960`, `external_ai_calls=0`, `ai_jobs_changed=false`, `ai_attempts_changed=false` og `claims_changed=false`.
 - `VERIFICERET`: alle 960 historiske kilder har `ai_permission=ask`; importen oprettede derfor ingen nye AI-job eller AI-forsøg.
+- `VERIFICERET` ved fysisk UI-accept på workstation: en frisk verificeret kopi af consumer-databasen kunne åbnes i InvestViden, oversigten viste 971 registrerede kilder, og historiske kilder var synlige med “Spørg for hver AI-kørsel”.
+- UI-previewet viste eksplicit, at den midlertidige databasekopi var i brug. Selve UI-accepten skrev derfor ikke til den persistente consumer-database.
+- Søgningen i UI er udsagns-/videnssøgning og er ikke en test af fuldtekstsøgning i de 960 rå transskriptioner; det er ikke et acceptkrav for backfillen.
 - 101 episodegrupper med uløste transskriptionsversioner er parkeret og blev ikke importeret. `EP-1049` blev ekskluderet som ikke-importklar.
 - Originale arkivfiler blev ikke flyttet eller slettet, og den beskyttede legacy-database blev ikke brugt.
-- `KRÆVER BRUGERTEST`: den normale `START_INVESTVIDEN.cmd` bruger fortsat standarddatabasen `data/knowledgebase.sqlite`; de 960 kilder er derfor endnu ikke fysisk accepteret som synlige i brugerens normale UI/runtime.
-- `NÆSTE`: lav den mindste sikre read-only/UI-start mod consumerens eksisterende schema-4 database og verificér, at de historiske kilder kan ses. Ingen migration, AI-kørsel eller behandling af de 101 konfliktgrupper er nødvendig for dette trin.
-- Se `docs/historical-podcast-import-2026-10-06.md`.
+- Den almindelige `START_INVESTVIDEN.cmd` er ikke permanent koblet til consumer-state af denne opgave. Hvis det ønskes senere, er det en separat drifts-/produktbeslutning og ikke nødvendigt for den afsluttede backfill.
+- Se `docs/historical-podcast-import-2026-10-06.md` og `docs/historical-podcast-ui-acceptance-2026-10-06.md`.
+- `NÆSTE`: fortsæt den allerede aktive MVP-gate for source-verificerbar evidens på én frisk kilde; backfillen skal ikke udvides med de 101 konfliktgrupper nu.
 
 ## Aktiv opgave 06.10.2026 — source-verificerbar evidens før aktiv viden
 
@@ -98,7 +101,7 @@
 
 ### IV-006 — Bevar Transskribering-afledning gennem podcastimport
 
-**Status 2026-09-22: AFSLUTTET for den afgrænsede afledningsintegration.** `VERIFICERET` med 78/78 syntetiske tests i Linux/Python 3.12 og nu også med faktisk isoleret episodeimport på workstationen.
+**Status 2026-09-22: AFSLUTTET for den afgrænsede integration.** `VERIFICERET` med 78/78 syntetiske tests i Linux/Python 3.12 og nu også med faktisk isoleret episodeimport på workstationen.
 
 **Mål og accept:** Bevar producentens `derivation` og `segment_accounting` i sidecar og SQLite ved både direkte episode-JSON-intake og tekst/sidecar-intake. Afvis ugyldige nye felter, behold ældre episoder uden dem, og bevar idempotens og originale filer. Ingen aktiv database, migrationsændring, AI-kald eller morgenjob. Se `docs/iv-006-podcast-derivation.md`.
 
