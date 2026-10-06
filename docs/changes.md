@@ -1,3 +1,12 @@
+## 2026-10-06 — Aktiv consumer-evidens opdateret og MVP-gate lukket
+
+- Brugeren godkendte eksplicit en kontrolleret `process-ai`-genbehandling mod den separate persistente schema-4 consumer-database.
+- `VERIFICERET`: read-only preflight viste `integrity_check=ok`, korrekt SHA-256 for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning.
+- `VERIFICERET`: den aktive kørsel gennemførte og efterlod databasen med `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
+- `VERIFICERET`: version 2 for alle 12 claims blev oprettet i den aktive consumer-database ved `2026-10-06T11:28:30+00:00`. Den isolerede acceptance-kopi havde sin separate version 2 fra `2026-10-06T10:47:16+00:00`.
+- `AFKLARING`: `process-ai`-CLI'ens `Verificeret backup` er i den nuværende rækkefølge en verificeret post-write backup, fordi ingestion sker før `backup_database` kaldes. Dette er dokumenteret som en ikke-blokerende sikkerhedsforbedring, ikke som en ny aktiv udviklingsopgave.
+- Ingen kode er ændret i denne dokumentationslukning. Evidens-MVP'en går nu til **BRUG → OBSERVÉR → EVALUÉR**; pre-write backup for `process-ai` er `SENERE / PARKING LOT`.
+
 ## 2026-10-06 — Lokal tidskode-evidens fysisk accepteret
 
 - PR #20 (`Derive podcast review evidence locally from timestamps`) er merged til `main` som `4626d36b3566ba81c5d88c70e45d8246945668b8`.
@@ -95,7 +104,7 @@
 - Kæden opretter frisk schema 4, importerer præcis én episode med `allow`, bevarer provenance/derivation/segmentregnskab, kræver intakt intake-backup og stopper ved en ubekræftet `draft` med nul AI-forsøg.
 - Tilføjet `tests/test_morning_consumer_flow.py` med fail-closed cases for ikke-tom arbejdsmappe og flere episoder samt kontrol af, at privat tekst/path ikke lækker i output.
 - `VERIFICERET`: GitHub Actions run 36128867833: **86/86 tests** på Python 3.10 og **86/86 tests** på Python 3.12.
-- `KRÆVER BRUGERTEST`: fysisk workstation-kørsel mod én færdig Transskribering episodelevering.
+- `KRÆVER BRUGERTEST`: fysisk workstation-kørsel mod én færdig Transskribinator episodelevering.
 
 ## 2026-09-25 — IV-002 fysisk Windows-accept afsluttet
 
