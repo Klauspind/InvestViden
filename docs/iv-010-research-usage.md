@@ -40,4 +40,9 @@ Gør InvestViden praktisk anvendelig til løbende research uden at udviske forsk
 
 - `IMPLEMENTERET`: PR #23 er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
 - `VERIFICERET`: GitHub Actions run `37473184460` bestod efter den sidste dokumentationscommit på både Python 3.10 og 3.12. Den foregående kodecommit blev ligeledes verificeret i run `37472970799`, inklusive IV-008 smoke, IV-009 smoke og de nye IV-010-tests.
-- `KRÆVER BRUGERTEST`: synkronisér workstationen og åbn den rigtige consumer-UI. Kontrollér detaljehandlinger, tilbage-navigation og forskellen mellem standardområdet Research og filteret Aktiv viden på reelle udsagn.
+- `VERIFICERET` ved fysisk workstation-brugertest 06.10.2026: alle fire acceptpunkter blev bekræftet i den rigtige consumer-UI. Detaljesiden havde reviewhandlingerne direkte, tilbage-navigationen bevarede placeringen, standardområdet var **Research**, og **Aktiv viden** viste kun menneskeligt godkendte/rettede udsagn. Skærmbilleder dokumenterede Research-visningen og Aktiv viden-visningen.
+- IV-010 er dermed **AFSLUTTET**.
+
+## Næste
+
+Fortsæt med **BRUG → OBSERVÉR → EVALUÉR**. Næste udviklingsopgave skal udspringe af en konkret friktion eller mangel fra reel brug, ikke af ønsket om at gøre systemet mere komplet.
