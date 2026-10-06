@@ -1,0 +1,1 @@
+IV-011 fysisk acceptance er dokumenteret i `docs/iv-011-physical-acceptance-2026-10-06.md`. Denne note kan fjernes, når canonical statusfilerne er samlet opdateret.
