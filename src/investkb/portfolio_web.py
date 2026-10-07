@@ -133,6 +133,7 @@ def _decision_support(
     coverage: dict[str, Any],
 ) -> str:
     positive = [item for item in details if item.get("sentiment") == "positive"]
+    neutral = [item for item in details if item.get("sentiment") == "neutral"]
     negative = [item for item in details if item.get("sentiment") == "negative"]
     mixed = [item for item in details if item.get("sentiment") in {"mixed", "unclear"}]
     verified = [item for item in details if item.get("review_status") in {"approved", "corrected"}]
@@ -157,6 +158,24 @@ def _decision_support(
             f'<li><a href="{_escape(_claim_url(claim_id, {"origin": ["search"], "q": [str(entry["company_name"])], "lane": ["research"]}))}">{_escape(text)}</a></li>'
             for claim_id, text in items
         ) + "</ul>"
+
+    def sentiment_card(label: str, items: list[dict[str, Any]]) -> str:
+        if not items:
+            content = '<p class="muted">Ingen udsagn i denne gruppe.</p>'
+        else:
+            content = "<ul>" + "".join(
+                f'''<li><a href="{_escape(_claim_url(str(item["id"]), {"origin": ["search"], "q": [str(entry["company_name"])], "lane": ["research"]}))}">{_escape(item.get("summary"))}</a>
+<br><span class="muted">{_escape(item.get("source_title"))} · {_escape(item.get("published_at"))} · {_label(item.get("review_status"))}</span></li>'''
+                for item in items
+            ) + "</ul>"
+        return f'<div class="card"><h3>{_escape(label)} · {len(items)}</h3>{content}</div>'
+
+    sentiment_html = "".join((
+        sentiment_card("Positiv", positive),
+        sentiment_card("Neutral", neutral),
+        sentiment_card("Negativ", negative),
+        sentiment_card("Blandet / uklar", mixed),
+    ))
 
     claim_cards = []
     for item in details:
@@ -215,7 +234,7 @@ def _decision_support(
   <div class="stat"><span>Researchudsagn</span><b>{len(details)}</b><span class="muted">kildeunderbyggede resultater</span></div>
   <div class="stat"><span>Menneskeligt verificeret</span><b>{len(verified)}</b><span class="muted">approved/corrected</span></div>
   <div class="stat"><span>AI-kandidater</span><b>{len(ai_candidates)}</b><span class="muted">ikke menneskeligt verificeret</span></div>
-  <div class="stat"><span>Positiv / negativ / blandet</span><b>{len(positive)} / {len(negative)} / {len(mixed)}</b><span class="muted">efter kildens udsagn</span></div>
+  <div class="stat"><span>Positiv / neutral / negativ / blandet/uklar</span><b>{len(positive)} / {len(neutral)} / {len(negative)} / {len(mixed)}</b><a href="#sentiment-kilder">Se udsagn og kilder</a></div>
 </div>
 <h2>Research-dækning</h2>
 <div class="grid">
@@ -227,6 +246,9 @@ def _decision_support(
 <p class="muted">Hver anbefalet kilde åbner præcis den kilde i det eksisterende Mistral-flow; intet sendes automatisk.</p>
 {coverage_action}
 {unprocessed_list}
+<h2 id="sentiment-kilder">Sentiment · udsagn og kilder</h2>
+<p class="muted">Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling. Klik på et udsagn for at se detalje og evidens.</p>
+<div class="grid">{sentiment_html}</div>
 <div class="grid">
   <div class="card"><h3>Risici</h3>{point_list(risks, "Ingen strukturerede risikopunkter i de fundne udsagn.")}</div>
   <div class="card"><h3>Katalysatorer</h3>{point_list(catalysts, "Ingen strukturerede katalysatorer i de fundne udsagn.")}</div>
