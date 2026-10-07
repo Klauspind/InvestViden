@@ -26,7 +26,7 @@ class PortfolioFlowTest(unittest.TestCase):
         source = self.root / "novo.txt"
         source_text = (
             "Novo Nordisk has strong demand, but competition and pricing pressure remain risks. "
-            "A successful new indication could be a catalyst."
+            "A successful new indication could be a catalyst. The current regulatory setting is broadly stable."
         )
         source.write_text(source_text, encoding="utf-8")
         source_id, _ = self.kb.import_source(
@@ -61,7 +61,28 @@ class PortfolioFlowTest(unittest.TestCase):
                 "catalysts": ["Successful new indication"],
                 "conditions": ["Demand must remain strong"],
                 "evidence": {
-                    "excerpt": source_text,
+                    "excerpt": "Novo Nordisk has strong demand, but competition and pricing pressure remain risks.",
+                    "start_ref": "p1",
+                    "end_ref": "p1",
+                },
+            }, {
+                "claim_type": "company_view",
+                "summary": "Novo Nordisk's current regulatory setting is broadly stable.",
+                "speaker": None,
+                "sentiment": "neutral",
+                "action": "none",
+                "time_horizon": "medium_term",
+                "discussion_depth": "brief",
+                "confidence": 0.80,
+                "review_status": "ai_extracted",
+                "companies": [{"name": "Novo Nordisk", "ticker": "NOVO-B", "role": "primary"}],
+                "themes": ["regulation"],
+                "thesis": [],
+                "risks": [],
+                "catalysts": [],
+                "conditions": [],
+                "evidence": {
+                    "excerpt": "The current regulatory setting is broadly stable.",
                     "start_ref": "p1",
                     "end_ref": "p1",
                 },
@@ -131,6 +152,17 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Successful new indication", page)
         self.assertIn("Kildeunderbygget · ikke menneskeligt verificeret", page)
         self.assertIn("ikke en automatisk køb/hold/sælg-anbefaling", page)
+
+        self.assertIn("Positiv / neutral / negativ / blandet/uklar", page)
+        self.assertIn("<b>1 / 1 / 0 / 0</b>", page)
+        self.assertIn("Se udsagn og kilder", page)
+        self.assertIn("Sentiment · udsagn og kilder", page)
+        self.assertIn("Positiv · 1", page)
+        self.assertIn("Neutral · 1", page)
+        self.assertIn("Novo Nordisk has strong demand, while competition remains a risk.", page)
+        self.assertIn("Novo Nordisk&#x27;s current regulatory setting is broadly stable.", page)
+        self.assertIn("Novo Nordisk research note · 2026-10-06", page)
+        self.assertIn("Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling", page)
 
         self.assertIn("Research-dækning", page)
         self.assertIn("<span>Relevante kilder</span><b>2</b>", page)
