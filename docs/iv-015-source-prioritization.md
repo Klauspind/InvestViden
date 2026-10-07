@@ -58,6 +58,7 @@ Fysisk workstation-test efter merge:
 
 ## Status
 
-- `IMPLEMENTERET` på branch `iv-015-source-prioritization`: deterministisk relevansfilter/rangering, forklaring i UI og præcist source-id-link til Mistral-flowet.
-- `IKKE TESTET` endnu: GitHub Actions på IV-015-branch/PR.
-- `KRÆVER BRUGERTEST`: fysisk workstation-kontrol efter merge.
+- `IMPLEMENTERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) indeholder deterministisk relevansfilter/rangering, forklaring i UI og præcist source-id-link til Mistral-flowet.
+- `VERIFICERET`: GitHub Actions PR-run `37586654858` bestod på Python 3.10 og 3.12. Begge jobs gennemførte IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET`: de nye tests dækker whole-word-filtrering af `Novo`/`Novonesis`, nyere-før-historisk rangering og relevans via selskabet som udgiver. Den eksisterende portefølje-flowtest indgår fortsat i den grønne samlede testpakke.
+- `KRÆVER BRUGERTEST`: fysisk workstation-kontrol efter merge. Der behøver ikke udføres et nyt eksternt AI-kald for acceptance.
