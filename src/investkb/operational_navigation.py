@@ -15,6 +15,7 @@ from .mistral_jobs import execute_mistral_job
 from .operational_web_app import OperationalInvestVidenWebApp, make_operational_handler
 from .portfolio_web import make_portfolio_handler
 from .validation import ValidationError
+from .web_app import _escape
 
 
 JOB_ID_PATTERN = re.compile(r"ai-job-[0-9a-f]+")
@@ -175,13 +176,14 @@ def _add_background_controls(
                 )
             label = "venter i kø" if runtime_state == "queued" else "kører"
             progress = f" · {completed}/{total} kilder afsluttet" if total else ""
-            rows.append(f"<li><code>{job_id}</code> · {label}{progress}</li>")
+            rows.append(f"<li><code>{_escape(job_id)}</code> · {label}{progress}</li>")
         refresh = "/ai-jobs"
         if query:
             refresh += "?" + urlencode({"q": query})
         notice = (
             '<div class="notice"><strong>Mistral arbejder i baggrunden.</strong>'
-            '<p>Du kan bruge resten af InvestViden imens. Jobs køres ét ad gangen. '</n            f'<a href="{refresh}">Opdater status</a>.</p><ul>{"".join(rows)}</ul></div>'
+            '<p>Du kan bruge resten af InvestViden imens. Jobs køres ét ad gangen. '
+            f'<a href="{refresh}">Opdater status</a>.</p><ul>{"".join(rows)}</ul></div>'
         )
         text = text.replace(marker, marker + notice, 1)
 
@@ -190,7 +192,7 @@ def _add_background_controls(
         if card_marker in text:
             text = text.replace(
                 card_marker,
-                card_marker + f'<p class="muted">Seneste baggrundskørsel: {message}</p>',
+                card_marker + f'<p class="muted">Seneste baggrundskørsel: {_escape(message)}</p>',
                 1,
             )
 
@@ -202,8 +204,8 @@ def _add_background_controls(
     if confirmed and history_marker in text:
         choices = "".join(
             '<label style="display:block;margin:6px 0">'
-            f'<input type="checkbox" name="batch_job_id" value="{job["id"]}"> '
-            f'<code>{job["id"]}</code> · {len(list(job.get("items", [])))} kilder · '
+            f'<input type="checkbox" name="batch_job_id" value="{_escape(job["id"])}"> '
+            f'<code>{_escape(job["id"])}</code> · {len(list(job.get("items", [])))} kilder · '
             f'estimat USD {float(job.get("estimated_cost_usd", 0)):.4f}</label>'
             for job in confirmed
         )
