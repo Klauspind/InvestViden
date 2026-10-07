@@ -1,3 +1,14 @@
+## 2026-10-07 — IV-015 fysisk accepteret
+
+- PR #30 (`IV-015: Prioritize portfolio research sources`) er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`.
+- PR #31 (`IV-015 follow-up: Trace sentiment to claims and sources`) er merged til `main` som `a3ee7e0773744a843109f68b80e51019b87a299a`.
+- Kildeprioriteringen bruger deterministisk ord-/frasematch på selskabsnavn/ticker/titel/udgiver, filtrerer perifere delstrengstræf og prioriterer nyere relevante kilder først. UI viser relevansforklaring og højst otte prioriterede ubehandlede kilder.
+- Sentimentoversigten medtager nu positiv, neutral, negativ og blandet/uklar og viser de konkrete udsagn med kilde, dato, reviewstatus og link til eksisterende detalje/evidens.
+- `VERIFICERET`: afsluttende GitHub Actions run `37590311085` bestod på Python 3.10 og 3.12; den oprindelige prioriteringsændring var grøn i run `37586980131`.
+- `VERIFICERET` ved fysisk workstation-test: Novo viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede; de viste kilder var nyere og tydeligt Novo-relevante med forklaring på match.
+- `VERIFICERET` ved fysisk workstation-test: de 12 Researchudsagn fordelte sig som `1 positiv / 8 neutrale / 3 negative / 0 blandet/uklar`, **Se udsagn og kilder** viste sporbarheden, og klik på et konkret sentimentudsagn åbnede udsagnsdetalje/evidens korrekt.
+- Ingen schemaændring, migration, automatisk reviewstatusændring eller automatisk ekstern AI-kørsel indgår. IV-015 er afsluttet; næste standard er **BRUG → OBSERVÉR → EVALUÉR**.
+
 ## 2026-10-06 — IV-013 porteføljestyret Research-dækning fysisk accepteret
 
 - PR #28 (`IV-013: Add portfolio-driven research coverage`) er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`.

@@ -1,5 +1,19 @@
 # Handover – InvestViden
 
+## 07.10.2026 — IV-015 fysisk accepteret; kildeprioritering og sentimentsporbarhed er klar til brug
+
+IV-015 er afsluttet. PR #30 er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`, og sentimentopfølgningen PR #31 er merged som `a3ee7e0773744a843109f68b80e51019b87a299a`.
+
+`VERIFICERET` automatisk: den afsluttende GitHub Actions-kørsel `37590311085` bestod på Python 3.10 og 3.12. Den oprindelige kildeprioritering var allerede grøn i run `37586980131`.
+
+`VERIFICERET` ved fysisk workstation-test i den persistente consumer-UI: Novo-beslutningsbilledet viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede. De otte direkte viste kilder var prioriteret med nyere, tydeligt Novo-relevante kilder øverst og med synlig forklaring på relevansen. Den deterministiske prioritering er fortsat metadata-baseret og ikke semantisk fuldtekstsøgning gennem hele transskriptionen.
+
+`VERIFICERET` ved fysisk workstation-test: alle 12 Researchudsagn indgik i sentimentoversigten som `1 positiv / 8 neutrale / 3 negative / 0 blandet/uklar`. **Se udsagn og kilder** viste de konkrete udsagn med kilde, dato og reviewstatus, og brugerens afsluttende klik på et konkret sentimentudsagn åbnede den eksisterende udsagnsdetalje/evidens som forventet.
+
+IV-015 ændrer ikke schema, reviewstatus, AI-policy, prisloft eller brokerforbud. Intet AI-job oprettes eller sendes automatisk af prioriterings- eller sentimentvisningen. Den eksisterende Mistral-kilde-/pris-/bekræftelsesgate er uændret.
+
+`NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Brug portefølje-/Research-flowet normalt. Start ikke ny udvikling eller massebehandling af historiske kilder, før konkret brug viser en ny friktion, mangel eller nødvendig produktgate.
+
 ## 06.10.2026 — IV-013 fysisk accepteret; porteføljestyret Research-dækning er klar til brug
 
 IV-013 er afsluttet. PR #28 er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`, og GitHub Actions run `37534628566` bestod på Python 3.10 og 3.12 efter merge.

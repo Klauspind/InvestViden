@@ -59,7 +59,9 @@ Fysisk workstation-test efter merge:
 
 ## Status
 
-- `IMPLEMENTERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) indeholder deterministisk relevansfilter/rangering, forklaring i UI og præcist source-id-link til Mistral-flowet.
-- `VERIFICERET`: GitHub Actions PR-run `37586980131` bestod på Python 3.10 og 3.12 efter den sidste kodeændring. Begge jobs gennemførte IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`.
+- `VERIFICERET`: GitHub Actions PR-run `37586980131` bestod på Python 3.10 og 3.12. Begge jobs gennemførte IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
 - `VERIFICERET`: de nye tests dækker whole-word-filtrering af `Novo`/`Novonesis`, nyere-før-historisk rangering, relevans via selskabet som udgiver samt det præcise source-id-link fra porteføljevisningen til Mistral-flowet.
-- `KRÆVER BRUGERTEST`: fysisk workstation-kontrol efter merge. Der behøver ikke udføres et nyt eksternt AI-kald for acceptance.
+- `VERIFICERET` ved fysisk workstation-test 07.10.2026: Novo-beslutningsbilledet viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede. De otte viste ubehandlede kilder var prioriteret med nyere, tydeligt Novo-relevante kilder øverst og med synlig forklaring på relevansen.
+- Den efterfølgende fysiske gennemgang fandt én konkret UI-friktion i sentimentsporbarheden; den blev rettet og fysisk accepteret i opfølgningen `docs/iv-015-sentiment-traceability.md`.
+- IV-015 er **AFSLUTTET**. Næste standard er **BRUG → OBSERVÉR → EVALUÉR**.
