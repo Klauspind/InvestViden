@@ -1,5 +1,17 @@
 # Todo – InvestViden
 
+## Status 07.10.2026 — IV-015 fysisk accepteret; kildeprioritering og sentimentsporbarhed afsluttet
+
+- `VERIFICERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`.
+- `VERIFICERET`: PR #31 (`IV-015 follow-up: Trace sentiment to claims and sources`) er merged til `main` som `a3ee7e0773744a843109f68b80e51019b87a299a`.
+- `VERIFICERET`: den afsluttende GitHub Actions-kørsel `37590311085` bestod på Python 3.10 og 3.12 efter sentimentopfølgningen; den oprindelige IV-015-prioritering var allerede grøn i run `37586980131`.
+- `VERIFICERET` ved fysisk workstation-test: Novo-beslutningsbilledet viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede. De otte viste ubehandlede kilder var prioriteret med nyere tydeligt Novo-relevante kilder øverst og synlig forklaring på relevansen.
+- `VERIFICERET` ved fysisk workstation-test: sentimentkortet viste alle 12 Researchudsagn som `1 positiv / 8 neutrale / 3 negative / 0 blandet/uklar`, og **Se udsagn og kilder** viste de konkrete udsagn med kilde, dato og reviewstatus.
+- `VERIFICERET` ved fysisk workstation-test: klik på et konkret sentimentudsagn åbnede den eksisterende udsagnsdetalje/evidens som forventet.
+- `VERIFICERET`: ændringen indfører ingen schemaændring, migration, automatisk reviewstatusændring eller automatisk ekstern AI-kørsel. Den eksisterende Mistral-kilde-/pris-/bekræftelsesgate er bevaret.
+- IV-015 er **AFSLUTTET**. Se `docs/iv-015-source-prioritization.md` og `docs/iv-015-sentiment-traceability.md`.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR** med portefølje-/Research-flowet. Start ikke ny udvikling eller massebehandling af historiske kilder, før reel brug viser en ny konkret friktion eller nødvendig produktgate.
+
 ## Status 06.10.2026 — IV-013 fysisk accepteret; porteføljestyret Research-dækning aktiv
 
 - `VERIFICERET`: PR #28 (`IV-013: Add portfolio-driven research coverage`) er merged til `main` som `e4d61e0dd042870fbf96a48a40a06d36e49bbc59`.
@@ -117,7 +129,6 @@
 - `KRÆVER BRUGERTEST`: kør den opdaterede verifier mod den faktiske schema-1-database efter synkronisering af branch/main og kontroller alle sammenligninger før UI-start.
 
 ## Status 25.09.2026 — IV-003 fysisk UI-accept gennemført
-
 - `VERIFICERET`: den fysiske workstation-UI blev kørt mod en isoleret syntetisk schema-4-preview med 2 kilder og 2 udsagn; preview-check bestod, og den beskyttede legacy-database blev ikke brugt.
 - `VERIFICERET`: brugeren vurderede, at konceptet/UI-flowet fungerede. Skærmbilledet viste testkilden, prisestimat/loft og jobhistorik i UI'en.
 - `VERIFICERET`: to forsøg på send endte lokalt som `failed`, fordi `MISTRAL_API_KEY` ikke var konfigureret; UI'en viste faktisk USD `0.000000`. Der er derfor ingen dokumenteret ekstern AI-udgift i denne test.
