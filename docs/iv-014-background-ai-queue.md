@@ -66,7 +66,14 @@ Et `partial` job kasserer ikke de validerede resultater.
 
 ## Status
 
-- `IMPLEMENTERET`: PR #29 indeholder baggrundskø, batch-send af allerede bekræftede jobs, statusvisning og forklaring af `partial`.
-- `VERIFICERET`: GitHub Actions PR-run `37583275225` bestod på Python 3.10 og 3.12, inklusive nye fake-transport-tests og eksisterende smoke-/unit-tests.
-- `VERIFICERET`: tests viser, at HTTP-svaret returnerer mens fake transport stadig er blokeret, at øvrige sider kan bruges, at to batchjobs køres med maksimal concurrency 1, og at `partial` bevarer den validerede del.
-- `KRÆVER BRUGERTEST`: fysisk workstation-test efter merge med et selvvalgt rigtigt bekræftet job.
+- `VERIFICERET`: PR #29 (`IV-014: Non-blocking Mistral queue`) er merged til `main` som `72257c0a4bb4abcddf075291a198e6bbe48f192c`.
+- `VERIFICERET`: GitHub Actions efter merge, run `37583610066`, bestod på Python 3.10 og 3.12. De nye fake-transport-tests og eksisterende smoke-/unit-tests er grønne.
+- `VERIFICERET`: automatiske tests viser, at HTTP-svaret returnerer mens fake transport stadig er blokeret, at øvrige sider kan bruges, at to batchjobs køres med maksimal concurrency 1, og at `partial` bevarer den validerede del.
+- `VERIFICERET` ved fysisk workstation-brug 07.10.2026: et rigtigt bekræftet Mistral-job blev sat i baggrundskø, og UI viste **Mistral arbejder i baggrunden** med status `kører · 0/1 kilder afsluttet` samt manuel **Opdater status**. Den nye **Send flere bekræftede jobs**-sektion var synlig med flere allerede bekræftede jobs, og `partial` blev forklaret direkte i UI som delvist færdig med bevarelse af vellykkede resultater.
+- `VERIFICERET`: jobhistorikken viste efterfølgende afsluttede `completed`-jobs med `validated` item og faktisk registreret API-omkostning, hvilket dokumenterer, at den nye UI kører mod den reelle driftsjobhistorik og ikke kun syntetisk testdata.
+- `IKKE TESTET`: fysisk batch-afsendelse af flere rigtige jobs i samme klik. Funktionen er automatisk testet med fake transport; der er ingen grund til at udløse ekstra eksterne AI-kald alene for acceptance.
+- IV-014 er **AFSLUTTET**.
+
+## Næste konkrete todo
+
+**IV-015 — prioritering af historiske kilder og bedre selskabsrelevans.** Målet er at undgå ukritisk Mistral-behandling af gamle eller kun perifert relevante kilder og at forbedre inputgrundlaget før en senere samlet AI-vurdering af en position/watchlist-aktie.
