@@ -137,6 +137,9 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("<span>AI-behandlede</span><b>1</b>", page)
         self.assertIn("<span>Ubehandlede</span><b>1</b>", page)
         self.assertIn("Novo pipeline and future products", page)
+        self.assertIn("Hvorfor vist: selskabsord i titel: novo.", page)
+        self.assertIn("Vælg denne kilde til Mistral", page)
+        self.assertIn(f"/ai-jobs?q={self.unprocessed_id}", page)
         self.assertIn("Udvid research", page)
         self.assertIn("/ai-jobs?q=Novo", page)
 
