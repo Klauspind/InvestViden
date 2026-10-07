@@ -160,8 +160,8 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Positiv · 1", page)
         self.assertIn("Neutral · 1", page)
         self.assertIn("Novo Nordisk has strong demand, while competition remains a risk.", page)
-        self.assertIn("Novo Nordisk's current regulatory setting is broadly stable.", page)
-        self.assertIn("Synthetic Research · 2026-10-06", page)
+        self.assertIn("Novo Nordisk&#x27;s current regulatory setting is broadly stable.", page)
+        self.assertIn("Novo Nordisk research note · 2026-10-06", page)
         self.assertIn("Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling", page)
 
         self.assertIn("Research-dækning", page)
