@@ -7,6 +7,7 @@ from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse
 
 from .portfolio import PORTFOLIO_KINDS, TIME_HORIZONS, PortfolioStore
+from .source_priority import prioritize_sources
 from .validation import ValidationError
 from .web_app import _claim_url, _escape, _label, _page
 
@@ -92,7 +93,7 @@ def _source_coverage(kb: Any, entry: dict[str, Any]) -> dict[str, Any]:
         parameters.extend([pattern, pattern])
 
     rows = kb.conn.execute(
-        f"""SELECT sv.id, sv.title, sv.publisher, sv.published_at,
+        f"""SELECT sv.id, sv.title, sv.publisher, sv.published_at, sv.imported_at,
                     CASE WHEN EXISTS (
                         SELECT 1 FROM extraction_runs r WHERE r.source_id=sv.id
                     ) THEN 1 ELSE 0 END AS processed,
@@ -114,7 +115,7 @@ def _source_coverage(kb: Any, entry: dict[str, Any]) -> dict[str, Any]:
         parameters,
     ).fetchall()
 
-    source_rows = [dict(row) for row in rows]
+    source_rows = prioritize_sources(entry, [dict(row) for row in rows])
     processed = sum(1 for row in source_rows if int(row["processed"]) == 1)
     unprocessed_sources = [row for row in source_rows if int(row["processed"]) == 0]
     return {
@@ -184,21 +185,22 @@ def _decision_support(
     for source in coverage["unprocessed_sources"]:
         job_id = str(source.get("latest_job_id") or "")
         job_status = str(source.get("latest_job_status") or "")
+        source_ai_jobs_url = "/ai-jobs?" + urlencode({"q": str(source["id"])})
         if job_id:
             action_url = ai_jobs_url + "#" + job_id
             action_text = f"Åbn eksisterende job · {job_status}"
         else:
-            action_url = ai_jobs_url
-            action_text = "Vælg til Mistral"
+            action_url = source_ai_jobs_url
+            action_text = "Vælg denne kilde til Mistral"
         source_cards.append(
             f'''<article class="card"><div class="meta"><span class="badge">Ubehandlet kilde</span>
-<span>{_escape(source.get("published_at"))}</span><span>{_escape(source.get("publisher"))}</span></div>
-<h3>{_escape(source.get("title"))}</h3><a href="{_escape(action_url)}">{_escape(action_text)}</a></article>'''
+<span class="badge">{_escape(source.get("relevance_label"))}</span><span>{_escape(source.get("published_at"))}</span><span>{_escape(source.get("publisher"))}</span></div>
+<h3>{_escape(source.get("title"))}</h3><p class="muted">Hvorfor vist: {_escape(source.get("relevance_reason"))}.</p><a href="{_escape(action_url)}">{_escape(action_text)}</a></article>'''
         )
     unprocessed_list = "".join(source_cards)
     if int(coverage["unprocessed"]) > len(coverage["unprocessed_sources"]):
         unprocessed_list += (
-            f'<p class="muted">Viser de {len(coverage["unprocessed_sources"])} nyeste af '
+            f'<p class="muted">Viser de {len(coverage["unprocessed_sources"])} højest prioriterede af '
             f'{int(coverage["unprocessed"])} relevante ubehandlede kilder.</p>'
         )
     coverage_action = (
@@ -217,11 +219,12 @@ def _decision_support(
 </div>
 <h2>Research-dækning</h2>
 <div class="grid">
-  <div class="stat"><span>Relevante kilder</span><b>{int(coverage["total"])}</b><span class="muted">match på registreret kildemetadata</span></div>
+  <div class="stat"><span>Relevante kilder</span><b>{int(coverage["total"])}</b><span class="muted">selskabsmatch i registreret metadata</span></div>
   <div class="stat"><span>AI-behandlede</span><b>{int(coverage["processed"])}</b><span class="muted">har mindst ét udtræk</span></div>
   <div class="stat"><span>Ubehandlede</span><b>{int(coverage["unprocessed"])}</b><span class="muted">kan udvide Research</span></div>
 </div>
-<p class="muted">Kildedækningen er en prioriteringshjælp baseret på titel, udgiver og selskabsnavn/ticker — ikke semantisk fuldtekstsøgning i hele transskriptionen.</p>
+<p class="muted">Kilder prioriteres nyeste først og derefter efter tydelig selskabsrelevans i titel/udgiver. Match er ord-/frasebaseret, så perifere delstrengstræf sorteres fra. Det er stadig ikke semantisk fuldtekstsøgning i hele transskriptionen.</p>
+<p class="muted">Hver anbefalet kilde åbner præcis den kilde i det eksisterende Mistral-flow; intet sendes automatisk.</p>
 {coverage_action}
 {unprocessed_list}
 <div class="grid">
