@@ -46,7 +46,8 @@ Automatiske tests skal mindst verificere:
 - whole-word-filtrering af perifere delstrengstræf,
 - nyere relevante kilder før gamle historiske kilder,
 - relevans via selskabsnavn/ticker/udgiver,
-- eksisterende portefølje-flow fortsat fungerer.
+- eksisterende portefølje-flow fortsat fungerer,
+- linket fra det anbefalede kildekort peger på den konkrete source-id i Mistral-flowet.
 
 Fysisk workstation-test efter merge:
 
@@ -59,6 +60,6 @@ Fysisk workstation-test efter merge:
 ## Status
 
 - `IMPLEMENTERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) indeholder deterministisk relevansfilter/rangering, forklaring i UI og præcist source-id-link til Mistral-flowet.
-- `VERIFICERET`: GitHub Actions PR-run `37586654858` bestod på Python 3.10 og 3.12. Begge jobs gennemførte IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
-- `VERIFICERET`: de nye tests dækker whole-word-filtrering af `Novo`/`Novonesis`, nyere-før-historisk rangering og relevans via selskabet som udgiver. Den eksisterende portefølje-flowtest indgår fortsat i den grønne samlede testpakke.
+- `VERIFICERET`: GitHub Actions PR-run `37586980131` bestod på Python 3.10 og 3.12 efter den sidste kodeændring. Begge jobs gennemførte IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET`: de nye tests dækker whole-word-filtrering af `Novo`/`Novonesis`, nyere-før-historisk rangering, relevans via selskabet som udgiver samt det præcise source-id-link fra porteføljevisningen til Mistral-flowet.
 - `KRÆVER BRUGERTEST`: fysisk workstation-kontrol efter merge. Der behøver ikke udføres et nyt eksternt AI-kald for acceptance.
