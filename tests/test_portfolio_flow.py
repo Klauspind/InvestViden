@@ -3,6 +3,7 @@ import sys
 import tempfile
 import threading
 import unittest
+from datetime import date, timedelta
 from pathlib import Path
 from urllib.parse import urlencode
 from urllib.request import Request, urlopen
@@ -22,6 +23,9 @@ class PortfolioFlowTest(unittest.TestCase):
         self.root = Path(self.temp.name)
         self.kb = KnowledgeBase(self.root / "knowledgebase.sqlite")
         self.kb.initialize()
+        self.recent_source_date = (date.today() - timedelta(days=2)).isoformat()
+        self.current_pipeline_date = (date.today() - timedelta(days=1)).isoformat()
+        self.historical_source_date = (date.today() - timedelta(days=500)).isoformat()
 
         source = self.root / "novo.txt"
         source_text = (
@@ -34,7 +38,7 @@ class PortfolioFlowTest(unittest.TestCase):
             "report",
             title="Novo Nordisk research note",
             publisher="Synthetic Research",
-            published_at="2026-10-06",
+            published_at=self.recent_source_date,
             source_store=self.root / "sources",
             ai_permission="ask",
         )
@@ -99,7 +103,22 @@ class PortfolioFlowTest(unittest.TestCase):
             "podcast_transcript",
             title="Novo pipeline and future products",
             publisher="Synthetic Podcast",
-            published_at="2026-10-05",
+            published_at=self.current_pipeline_date,
+            source_store=self.root / "sources",
+            ai_permission="ask",
+        )
+
+        historical = self.root / "novo-historical.txt"
+        historical.write_text(
+            "Older Novo context that remains available when explicitly needed.",
+            encoding="utf-8",
+        )
+        self.historical_id, _ = self.kb.import_source(
+            historical,
+            "podcast_transcript",
+            title="Novo historical context",
+            publisher="Synthetic Podcast",
+            published_at=self.historical_source_date,
             source_store=self.root / "sources",
             ai_permission="ask",
         )
@@ -152,6 +171,8 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Successful new indication", page)
         self.assertIn("Kildeunderbygget · ikke menneskeligt verificeret", page)
         self.assertIn("ikke en automatisk køb/hold/sælg-anbefaling", page)
+        self.assertIn("Review-on-demand", page)
+        self.assertIn("er ikke en restanceliste", page)
 
         self.assertIn("Positiv / neutral / negativ / blandet/uklar", page)
         self.assertIn("<b>1 / 1 / 0 / 0</b>", page)
@@ -161,23 +182,29 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Neutral · 1", page)
         self.assertIn("Novo Nordisk has strong demand, while competition remains a risk.", page)
         self.assertIn("Novo Nordisk&#x27;s current regulatory setting is broadly stable.", page)
-        self.assertIn("Novo Nordisk research note · 2026-10-06", page)
+        self.assertIn(f"Novo Nordisk research note · {self.recent_source_date}", page)
         self.assertIn("Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling", page)
 
         self.assertIn("Research-dækning", page)
-        self.assertIn("<span>Relevante kilder</span><b>2</b>", page)
+        self.assertIn("<span>Relevante kilder</span><b>3</b>", page)
         self.assertIn("<span>AI-behandlede</span><b>1</b>", page)
-        self.assertIn("<span>Ubehandlede</span><b>1</b>", page)
+        self.assertIn("<span>Aktuelle uden AI</span><b>1</b>", page)
+        self.assertIn("<span>Historisk baggrund</span><b>1</b>", page)
         self.assertIn("Novo pipeline and future products", page)
+        self.assertNotIn("Novo historical context</h3>", page)
+        self.assertIn("Historisk baggrund:</strong> 1", page)
+        self.assertIn("De er ikke en opgaveliste", page)
         self.assertIn("Hvorfor vist: selskabsord i titel: novo.", page)
         self.assertIn("Vælg denne kilde til Mistral", page)
         self.assertIn(f"/ai-jobs?q={self.unprocessed_id}", page)
-        self.assertIn("Udvid research", page)
+        self.assertIn("Vælg kilder ved behov", page)
         self.assertIn("/ai-jobs?q=Novo", page)
 
         jobs = self.get("/ai-jobs?q=Novo")
         self.assertIn(self.unprocessed_id, jobs)
         self.assertIn("Novo pipeline and future products", jobs)
+        self.assertIn(self.historical_id, jobs)
+        self.assertIn("Novo historical context", jobs)
 
         portfolio_path = self.kb.db_path.parent / "portfolio.sqlite"
         self.assertTrue(portfolio_path.is_file())

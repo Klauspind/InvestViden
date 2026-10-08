@@ -1,3 +1,14 @@
+## 2026-10-08 — IV-016 review-on-demand implementeret
+
+- Reel brug af Meta-beslutningsbilledet viste, at historiske AI-kandidater og ubehandlede historiske kilder blev oplevet som en bagudrettet manuel restanceliste.
+- D-013 fastlægger derfor **review-on-demand**: menneskelig verifikation er primært nødvendig, når et konkret udsagn bliver vigtigt for en analyse eller beslutning, når brugeren opdager en fejl, eller når udsagnet ønskes ophøjet til aktiv viden.
+- Porteføljens Research-dækning opdeler nu relevante kilder uden AI-udtræk i **Aktuelle uden AI** (seneste 12 måneder) og **Historisk baggrund** (ældre eller udaterede). Kun aktuelle kilder vises proaktivt som kildekort.
+- Historiske kilder bevares og kan stadig vælges manuelt via det eksisterende Mistral-flow. 12-månedersgrænsen er kun en præsentations-/prioriteringsregel og ændrer ikke provenance eller reviewstatus.
+- Beslutningsbilledet forklarer nu, at tallet **Menneskeligt verificeret** ikke er en restanceliste, og at kildeunderbyggede AI-kandidater kan bruges i Research med tydelig status efter D-010.
+- `VERIFICERET`: GitHub Actions run `37781420312` bestod på Python 3.10 og 3.12, inklusive IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- Ingen schemaændring, reviewstatusændring eller automatisk ekstern AI-kørsel er indført. D-005's kilde-/pris-/bekræftelsesgate er uændret.
+- `KRÆVER BRUGERTEST`: fysisk workstation-accept af den nye UI-opdeling efter merge. Automatisk/batch AI-behandling af nyere kilder er ikke del af IV-016.
+
 ## 2026-10-07 — IV-015 fysisk accepteret
 
 - PR #30 (`IV-015: Prioritize portfolio research sources`) er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`.

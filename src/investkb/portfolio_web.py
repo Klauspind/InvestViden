@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import re
 import secrets
+from calendar import monthrange
+from datetime import date
 from http import HTTPStatus
 from typing import Any
 from urllib.parse import parse_qs, urlencode, urlparse
@@ -12,9 +14,32 @@ from .validation import ValidationError
 from .web_app import _claim_url, _escape, _label, _page
 
 
+CURRENT_RESEARCH_MONTHS = 12
+
+
 def _option(value: str, label: str, selected: str) -> str:
     marker = " selected" if value == selected else ""
     return f'<option value="{_escape(value)}"{marker}>{_escape(label)}</option>'
+
+
+def _subtract_months(value: date, months: int) -> date:
+    month_index = value.year * 12 + value.month - 1 - months
+    year, month_zero = divmod(month_index, 12)
+    month = month_zero + 1
+    day = min(value.day, monthrange(year, month)[1])
+    return date(year, month, day)
+
+
+def _source_is_current(source: dict[str, Any], today: date | None = None) -> bool:
+    raw = str(source.get("published_at") or source.get("imported_at") or "").strip()
+    if not raw:
+        return False
+    try:
+        source_date = date.fromisoformat(raw[:10])
+    except ValueError:
+        return False
+    reference = today or date.today()
+    return source_date >= _subtract_months(reference, CURRENT_RESEARCH_MONTHS)
 
 
 def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict[str, Any]]:
@@ -80,6 +105,8 @@ def _source_coverage(kb: Any, entry: dict[str, Any]) -> dict[str, Any]:
             "total": 0,
             "processed": 0,
             "unprocessed": 0,
+            "current_unprocessed": 0,
+            "historical_unprocessed": 0,
             "unprocessed_sources": [],
         }
 
@@ -118,12 +145,16 @@ def _source_coverage(kb: Any, entry: dict[str, Any]) -> dict[str, Any]:
     source_rows = prioritize_sources(entry, [dict(row) for row in rows])
     processed = sum(1 for row in source_rows if int(row["processed"]) == 1)
     unprocessed_sources = [row for row in source_rows if int(row["processed"]) == 0]
+    current_sources = [row for row in unprocessed_sources if _source_is_current(row)]
+    historical_sources = [row for row in unprocessed_sources if not _source_is_current(row)]
     return {
         "query": query or company,
         "total": len(source_rows),
         "processed": processed,
         "unprocessed": len(unprocessed_sources),
-        "unprocessed_sources": unprocessed_sources[:8],
+        "current_unprocessed": len(current_sources),
+        "historical_unprocessed": len(historical_sources),
+        "unprocessed_sources": current_sources[:8],
     }
 
 
@@ -212,18 +243,25 @@ def _decision_support(
             action_url = source_ai_jobs_url
             action_text = "Vælg denne kilde til Mistral"
         source_cards.append(
-            f'''<article class="card"><div class="meta"><span class="badge">Ubehandlet kilde</span>
+            f'''<article class="card"><div class="meta"><span class="badge">Aktuel kilde · ikke AI-behandlet</span>
 <span class="badge">{_escape(source.get("relevance_label"))}</span><span>{_escape(source.get("published_at"))}</span><span>{_escape(source.get("publisher"))}</span></div>
 <h3>{_escape(source.get("title"))}</h3><p class="muted">Hvorfor vist: {_escape(source.get("relevance_reason"))}.</p><a href="{_escape(action_url)}">{_escape(action_text)}</a></article>'''
         )
     unprocessed_list = "".join(source_cards)
-    if int(coverage["unprocessed"]) > len(coverage["unprocessed_sources"]):
+    if int(coverage["current_unprocessed"]) > len(coverage["unprocessed_sources"]):
         unprocessed_list += (
             f'<p class="muted">Viser de {len(coverage["unprocessed_sources"])} højest prioriterede af '
-            f'{int(coverage["unprocessed"])} relevante ubehandlede kilder.</p>'
+            f'{int(coverage["current_unprocessed"])} aktuelle kilder uden AI-udtræk.</p>'
+        )
+    historical_background = ""
+    if int(coverage["historical_unprocessed"]):
+        historical_background = (
+            f'<p class="muted"><strong>Historisk baggrund:</strong> {int(coverage["historical_unprocessed"])} '
+            f'relevante ældre eller udaterede kilder har endnu ikke AI-udtræk. De er ikke en opgaveliste og behøver '
+            f'ikke gennemgås bagudrettet; vælg dem kun ved konkret behov.</p>'
         )
     coverage_action = (
-        f'<div class="actions"><a class="button" href="{_escape(ai_jobs_url)}">Udvid research</a></div>'
+        f'<div class="actions"><a class="button" href="{_escape(ai_jobs_url)}">Vælg kilder ved behov</a></div>'
         if int(coverage["unprocessed"]) else ""
     )
 
@@ -236,16 +274,19 @@ def _decision_support(
   <div class="stat"><span>AI-kandidater</span><b>{len(ai_candidates)}</b><span class="muted">ikke menneskeligt verificeret</span></div>
   <div class="stat"><span>Positiv / neutral / negativ / blandet/uklar</span><b>{len(positive)} / {len(neutral)} / {len(negative)} / {len(mixed)}</b><a href="#sentiment-kilder">Se udsagn og kilder</a></div>
 </div>
+<p class="muted"><strong>Review-on-demand:</strong> AI-kandidater må bruges i Research med tydelig status. Tallet for menneskeligt verificerede udsagn er ikke en restanceliste; verificér primært udsagn, når de bliver vigtige for en konkret analyse eller beslutning.</p>
 <h2>Research-dækning</h2>
 <div class="grid">
   <div class="stat"><span>Relevante kilder</span><b>{int(coverage["total"])}</b><span class="muted">selskabsmatch i registreret metadata</span></div>
   <div class="stat"><span>AI-behandlede</span><b>{int(coverage["processed"])}</b><span class="muted">har mindst ét udtræk</span></div>
-  <div class="stat"><span>Ubehandlede</span><b>{int(coverage["unprocessed"])}</b><span class="muted">kan udvide Research</span></div>
+  <div class="stat"><span>Aktuelle uden AI</span><b>{int(coverage["current_unprocessed"])}</b><span class="muted">seneste {CURRENT_RESEARCH_MONTHS} måneder</span></div>
+  <div class="stat"><span>Historisk baggrund</span><b>{int(coverage["historical_unprocessed"])}</b><span class="muted">ældre/udaterede · ingen reviewpligt</span></div>
 </div>
-<p class="muted">Kilder prioriteres nyeste først og derefter efter tydelig selskabsrelevans i titel/udgiver. Match er ord-/frasebaseret, så perifere delstrengstræf sorteres fra. Det er stadig ikke semantisk fuldtekstsøgning i hele transskriptionen.</p>
-<p class="muted">Hver anbefalet kilde åbner præcis den kilde i det eksisterende Mistral-flow; intet sendes automatisk.</p>
+<p class="muted">Aktuelle kilder fra de seneste {CURRENT_RESEARCH_MONTHS} måneder prioriteres i arbejdsfladen. Historiske kilder bevares som sporbar baggrund og kan vælges manuelt ved konkret behov. Selskabsmatch er ord-/frasebaseret i titel/udgiver og er stadig ikke semantisk fuldtekstsøgning i hele transskriptionen.</p>
+<p class="muted">Hver vist kilde åbner præcis den kilde i det eksisterende Mistral-flow; intet sendes automatisk, og pris-/bekræftelsesgaten er uændret.</p>
 {coverage_action}
 {unprocessed_list}
+{historical_background}
 <h2 id="sentiment-kilder">Sentiment · udsagn og kilder</h2>
 <p class="muted">Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling. Klik på et udsagn for at se detalje og evidens.</p>
 <div class="grid">{sentiment_html}</div>

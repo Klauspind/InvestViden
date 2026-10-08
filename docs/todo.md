@@ -1,5 +1,15 @@
 # Todo – InvestViden
 
+## Status 08.10.2026 — IV-016 review-on-demand implementeret; fysisk UI-accept mangler
+
+- `BRUGERBESLUTNING`: historiske AI-kandidater og historiske kilder er ikke en bagudrettet manuel review-restanceliste. Manuel verifikation er review-on-demand; se D-013.
+- `VERIFICERET`: PR #33 implementerer en 12-måneders prioritering i porteføljens Research-dækning. Relevante kilder uden AI-udtræk vises som **Aktuelle uden AI** eller **Historisk baggrund**, og kun de aktuelle vises proaktivt som kildekort.
+- `VERIFICERET`: historiske kilder slettes eller skjules ikke fra systemet; de forbliver manuelt tilgængelige via det eksisterende Mistral-flow.
+- `VERIFICERET`: GitHub Actions run `37781420312` bestod på Python 3.10 og 3.12, inklusive IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET`: ingen schemaændring, reviewstatusændring eller automatisk ekstern AI-kørsel er indført. Den eksisterende Mistral-kilde-/pris-/bekræftelsesgate er bevaret.
+- `KRÆVER BRUGERTEST`: efter merge skal den rigtige consumer-UI vise **Review-on-demand**, **Aktuelle uden AI** og **Historisk baggrund** korrekt på fx Meta eller Novo.
+- `NÆSTE`: fysisk UI-accept efter merge. Automatisk/batch AI-behandling af nyere kilder er ikke en del af IV-016 og skal ikke udvide scope nu.
+
 ## Status 07.10.2026 — IV-015 fysisk accepteret; kildeprioritering og sentimentsporbarhed afsluttet
 
 - `VERIFICERET`: PR #30 (`IV-015: Prioritize portfolio research sources`) er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`.

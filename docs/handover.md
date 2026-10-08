@@ -1,5 +1,21 @@
 # Handover – InvestViden
 
+## 08.10.2026 — IV-016 review-on-demand implementeret; fysisk UI-accept mangler
+
+Reel brug af Meta-beslutningsbilledet viste en ny konkret friktion efter IV-015: de historiske AI-kandidater og mange historiske ubehandlede kilder blev oplevet som en bagudrettet manuel opgave. Brugeren har besluttet, at InvestViden ikke skal kræve sådan en historisk review-backlog.
+
+D-013 er nu den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extracted` kandidater kan bruges i Research med tydelig status, og menneskelig godkendelse/korrektion sker **review-on-demand** — primært når et udsagn bliver vigtigt for en konkret analyse eller beslutning, når en fejl opdages, eller når udsagnet ønskes ophøjet til aktiv viden.
+
+IV-016 implementerer denne regel i porteføljens beslutningsbillede uden schemaændring. Relevante kilder uden AI-udtræk opdeles i **Aktuelle uden AI** for de seneste 12 måneder og **Historisk baggrund** for ældre eller udaterede kilder. Kun de aktuelle vises proaktivt som kildekort. Historiske kilder slettes ikke og forbliver manuelt tilgængelige via **Vælg kilder ved behov** i det eksisterende Mistral-flow.
+
+`VERIFICERET`: GitHub Actions run `37781420312` bestod på Python 3.10 og 3.12, inklusive IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken. Testen dækker én aktuel og én historisk relevant kilde, separate tællere, at kun den aktuelle vises proaktivt, og at den historiske fortsat kan findes i Mistral-flowet.
+
+IV-016 indfører ingen automatisk ekstern AI-kørsel, ingen ny AI-reviewstatus og ingen automatisk godkendelse. D-005's synlige kildevalg, prisestimat/-loft og særskilte bekræftelse er uændret. En eventuel senere batchbehandling af nyere kilder er bevidst uden for IV-016.
+
+`KRÆVER BRUGERTEST`: efter merge skal den rigtige consumer-UI åbnes på fx Meta eller Novo, og **Review-on-demand**, **Aktuelle uden AI** samt **Historisk baggrund** skal kontrolleres fysisk. Der behøver ikke sendes et Mistral-job for denne acceptance.
+
+`NÆSTE`: fysisk UI-accept efter merge; derefter tilbage til **BRUG → OBSERVÉR → EVALUÉR**. Den separate observation om direkte selskabsudsagn versus indirekte markeds-/makrokontekst er ikke løst i IV-016 og må kun tages op som ny opgave, hvis den fortsat er en reel friktion.
+
 ## 07.10.2026 — IV-015 fysisk accepteret; kildeprioritering og sentimentsporbarhed er klar til brug
 
 IV-015 er afsluttet. PR #30 er merged til `main` som `43eae17f21b23b64bf62d14e718c55bcc4534730`, og sentimentopfølgningen PR #31 er merged som `a3ee7e0773744a843109f68b80e51019b87a299a`.
