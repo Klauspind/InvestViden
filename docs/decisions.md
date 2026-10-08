@@ -75,6 +75,22 @@ Portefølje-state er manuel brugerinput og kan indeholde personlige beholdningso
 
 Beslutningsstøtten må efter D-010 bruge både menneskeligt verificeret viden og kildeunderbyggede AI-kandidater, når status vises tydeligt. Den må ikke fremstille en automatisk køb/hold/sælg-score og må ikke integrere med broker eller udføre handel.
 
+## D-013 — Review-on-demand; historik er ikke en manuel restanceliste
+
+Historiske AI-kandidater og historiske kilder skal ikke skabe en forventning om bagudrettet manuel oprydning. InvestViden må bruges som researchværktøj med kildeunderbyggede `ai_extracted` kandidater efter D-010, selv om de ikke er menneskeligt verificeret.
+
+Manuel godkendelse eller korrektion sker derfor **review-on-demand**: primært når et konkret udsagn bliver vigtigt for en analyse, rapport eller investeringsbeslutning, når brugeren opdager en fejl, eller når brugeren selv ønsker at ophøje udsagnet til aktiv viden. `approved`/`corrected` beholder deres nuværende betydning og må ikke sættes automatisk.
+
+I porteføljens Research-dækning bruges en standardgrænse på **12 måneder** til arbejdsprioritering:
+
+- relevante ikke-AI-behandlede kilder fra de seneste 12 måneder vises som aktuelle kandidater til videre research,
+- ældre eller udaterede relevante kilder vises som historisk baggrund og må ikke præsenteres som en review- eller behandlingsrestanceliste,
+- historiske kilder bevares og kan stadig vælges manuelt, når en konkret analyse gør dem relevante.
+
+12-månedersgrænsen er en præsentations- og prioriteringsregel, ikke en ændring af provenance, reviewstatus eller lagrede kilder.
+
+D-013 indfører ikke automatisk ekstern AI-kørsel. Hvis nyere kilder senere skal kunne batchbehandles med AI, skal D-005 fortsat håndhæves med synligt kildevalg, prisestimat og særskilt menneskelig bekræftelse. En sådan batchfunktion er ikke en del af IV-016.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
