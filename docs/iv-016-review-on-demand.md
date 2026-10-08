@@ -78,6 +78,8 @@ Fysisk workstation-test efter merge:
 
 ## Status
 
-- `IMPLEMENTERET PÅ BRANCH`: `iv-016-review-on-demand`.
-- `IKKE TESTET`: GitHub Actions og fysisk workstation-accept mangler endnu.
+- `VERIFICERET`: IV-016 er implementeret i PR #33 på branch `iv-016-review-on-demand`.
+- `VERIFICERET`: GitHub Actions run `37781420312` bestod på Python 3.10 og 3.12. Begge jobs bestod IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET`: de automatiske porteføljetests dækker review-on-demand-teksten, én aktuel og én historisk relevant kilde, separate tællere, at kun den aktuelle kilde vises proaktivt, samt at den historiske kilde fortsat kan findes i det eksisterende Mistral-flow.
+- `KRÆVER BRUGERTEST`: fysisk workstation-accept af den nye UI-opdeling efter merge.
 - Se D-013 i `docs/decisions.md`.
