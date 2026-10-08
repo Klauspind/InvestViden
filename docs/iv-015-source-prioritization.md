@@ -65,3 +65,9 @@ Fysisk workstation-test efter merge:
 - `VERIFICERET` ved fysisk workstation-test 07.10.2026: Novo-beslutningsbilledet viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede. De otte viste ubehandlede kilder var prioriteret med nyere, tydeligt Novo-relevante kilder øverst og med synlig forklaring på relevansen.
 - Den efterfølgende fysiske gennemgang fandt én konkret UI-friktion i sentimentsporbarheden; den blev rettet og fysisk accepteret i opfølgningen `docs/iv-015-sentiment-traceability.md`.
 - IV-015 er **AFSLUTTET**. Næste standard er **BRUG → OBSERVÉR → EVALUÉR**.
+
+## Efterfølgende BRUG-observation 08.10.2026
+
+Reel brug med Meta viste en ny, separat friktion: selv med IV-015's nyeste-først-prioritering oplevedes mange historiske ubehandlede kilder og ikke-menneskeligt-verificerede kandidater som en bagudrettet opgave. Dette ændrer ikke IV-015's acceptance eller afsluttede status.
+
+Den nye produktbeslutning håndteres i **IV-016** og D-013: manuel verifikation er review-on-demand, og relevante kilder ældre end 12 måneder vises som historisk baggrund frem for en aktiv restanceliste. Se `docs/iv-016-review-on-demand.md`.
