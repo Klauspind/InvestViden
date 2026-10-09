@@ -1,3 +1,13 @@
+## 2026-10-09 — IV-016 fysisk accepteret
+
+- Fysisk consumer-UI-test blev gennemført på workstationen efter merge af PR #33.
+- `VERIFICERET`: både Meta og Novo viste **Review-on-demand** med tydelig forklaring om, at menneskelig verifikation ikke er en restanceliste.
+- `VERIFICERET`: Novo viste 86 relevante kilder fordelt på 4 AI-behandlede, 20 **Aktuelle uden AI** og 62 **Historisk baggrund**. Kun de aktuelle blev vist som proaktive kildekort; de historiske blev samlet som baggrund uden reviewpligt.
+- `VERIFICERET`: **Vælg kilder ved behov** åbnede det eksisterende Mistral-flow filtreret på `Novo` og viste 79 ubehandlede kilder, altså også kilder ud over de 20 aktuelle. Historisk baggrund er dermed fortsat manuelt tilgængelig.
+- Der blev ikke sendt et Mistral-job som del af acceptance. Kildevalg, AI-politik, prisestimat/-loft og særskilt bekræftelsesgate forblev synlige.
+- Ingen kode, schema, reviewstatus eller databaseindhold blev ændret af selve UI-accepten.
+- IV-016 er **AFSLUTTET**. Standardforløbet er igen **BRUG → OBSERVÉR → EVALUÉR**.
+
 ## 2026-10-08 — IV-016 review-on-demand implementeret
 
 - Reel brug af Meta-beslutningsbilledet viste, at historiske AI-kandidater og ubehandlede historiske kilder blev oplevet som en bagudrettet manuel restanceliste.
