@@ -1,3 +1,14 @@
+## 2026-10-09 — IV-019 første manuelle ugeanalyseprøve
+
+- Den fysisk accepterede IV-018-ugepakke blev manuelt uploadet til ChatGPT og analyseret uden ny produktkode eller automatisk AI-integration.
+- Pakken havde 3 AI-behandlede kilder og 35 strukturerede udsagn; alle 35 stod fortsat som `ai_extracted`, og analyseprøven ændrede ingen reviewstatus.
+- `VERIFICERET`: materialet kunne samles til en tværgående ugeanalyse med større investeringstemaer og fremadrettede signaler.
+- `VERIFICERET`: manuel evidenskontrol fandt eksempler på kandidater, der går længere end evidensen, interne inkonsistenser og mulig fejlklassifikation. Derfor er **Kræver kontrol** gjort til en central del af prompt/rapportformat v1.
+- Prompt v1 skal kontrollere væsentlige konklusioner mod registreret evidens, adskille observationer/vurderinger/forudsigelser, bevare `source_id`/`claim_id`-sporbarhed og ikke omfortolke source-handlinger som brugerens køb/hold/sælg-anbefaling.
+- Rapportstruktur v1 er dokumenteret i `docs/iv-019-weekly-analysis.md`.
+- `IKKE TESTET`: brugerens endelige præference for længde, prioritering, tone og detaljeniveau; reproducerbarhed på andre uger/modeller.
+- `NÆSTE`: fortsæt IV-019 manuelt ved at gennemgå den første rapportprøve med brugeren. Ingen ny kode nu.
+
 ## 2026-10-09 — IV-018 fysisk accepteret
 
 - PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
@@ -33,7 +44,7 @@
 
 ## 2026-10-08 — IV-016 review-on-demand implementeret
 
-- Reel brug af Meta-beslutningsbilledet viste, at historiske AI-kandidater og ubehandlede historiske kilder blev oplevet som en bagudrettet manuel restanceliste.
+- Reel brug af Meta-beslutningsbilledet viste, at historiske AI-kandidater og ubehandlede historiske kilder blev oplevet som en bagudrettet manuel review-restanceliste.
 - D-013 fastlægger derfor **review-on-demand**: menneskelig verifikation er primært nødvendig, når et konkret udsagn bliver vigtigt for en analyse eller beslutning, når brugeren opdager en fejl, eller når udsagnet ønskes ophøjet til aktiv viden.
 - Porteføljens Research-dækning opdeler nu relevante kilder uden AI-udtræk i **Aktuelle uden AI** (seneste 12 måneder) og **Historisk baggrund** (ældre eller udaterede). Kun aktuelle kilder vises proaktivt som kildekort.
 - Historiske kilder bevares og kan stadig vælges manuelt via det eksisterende Mistral-flow. 12-månedersgrænsen er kun en præsentations-/prioriteringsregel og ændrer ikke provenance eller reviewstatus.
@@ -69,7 +80,7 @@
 - PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
 - `VERIFICERET`: GitHub Actions bestod på Python 3.10 og 3.12 for kodeændringen og den afsluttende dokumentation.
 - `VERIFICERET` ved fysisk workstation-brugertest: alle fire IV-010-punkter bestod i den rigtige consumer-UI. Reviewhandlinger findes direkte på detaljesiden, tilbage-navigationen bevarer placeringen i reviewlisten, **Research** er standardområdet, og **Aktiv viden** viser kun `approved`/`corrected`.
-- Kildeunderbyggede `ai_extracted` kandidater må nu indgå i research uden at blive automatisk menneskeligt godkendt. De markeres tydeligt som ikke menneskeligt verificerede; confidence alene ændrer reviewstatus.
+- Kildeunderbyggede `ai_extracted` kandidater må nu indgå i research uden at blive automatisk menneskeligt godkendt. De markeres tydeligt som ikke menneskeligt verificerede; confidence alene ændrer ikke reviewstatus.
 - D-010 dokumenterer den nye researchregel. D-011 dokumenterer brugerens beslutning om proportional sikkerhedsindsats for overvejende offentligt investeringskildeindhold.
 - Ingen schemaændring, migration eller ny ekstern AI-kørsel indgik i IV-010.
 - IV-010 er afsluttet. Projektet fortsætter med **BRUG → OBSERVÉR → EVALUÉR**.
