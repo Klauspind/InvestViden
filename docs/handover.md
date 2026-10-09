@@ -1,5 +1,26 @@
 # Handover – InvestViden
 
+## 09.10.2026 — IV-018 fysisk accepteret; sprint fortsætter til IV-019
+
+IV-018 er afsluttet efter fysisk test på den normale persistente consumer-database. PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
+
+`VERIFICERET` automatisk: afsluttende PR-CI run `37989694872` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og hele unit-testpakken.
+
+`VERIFICERET` fysisk på workstationen:
+
+- første `LAV_UGEPAKKE.cmd` for perioden `2026-10-03 – 2026-10-09` fandt 3 aktuelle kilder, alle tilladt efter AI-politikken, men 0 AI-behandlede og 0 udsagn; ugepakken gjorde derfor dækningshullet eksplicit,
+- de tre aktuelle kilder var `src-3603b6dc514e93f6` (Medvind til containershipping trods store udfordringer), `src-c6244f47e6d8bd80` (Fremtidens unicorns er i støbeskeen netop nu) og `src-a7883c35b755ceb2` (How Much Longer Can This Cycle Run?),
+- eksisterende Mistral Small-jobkladder blev genbrugt; brugeren godkendte eksplicit netop de tre eksterne kald med samlet lokalt estimat USD `0.0412`, og alle tre sluttede `completed/validated`,
+- `process-ai --dry-run` validerede 35 udsagn fra 3 udtræk i 3 filer,
+- efter særskilt brugeraccept blev 35 udsagn indlæst i den aktive consumer-database; 3 svarfiler blev arkiveret, og `process-ai` rapporterede verificeret post-write backup,
+- `AFKLARING`: der er ikke vist evidens for, at den særskilt foreslåede pre-write backup blev kørt før denne skrivning,
+- den efterfølgende ugepakke viste `3 kilder / 3 medtaget / 0 policy-udeladt / 3 med AI-udtræk / 0 uden AI-udtræk / 35 udsagn`,
+- selve ugepakke-generatoren sendte ingen data til AI og åbnede SQLite read-only.
+
+De tre eksterne AI-kald og `process-ai`-skrivningen var eksplicit brugerautoriserede handlinger gennem det eksisterende D-005-flow; IV-018 indførte ikke automatisk AI-kørsel, schemaændring eller migration. D-001, D-005, D-009, D-010, D-013 og D-014 er uændrede.
+
+`NÆSTE`: **IV-019 — fast ugeanalyse-prompt og rapportformat.** Første trin er at vurdere den faktiske lokale `output\ugepakke-2026-10-09.md`, når brugeren uploader den til chatten. Målet er den mindste manuelle analyseprøve: ugepakke → fast prompt → AI-rapport. Ingen ny automatisk AI-integration skal bygges, før denne manuelle kæde har vist værdi.
+
 ## 09.10.2026 — IV-017 fysisk accepteret; tilbage til BRUG → OBSERVÉR → EVALUÉR
 
 IV-017 er afsluttet efter fysisk accept i den normale consumer-UI. PR #34 (`IV-017: Keep company sentiment company-specific`) er merged til `main` som `c7bed2816a5e0eb562dcc3f54f786e25fc57b07b`.
@@ -57,6 +78,10 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 
 ## Seneste afsluttede produktmilepæle
 
+### IV-018 — ugentlig AI-klar researchpakke
+
+**AFSLUTTET 09.10.2026.** En 7-dages read-only Markdown-pakke kan genereres fra den normale consumer-database med tydelig dækning, provenance, reviewstatus og AI-policy-gate. Fysisk accept gav 3/3 AI-behandlede aktuelle kilder og 35 udsagn. Se `docs/iv-018-weekly-ai-package.md`.
+
 ### IV-017 — selskabsspecifikt sentiment og kontekst
 
 **AFSLUTTET 09.10.2026.** Porteføljesentiment tæller kun direkte `primary`/`discussed`-udsagn; øvrig selskabsrelevant kildekontekst bevares separat og er fortsat sporbar til detalje/evidens. Se `docs/iv-017-company-sentiment.md` og D-014.
@@ -91,6 +116,6 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 
 ## Dokumentationsafklaring
 
-`docs/` er den autoritative levende projektstatus. Root-`README.md` indeholder fortsat ældre septembertekst om schema-2/preview-starteren, som ikke beskriver den nuværende consumer-drift. Det er en dokumentationsuoverensstemmelse, ikke en produktblokering. Retning: opdater root-README ved en senere afgrænset dokumentationsopgave; det er ikke nødvendigt for IV-017 og skal ikke udvide det aktive scope nu.
+`docs/` er den autoritative levende projektstatus. Root-`README.md` indeholder fortsat ældre septembertekst om schema-2/preview-starteren, som ikke beskriver den nuværende consumer-drift. Det er en dokumentationsuoverensstemmelse, ikke en produktblokering. Retning: opdater root-README ved en senere afgrænset dokumentationsopgave; det er ikke nødvendigt for IV-019 og skal ikke udvide det aktive scope nu.
 
 Ældre detaljer og historiske testforløb findes i `docs/changes.md`, de enkelte IV-dokumenter og Git-historikken. Historiske `KRÆVER BRUGERTEST`/`NÆSTE`-formuleringer dér må ikke læses som aktuelle, medmindre de gentages i den øverste status i `docs/todo.md` eller her.

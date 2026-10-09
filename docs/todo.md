@@ -1,5 +1,17 @@
 # Todo – InvestViden
 
+## Status 09.10.2026 — IV-018 fysisk accepteret og afsluttet
+
+- `VERIFICERET`: PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
+- `VERIFICERET`: afsluttende PR-CI run `37989694872` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og hele unit-testpakken.
+- `VERIFICERET` på workstationen: første ugepakke for `2026-10-03 – 2026-10-09` fandt 3 aktuelle, policy-tilladte kilder, men 0 AI-behandlede og 0 udsagn. Dækningshullet blev dermed synligt som designet.
+- `VERIFICERET`: brugeren godkendte eksplicit tre eksisterende Mistral Small-job med samlet lokalt estimat USD `0.0412`; alle tre sluttede `completed/validated`.
+- `VERIFICERET`: `process-ai --dry-run` validerede 35 udsagn fra 3 udtræk i 3 filer. Efter særskilt brugeraccept blev de 35 udsagn indlæst i den aktive consumer-database, 3 svarfiler arkiveret, og `process-ai` rapporterede verificeret post-write backup.
+- `AFKLARING`: der er ikke vist evidens for en særskilt pre-write backup før denne `process-ai`-skrivning; den rapporterede backup er den kendte post-write backup.
+- `VERIFICERET`: den efterfølgende `LAV_UGEPAKKE.cmd` viste 3 kilder i perioden, 3 medtaget, 0 policy-udeladt, 3 med AI-udtræk, 0 uden AI-udtræk og 35 udsagn. Selve eksporten sendte ingen data til AI og åbnede databasen read-only.
+- IV-018 er **AFSLUTTET**. Se `docs/iv-018-weekly-ai-package.md`.
+- `NÆSTE`: IV-019 — vurder den faktiske `ugepakke-2026-10-09.md` og fastlæg en lille, fast ugeanalyse-prompt og rapportstruktur. Første test skal være manuel upload til en AI; ingen ny automatisk AI-integration er nødvendig endnu.
+
 ## Status 09.10.2026 — IV-017 fysisk accepteret og afsluttet
 
 - `VERIFICERET`: PR #34 (`IV-017: Keep company sentiment company-specific`) er merged til `main` som `c7bed2816a5e0eb562dcc3f54f786e25fc57b07b`.
@@ -121,7 +133,6 @@
 - `VERIFICERET`: API-nøglen kan læses fra Windows-brugerprofilen uden at blive vist. `mistral-status --verify` nåede Mistral og fandt 46 model-ID'er; `mistral-large-2512` var ikke tilgængelig. Den faktiske chatmodelliste indeholdt blandt andet den faste version `mistral-small-2603`.
 - Implementeret i PR #18: pin `mistral-small-2603` for nye jobs, model-specifik prisberegning, eksplicit kilde-/modelvalg, sikker modellistning og korrekt fejltekst ved fejlede jobs. Ukendte modeller uden dokumenteret pris afvises før joboprettelse. Ingen automatisk model-fallback er indført.
 - `KRÆVER BRUGERTEST` efter merge: synkronisér workstationen, verificér `mistral-small-2603` via `mistral-status --verify --model mistral-small-2603`, opret en ny lokal jobkladde for præcis `src-04299b8e12cd8be3`, og kontroller nyt prisestimat før særskilt bekræftelse. Intet nyt eksternt kald må ske uden en ny eksplicit godkendelse af Small 4-jobbet.
-- Den beskyttede legacy-database forbliver uden for dette flow. De øvrige eksisterende Large-drafts konverteres ikke automatisk.
 
 ## Status 05.10.2026 — IV-009 persistent multi-episode consumer afsluttet
 
@@ -141,7 +152,7 @@
 ## Status 25.09.2026 — IV-007 isoleret morgen-consumer afsluttet
 
 - `VERIFICERET`: den samlede kæde fra færdig Transskribering episode-JSON gennem normal InvestViden-intake til lokal, ubekræftet Mistral-jobkladde er fysisk accepteret på workstationen.
-- Resultatet viste schema 4, kilde importeret, provenance bevaret, intake-backup `ok`, `ai_permission=allow`, præcis ét jobitem, `ai_job_status=draft`, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing`, uændret originalkilde, `external_ai_calls=0` og `active_database_used=false`.
+- Resultatet viste schema 4, kilde importeret, provenance bevaret, segmentregnskab bevaret, verificeret intake-backup, `ai_permission=allow`, præcis ét jobitem, `ai_job_status=draft`, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing`, uændret originalkilde, `external_ai_calls=0` og `active_database_used=false`.
 - Automatisk verificering: GitHub Actions bestod **86/86 tests** på både Python 3.10 og 3.12.
 - IV-007 er dermed afsluttet. Ingen aktiv database, AI-transport eller Windows Opgavestyring blev anvendt.
 - Se `docs/iv-007-morning-consumer.md`.
@@ -149,7 +160,7 @@
 ## Status 29.09.2026 — IV-008 lokal driftskobling fysisk afsluttet
 
 - `VERIFICERET` på workstation: rettelsen fra PR #14 blev synkroniseret, og den isolerede IV-008 PowerShell/CMD-runner gennemførte fysisk.
-- Resultatet viste schema 4, `source_imported=true`, `provenance_preserved=true`, verificeret intake-backup, `ai_permission=allow`, præcis ét lokalt `draft`-jobitem, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing` og uændret originalkilde.
+- Resultatet viste schema 4, kildeimport, bevaret provenance, verificeret intake-backup, `ai_permission=allow`, præcis ét lokalt `draft`-jobitem, `ai_attempts=0`, prisestimat inden for loftet, genimport som `existing` og uændret originalkilde.
 - `VERIFICERET`: `external_ai_calls=0` og `active_database_used=false`. Flowet stoppede som designet ved lokal draft.
 - Den aktive Transskribinator-consumerrod indeholder 4 episode-JSON-filer; IV-008 behandler bevidst kun præcis én episode og er derfor ikke den endelige multi-episode-driftsconsumer.
 - IV-008 er afsluttet. `NÆSTE`: IV-009 skal behandle flere Transskribinator-leveringer idempotent på tværs af kørsler uden at bruge den beskyttede legacy-database eller sende ekstern AI automatisk.
