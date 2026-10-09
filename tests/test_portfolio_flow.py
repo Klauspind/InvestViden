@@ -226,7 +226,7 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertNotIn("Novo historical context</h3>", page)
         self.assertIn("Historisk baggrund:</strong> 1", page)
         self.assertIn("De er ikke en opgaveliste", page)
-        self.assertIn("Hvorfor vist: selskabsord i titel: novo.", page)
+        self.assertIn("Hvorfor vist: selskabsnavn i titel.", page)
         self.assertIn("Vælg denne kilde til Mistral", page)
         self.assertIn(f"/ai-jobs?q={self.unprocessed_id}", page)
         self.assertIn("Vælg kilder ved behov", page)
