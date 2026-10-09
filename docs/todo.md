@@ -1,14 +1,17 @@
 # Todo – InvestViden
 
-## Status 09.10.2026 — IV-017 selskabsspecifikt sentiment implementeret; fysisk UI-accept mangler
+## Status 09.10.2026 — IV-017 fysisk accepteret og afsluttet
 
-- `BRUGERBESLUTNING`: tag ét kontrolleret udviklingstrin mere før næste evaluering. IV-017 løser den observerede friktion, hvor indirekte markeds-/selskabskontekst kunne påvirke et porteføljeselskabs sentiment.
-- `VERIFICERET`: PR #34 bruger eksisterende `claim_companies`-relationer. `primary`/`discussed` for porteføljeselskabet tæller i sentiment; `comparison`/`mention` eller manglende direkte relation vises som kontekst uden at påvirke sentimenttallet. Se D-014.
-- `VERIFICERET`: regressionstesten dækker Novo som både `primary` og `discussed` samt et negativt OpenAI-udsagn, hvor Novo kun er `mention`. Novo-sentimentet forbliver `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet fortsat vises som kontekst.
-- `VERIFICERET`: GitHub Actions run `37983109728` bestod på Python 3.10 og 3.12 efter rettelse af en forældet relevanstekst-assertion.
-- `VERIFICERET`: ingen schemaændring, migration, reviewstatusændring, porteføljeskrivning eller ekstern AI-kørsel er indført. Risiko-/katalysator-/betingelsesvisningen er bevidst ikke ændret i IV-017.
-- `KRÆVER BRUGERTEST`: efter merge skal den rigtige consumer-UI på Novo vise selskabsspecifikt sentiment og en særskilt **Kontekst fra relevante kilder**-sektion. Et indirekte OpenAI-/markedsudsagn må ikke længere påvirke Novo-sentimentet, men skal fortsat kunne åbnes med kilde/evidens.
-- `NÆSTE`: få den komplette PR #34 grøn efter dokumentationsændringer, merge, synkronisér workstationen og gennemfør én fysisk Novo-accept. Derefter stop igen og gå til **BRUG → OBSERVÉR → EVALUÉR**.
+- `VERIFICERET`: PR #34 (`IV-017: Keep company sentiment company-specific`) er merged til `main` som `c7bed2816a5e0eb562dcc3f54f786e25fc57b07b`.
+- `VERIFICERET`: D-014 er aktiv i den normale consumer-UI: kun `primary`/`discussed`-relationer til porteføljeselskabet tæller i sentimentet; `comparison`/`mention` og øvrig kontekst bevares separat.
+- `VERIFICERET` på workstationen: Novo havde 12 Researchudsagn, men kun tre direkte Novo-udsagn indgik i sentimentet (`1 positiv / 1 neutral / 1 negativ / 0 blandet/uklar`). Ni øvrige udsagn blev vist som **Kontekst fra relevante kilder** og påvirkede ikke Novo-sentimentet.
+- `VERIFICERET`: Novo Research-dækning forblev `86 relevante / 4 AI-behandlede / 20 aktuelle uden AI / 62 historisk baggrund`; IV-017 fjernede ikke researchmateriale.
+- `VERIFICERET`: Meta gav en ekstra fysisk kontrol med 13 Researchudsagn, hvor kun to direkte Meta-udsagn indgik i sentimentet (`0 / 0 / 2 / 0`) og 11 blev vist som kontekst.
+- `VERIFICERET`: et konkret Meta-kontekstudsagn kunne åbnes til eksisterende udsagnsdetalje med registreret kildepassage, omkringliggende kildetekst, klassifikation, selskaber/temaer og reviewhandlinger.
+- `VERIFICERET`: GitHub Actions run `37983109728` bestod på Python 3.10 og 3.12. Acceptance var efterfølgende fysisk UI-verifikation og krævede ingen ny kodeændring eller ny automatisk testkørsel.
+- `VERIFICERET`: ingen schemaændring, migration, reviewstatusændring, porteføljeskrivning eller ekstern AI-kørsel blev indført eller nødvendig for acceptance.
+- IV-017 er **AFSLUTTET**. Se `docs/iv-017-company-sentiment.md` og D-014.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Start ikke næste udviklingsopgave, før normal brug viser en ny konkret friktion eller nødvendig produktgate.
 
 ## Status 09.10.2026 — IV-016 fysisk accepteret og afsluttet
 
