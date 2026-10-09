@@ -15,6 +15,7 @@ from .web_app import _claim_url, _escape, _label, _page
 
 
 CURRENT_RESEARCH_MONTHS = 12
+DIRECT_COMPANY_ROLES = {"primary", "discussed"}
 
 
 def _option(value: str, label: str, selected: str) -> str:
@@ -42,6 +43,38 @@ def _source_is_current(source: dict[str, Any], today: date | None = None) -> boo
     return source_date >= _subtract_months(reference, CURRENT_RESEARCH_MONTHS)
 
 
+def _company_tokens(value: str) -> set[str]:
+    return {
+        token.casefold()
+        for token in re.findall(r"\w+", value, flags=re.UNICODE)
+        if len(token) >= 4
+    }
+
+
+def _company_relation_matches_entry(relation: dict[str, Any], entry: dict[str, Any]) -> bool:
+    company_name = str(entry["company_name"]).strip().casefold()
+    relation_name = str(relation.get("name") or "").strip().casefold()
+    ticker = str(entry.get("ticker") or "").strip().casefold()
+    relation_ticker = str(relation.get("ticker") or "").strip().casefold()
+
+    if company_name and relation_name and company_name == relation_name:
+        return True
+    if ticker and relation_ticker and ticker == relation_ticker:
+        return True
+
+    company_tokens = _company_tokens(company_name)
+    relation_tokens = _company_tokens(relation_name)
+    return bool(company_tokens and company_tokens.issubset(relation_tokens))
+
+
+def _claim_is_direct_for_entry(item: dict[str, Any], entry: dict[str, Any]) -> bool:
+    return any(
+        str(relation.get("role") or "") in DIRECT_COMPANY_ROLES
+        and _company_relation_matches_entry(relation, entry)
+        for relation in item.get("companies", [])
+    )
+
+
 def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict[str, Any]]:
     queries = [str(entry["company_name"]).strip()]
     ticker = str(entry.get("ticker") or "").strip()
@@ -53,8 +86,20 @@ def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict
             rows[str(row["id"])] = row
     details: list[dict[str, Any]] = []
     for row in rows.values():
-        detail = kb.claim_detail(str(row["id"]))
+        claim_id = str(row["id"])
+        detail = kb.claim_detail(claim_id)
         detail["match_excerpt"] = row.get("match_excerpt")
+        detail["companies"] = [
+            dict(company)
+            for company in kb.conn.execute(
+                """SELECT c.name, c.ticker, cc.role
+                     FROM claim_companies cc
+                     JOIN companies c ON c.id=cc.company_id
+                    WHERE cc.claim_id=?
+                    ORDER BY cc.role, c.name""",
+                (claim_id,),
+            )
+        ]
         points: dict[str, list[str]] = {
             "thesis": [],
             "risk": [],
@@ -63,7 +108,7 @@ def _research_details(handler: Any, kb: Any, entry: dict[str, Any]) -> list[dict
         }
         for point in kb.conn.execute(
             "SELECT point_type, text FROM claim_points WHERE claim_id=? ORDER BY point_type, position",
-            (str(row["id"]),),
+            (claim_id,),
         ):
             points[str(point["point_type"])].append(str(point["text"]))
         detail["points"] = points
@@ -163,10 +208,12 @@ def _decision_support(
     details: list[dict[str, Any]],
     coverage: dict[str, Any],
 ) -> str:
-    positive = [item for item in details if item.get("sentiment") == "positive"]
-    neutral = [item for item in details if item.get("sentiment") == "neutral"]
-    negative = [item for item in details if item.get("sentiment") == "negative"]
-    mixed = [item for item in details if item.get("sentiment") in {"mixed", "unclear"}]
+    direct_details = [item for item in details if _claim_is_direct_for_entry(item, entry)]
+    context_details = [item for item in details if not _claim_is_direct_for_entry(item, entry)]
+    positive = [item for item in direct_details if item.get("sentiment") == "positive"]
+    neutral = [item for item in direct_details if item.get("sentiment") == "neutral"]
+    negative = [item for item in direct_details if item.get("sentiment") == "negative"]
+    mixed = [item for item in direct_details if item.get("sentiment") in {"mixed", "unclear"}]
     verified = [item for item in details if item.get("review_status") in {"approved", "corrected"}]
     ai_candidates = [item for item in details if item.get("review_status") == "ai_extracted"]
 
@@ -207,6 +254,20 @@ def _decision_support(
         sentiment_card("Negativ", negative),
         sentiment_card("Blandet / uklar", mixed),
     ))
+
+    if context_details:
+        context_items = "<ul>" + "".join(
+            f'''<li><a href="{_escape(_claim_url(str(item["id"]), {"origin": ["search"], "q": [str(entry["company_name"])], "lane": ["research"]}))}">{_escape(item.get("summary"))}</a>
+<br><span class="muted">{_escape(item.get("source_title"))} · {_escape(item.get("published_at"))} · {_label(item.get("review_status"))}</span></li>'''
+            for item in context_details
+        ) + "</ul>"
+    else:
+        context_items = '<p class="muted">Ingen øvrige researchudsagn fra de relevante kilder.</p>'
+    context_html = (
+        f'<div class="card"><h3>Kontekst fra relevante kilder · {len(context_details)}</h3>'
+        '<p class="muted">Disse udsagn kommer fra selskabsrelevante kilder, men selskabet er ikke registreret som hovedemne eller direkte diskuteret i selve udsagnet. De tæller derfor ikke i selskabets sentiment.</p>'
+        f'{context_items}</div>'
+    )
 
     claim_cards = []
     for item in details:
@@ -272,7 +333,7 @@ def _decision_support(
   <div class="stat"><span>Researchudsagn</span><b>{len(details)}</b><span class="muted">kildeunderbyggede resultater</span></div>
   <div class="stat"><span>Menneskeligt verificeret</span><b>{len(verified)}</b><span class="muted">approved/corrected</span></div>
   <div class="stat"><span>AI-kandidater</span><b>{len(ai_candidates)}</b><span class="muted">ikke menneskeligt verificeret</span></div>
-  <div class="stat"><span>Positiv / neutral / negativ / blandet/uklar</span><b>{len(positive)} / {len(neutral)} / {len(negative)} / {len(mixed)}</b><a href="#sentiment-kilder">Se udsagn og kilder</a></div>
+  <div class="stat"><span>Positiv / neutral / negativ / blandet/uklar</span><b>{len(positive)} / {len(neutral)} / {len(negative)} / {len(mixed)}</b><span class="muted">kun direkte selskabsudsagn</span><a href="#sentiment-kilder">Se udsagn og kilder</a></div>
 </div>
 <p class="muted"><strong>Review-on-demand:</strong> AI-kandidater må bruges i Research med tydelig status. Tallet for menneskeligt verificerede udsagn er ikke en restanceliste; verificér primært udsagn, når de bliver vigtige for en konkret analyse eller beslutning.</p>
 <h2>Research-dækning</h2>
@@ -287,9 +348,10 @@ def _decision_support(
 {coverage_action}
 {unprocessed_list}
 {historical_background}
-<h2 id="sentiment-kilder">Sentiment · udsagn og kilder</h2>
-<p class="muted">Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling. Klik på et udsagn for at se detalje og evidens.</p>
+<h2 id="sentiment-kilder">Sentiment · direkte selskabsudsagn</h2>
+<p class="muted">Sentimentet tæller kun udsagn, hvor {_escape(entry["company_name"])} er registreret som hovedemne eller direkte diskuteret. Øvrige udsagn fra relevante kilder bevares som kontekst. Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling.</p>
 <div class="grid">{sentiment_html}</div>
+{context_html}
 <div class="grid">
   <div class="card"><h3>Risici</h3>{point_list(risks, "Ingen strukturerede risikopunkter i de fundne udsagn.")}</div>
   <div class="card"><h3>Katalysatorer</h3>{point_list(catalysts, "Ingen strukturerede katalysatorer i de fundne udsagn.")}</div>

@@ -30,7 +30,8 @@ class PortfolioFlowTest(unittest.TestCase):
         source = self.root / "novo.txt"
         source_text = (
             "Novo Nordisk has strong demand, but competition and pricing pressure remain risks. "
-            "A successful new indication could be a catalyst. The current regulatory setting is broadly stable."
+            "A successful new indication could be a catalyst. The current regulatory setting is broadly stable. "
+            "OpenAI delayed its planned listing while Novo Nordisk was mentioned only as broader market context."
         )
         source.write_text(source_text, encoding="utf-8")
         source_id, _ = self.kb.import_source(
@@ -79,7 +80,7 @@ class PortfolioFlowTest(unittest.TestCase):
                 "discussion_depth": "brief",
                 "confidence": 0.80,
                 "review_status": "ai_extracted",
-                "companies": [{"name": "Novo Nordisk", "ticker": "NOVO-B", "role": "primary"}],
+                "companies": [{"name": "Novo Nordisk", "ticker": "NOVO-B", "role": "discussed"}],
                 "themes": ["regulation"],
                 "thesis": [],
                 "risks": [],
@@ -87,6 +88,30 @@ class PortfolioFlowTest(unittest.TestCase):
                 "conditions": [],
                 "evidence": {
                     "excerpt": "The current regulatory setting is broadly stable.",
+                    "start_ref": "p1",
+                    "end_ref": "p1",
+                },
+            }, {
+                "claim_type": "company_view",
+                "summary": "OpenAI delayed its planned listing.",
+                "speaker": None,
+                "sentiment": "negative",
+                "action": "none",
+                "time_horizon": "medium_term",
+                "discussion_depth": "brief",
+                "confidence": 0.82,
+                "review_status": "ai_extracted",
+                "companies": [
+                    {"name": "OpenAI", "ticker": None, "role": "primary"},
+                    {"name": "Novo Nordisk", "ticker": "NOVO-B", "role": "mention"},
+                ],
+                "themes": ["capital markets"],
+                "thesis": [],
+                "risks": [],
+                "catalysts": [],
+                "conditions": [],
+                "evidence": {
+                    "excerpt": "OpenAI delayed its planned listing while Novo Nordisk was mentioned only as broader market context.",
                     "start_ref": "p1",
                     "end_ref": "p1",
                 },
@@ -157,7 +182,7 @@ class PortfolioFlowTest(unittest.TestCase):
             "csrf_token": self.app.csrf_token,
             "action": "save",
             "entry_id": "",
-            "company_name": "Novo Nordisk",
+            "company_name": "Novo",
             "ticker": "NOVO-B",
             "kind": "holding",
             "position_note": "120 aktier",
@@ -165,7 +190,7 @@ class PortfolioFlowTest(unittest.TestCase):
             "note": "Langsigtet position",
         })
         self.assertIn("Porteføljeposten er gemt lokalt", page)
-        self.assertIn("Novo Nordisk", page)
+        self.assertIn("Novo", page)
         self.assertIn("Beslutningsbillede", page)
         self.assertIn("Competition and pricing pressure", page)
         self.assertIn("Successful new indication", page)
@@ -174,16 +199,23 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertIn("Review-on-demand", page)
         self.assertIn("er ikke en restanceliste", page)
 
+        self.assertIn("<span>Researchudsagn</span><b>3</b>", page)
         self.assertIn("Positiv / neutral / negativ / blandet/uklar", page)
         self.assertIn("<b>1 / 1 / 0 / 0</b>", page)
+        self.assertIn("kun direkte selskabsudsagn", page)
         self.assertIn("Se udsagn og kilder", page)
-        self.assertIn("Sentiment · udsagn og kilder", page)
+        self.assertIn("Sentiment · direkte selskabsudsagn", page)
         self.assertIn("Positiv · 1", page)
         self.assertIn("Neutral · 1", page)
+        self.assertIn("Negativ · 0", page)
         self.assertIn("Novo Nordisk has strong demand, while competition remains a risk.", page)
         self.assertIn("Novo Nordisk&#x27;s current regulatory setting is broadly stable.", page)
         self.assertIn(f"Novo Nordisk research note · {self.recent_source_date}", page)
+        self.assertIn("Sentimentet tæller kun udsagn, hvor Novo er registreret som hovedemne eller direkte diskuteret", page)
         self.assertIn("Sentiment beskriver kildens udsagn, ikke InvestVidens egen anbefaling", page)
+        self.assertIn("Kontekst fra relevante kilder · 1", page)
+        self.assertIn("OpenAI delayed its planned listing.", page)
+        self.assertIn("De tæller derfor ikke i selskabets sentiment", page)
 
         self.assertIn("Research-dækning", page)
         self.assertIn("<span>Relevante kilder</span><b>3</b>", page)
@@ -194,7 +226,7 @@ class PortfolioFlowTest(unittest.TestCase):
         self.assertNotIn("Novo historical context</h3>", page)
         self.assertIn("Historisk baggrund:</strong> 1", page)
         self.assertIn("De er ikke en opgaveliste", page)
-        self.assertIn("Hvorfor vist: selskabsord i titel: novo.", page)
+        self.assertIn("Hvorfor vist: selskabsnavn i titel.", page)
         self.assertIn("Vælg denne kilde til Mistral", page)
         self.assertIn(f"/ai-jobs?q={self.unprocessed_id}", page)
         self.assertIn("Vælg kilder ved behov", page)

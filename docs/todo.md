@@ -1,5 +1,15 @@
 # Todo – InvestViden
 
+## Status 09.10.2026 — IV-017 selskabsspecifikt sentiment implementeret; fysisk UI-accept mangler
+
+- `BRUGERBESLUTNING`: tag ét kontrolleret udviklingstrin mere før næste evaluering. IV-017 løser den observerede friktion, hvor indirekte markeds-/selskabskontekst kunne påvirke et porteføljeselskabs sentiment.
+- `VERIFICERET`: PR #34 bruger eksisterende `claim_companies`-relationer. `primary`/`discussed` for porteføljeselskabet tæller i sentiment; `comparison`/`mention` eller manglende direkte relation vises som kontekst uden at påvirke sentimenttallet. Se D-014.
+- `VERIFICERET`: regressionstesten dækker Novo som både `primary` og `discussed` samt et negativt OpenAI-udsagn, hvor Novo kun er `mention`. Novo-sentimentet forbliver `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet fortsat vises som kontekst.
+- `VERIFICERET`: GitHub Actions run `37983109728` bestod på Python 3.10 og 3.12 efter rettelse af en forældet relevanstekst-assertion.
+- `VERIFICERET`: ingen schemaændring, migration, reviewstatusændring, porteføljeskrivning eller ekstern AI-kørsel er indført. Risiko-/katalysator-/betingelsesvisningen er bevidst ikke ændret i IV-017.
+- `KRÆVER BRUGERTEST`: efter merge skal den rigtige consumer-UI på Novo vise selskabsspecifikt sentiment og en særskilt **Kontekst fra relevante kilder**-sektion. Et indirekte OpenAI-/markedsudsagn må ikke længere påvirke Novo-sentimentet, men skal fortsat kunne åbnes med kilde/evidens.
+- `NÆSTE`: få den komplette PR #34 grøn efter dokumentationsændringer, merge, synkronisér workstationen og gennemfør én fysisk Novo-accept. Derefter stop igen og gå til **BRUG → OBSERVÉR → EVALUÉR**.
+
 ## Status 09.10.2026 — IV-016 fysisk accepteret og afsluttet
 
 - `VERIFICERET`: PR #33 (`IV-016: Review-on-demand for historical research`) er merged til `main` som `acfa6514666d76e35f1e04e54e9c98fefa51fb0f`.

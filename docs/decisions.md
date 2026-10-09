@@ -91,6 +91,18 @@ I porteføljens Research-dækning bruges en standardgrænse på **12 måneder** 
 
 D-013 indfører ikke automatisk ekstern AI-kørsel. Hvis nyere kilder senere skal kunne batchbehandles med AI, skal D-005 fortsat håndhæves med synligt kildevalg, prisestimat og særskilt menneskelig bekræftelse. En sådan batchfunktion er ikke en del af IV-016.
 
+## D-014 — Porteføljesentiment tæller kun direkte selskabsudsagn
+
+Porteføljens sentimentoversigt skal skelne mellem et udsagn, der direkte handler om porteføljeselskabet, og øvrig kontekst fra en kilde, der som helhed er selskabsrelevant.
+
+De eksisterende strukturerede `claim_companies`-relationer er autoritative for denne præsentationsregel:
+
+- relationerne `primary` og `discussed` for porteføljeselskabet tæller som direkte selskabsudsagn og indgår i positiv/neutral/negativ/blandet-oversigten,
+- relationerne `comparison` og `mention` tæller ikke i selskabets sentiment,
+- et Research-udsagn uden en direkte `primary`/`discussed`-relation til selskabet må fortsat vises som kildekontekst med status og evidens, men må ikke påvirke hovedsentimentet.
+
+Reglen ændrer ikke reviewstatus, evidens, provenance eller lagrede selskabsrelationer. Den indfører ingen ny AI-klassifikation; IV-017 er read-only visningslogik oven på allerede lagrede relationer.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`

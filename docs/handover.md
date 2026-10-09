@@ -1,5 +1,23 @@
 # Handover – InvestViden
 
+## 09.10.2026 — IV-017 selskabsspecifikt sentiment implementeret; fysisk UI-accept mangler
+
+Brugeren valgte eksplicit ét kontrolleret udviklingstrin mere før næste **BRUG → OBSERVÉR → EVALUÉR**-fase. Den konkrete friktion kom fra reel brug af Novo-beslutningsbilledet efter IV-016: sentimentoversigten kunne indeholde udsagn om fx OpenAI eller anden markeds-/makrokontekst, fordi kilden som helhed var Novo-relevant.
+
+D-014 er nu den gældende præsentationsregel for porteføljesentiment: eksisterende `claim_companies`-relationer med rollen `primary` eller `discussed` for porteføljeselskabet tæller som direkte selskabsudsagn og indgår i sentimentet. `comparison`, `mention` eller manglende direkte relation tæller ikke i selskabets sentiment, men udsagnet bevares som **Kontekst fra relevante kilder** med kilde, reviewstatus og link til eksisterende detalje/evidens.
+
+PR #34 (`IV-017: Keep company sentiment company-specific`) implementerer reglen read-only i porteføljens beslutningsbillede. Den samlede Research-mængde ændres ikke, og den eksisterende samlede liste **Udsagn og kilder** bevarer alle relevante Research-udsagn. Risiko-, katalysator- og betingelsesvisningen er bevidst ikke ændret i IV-017.
+
+`VERIFICERET`: den syntetiske regressionstest dækker et positivt Novo-udsagn med `primary`, et neutralt Novo-udsagn med `discussed` og et negativt OpenAI-udsagn, hvor Novo kun er `mention`. For Novo bliver sentimentet derfor `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet stadig er synligt som kontekst. Testen dækker også den faktiske korte porteføljebetegnelse `Novo` med ticker `NOVO-B` mod den strukturerede relation `Novo Nordisk`.
+
+`VERIFICERET`: GitHub Actions run `37983109728` bestod på Python 3.10 og 3.12 efter rettelse af én forældet assertion om relevansforklaring. Den første kørsel fejlede kun på denne tekstassertion; den renderede side viste allerede det forventede selskabsspecifikke sentiment og kontekstsplit.
+
+IV-017 indfører ingen schemaændring, migration, reviewstatusændring, porteføljeskrivning eller ekstern AI-kørsel. D-005, D-010 og D-013 er uændrede.
+
+`KRÆVER BRUGERTEST`: efter merge skal workstationen synkroniseres, den normale consumer-UI åbnes, og Novo-beslutningsbilledet kontrolleres fysisk. Et indirekte OpenAI-/markedsudsagn må ikke længere påvirke Novo-sentimentet, men skal fortsat kunne ses som kontekst og åbnes med kilde/evidens.
+
+`NÆSTE`: få den komplette PR #34 grøn efter dokumentationsændringer, merge, synkronisér workstationen og gennemfør én fysisk Novo-accept. Derefter stop igen og gå til **BRUG → OBSERVÉR → EVALUÉR**.
+
 ## 09.10.2026 — IV-016 fysisk accepteret; tilbage til BRUG → OBSERVÉR → EVALUÉR
 
 IV-016 er afsluttet efter fysisk accept i den rigtige consumer-UI. PR #33 er merged til `main` som `acfa6514666d76e35f1e04e54e9c98fefa51fb0f`.
@@ -17,8 +35,6 @@ IV-016 er afsluttet efter fysisk accept i den rigtige consumer-UI. PR #33 er mer
 
 D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extracted` kandidater kan bruges i Research med tydelig status, mens menneskelig godkendelse/korrektion sker **review-on-demand** — primært når et udsagn bliver vigtigt for en konkret analyse eller beslutning, når en fejl opdages, eller når udsagnet ønskes ophøjet til aktiv viden. `approved`/`corrected` sættes ikke automatisk.
 
-`NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Start ikke en ny udviklingsopgave eller automatisk/batch AI-behandling, før reel brug viser en konkret friktion, mangel eller nødvendig produktgate. Den tidligere observation om direkte selskabsudsagn versus indirekte markeds-/makrokontekst er fortsat kun en observation og ikke en aktiv opgave.
-
 ## Aktuel produkt- og datatilstand
 
 - Den normale consumer-UI startes via `START_INVESTVIDEN.cmd` mod den separate persistente schema-4 consumer-database under `%LOCALAPPDATA%\InvestViden\runtime\transskribinator-consumer\knowledgebase.sqlite`.
@@ -34,6 +50,7 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 - Kildepolitikkerne `allow`, `ask`, `local_only` og `blocked` håndhæves før privat tekst forlader maskinen.
 - D-010: kildeunderbyggede AI-kandidater kan bruges i Research med tydelig status uden først at blive menneskeligt godkendt.
 - D-013: historiske kandidater og kilder er ikke en manuel restanceliste; review sker efter behov.
+- D-014: porteføljesentiment tæller kun direkte selskabsudsagn (`primary`/`discussed`); øvrig kildekontekst bevares separat.
 - D-001 og D-009 gælder fortsat for aktiv viden: `approved`/`corrected` kræver individuel menneskelig vurdering og source-verificerbar evidens for aktuelle AI-afledte udsagn.
 
 ## Seneste afsluttede produktmilepæle
@@ -68,6 +85,6 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 
 ## Dokumentationsafklaring
 
-`docs/` er den autoritative levende projektstatus. Root-`README.md` indeholder fortsat ældre septembertekst om schema-2/preview-starteren, som ikke beskriver den nuværende consumer-drift. Det er en dokumentationsuoverensstemmelse, ikke en produktblokering. Retning: opdater root-README ved en senere afgrænset dokumentationsopgave; det er ikke nødvendigt for IV-016 og skal ikke udvide det aktive scope nu.
+`docs/` er den autoritative levende projektstatus. Root-`README.md` indeholder fortsat ældre septembertekst om schema-2/preview-starteren, som ikke beskriver den nuværende consumer-drift. Det er en dokumentationsuoverensstemmelse, ikke en produktblokering. Retning: opdater root-README ved en senere afgrænset dokumentationsopgave; det er ikke nødvendigt for IV-017 og skal ikke udvide det aktive scope nu.
 
 Ældre detaljer og historiske testforløb findes i `docs/changes.md`, de enkelte IV-dokumenter og Git-historikken. Historiske `KRÆVER BRUGERTEST`/`NÆSTE`-formuleringer dér må ikke læses som aktuelle, medmindre de gentages i den øverste status i `docs/todo.md` eller her.
