@@ -1,3 +1,15 @@
+## 2026-10-09 — IV-017 selskabsspecifikt sentiment implementeret
+
+- Fysisk brug af Novo-beslutningsbilledet efter IV-016 viste en konkret friktion: indirekte udsagn om fx OpenAI eller markedsforhold kunne påvirke Novo-sentimentet, fordi kilden som helhed var Novo-relevant.
+- D-014 fastlægger derfor, at `primary` og `discussed` for porteføljeselskabet tæller som direkte selskabsudsagn, mens `comparison`, `mention` eller manglende direkte relation behandles som kontekst.
+- Porteføljens sentimenttal og sentimentkort bruger nu kun direkte selskabsudsagn. Øvrige Research-udsagn bevares i **Kontekst fra relevante kilder** med kilde, reviewstatus og link til eksisterende detalje/evidens og forbliver også i den samlede **Udsagn og kilder**-liste.
+- Den eksisterende strukturerede `claim_companies`-relation genbruges; der er ikke indført ny AI-klassifikation eller schemaændring.
+- Regressionstesten dækker Novo som `primary`, Novo som `discussed` og et negativt OpenAI-udsagn, hvor Novo kun er `mention`. For Novo forventes `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet stadig vises som kontekst.
+- Testen bruger den faktiske korte porteføljebetegnelse `Novo` med ticker `NOVO-B` og matcher den strukturerede relation `Novo Nordisk` via ticker/hele tokens, ikke vilkårlig delstreng.
+- Første CI-kørsel fandt én forældet assertion om relevansforklaringen; selve den nye sentimentadfærd var korrekt. Efter assertionrettelsen bestod GitHub Actions run `37983109728` på Python 3.10 og 3.12.
+- Ingen reviewstatus, kildedata, porteføljedata eller ekstern AI blev ændret. Risiko-/katalysator-/betingelsesvisningen er bevidst uændret i IV-017.
+- `KRÆVER BRUGERTEST`: fysisk Novo-accept i den normale consumer-UI efter merge.
+
 ## 2026-10-09 — IV-016 fysisk accepteret
 
 - Fysisk consumer-UI-test blev gennemført på workstationen efter merge af PR #33.
@@ -88,7 +100,7 @@
 
 - Mistral pay-as-you-go blev aktiveret. `mistral-small-2603` og `mistral-large-2512` bestod begge et minimalt syntetisk API-kald; Large 3 kørte på standard service tier.
 - Første vellykkede rigtige extraction blev kørt med `mistral-large-2512` på `src-256795459ce7aa09` (“Is the yield curve inverted?”). Jobbet sluttede `completed`, item blev `validated`, 10 udsagn bestod `process-ai --dry-run` og blev derefter indlæst som `ai_extracted` med verificeret backup.
-- En nyere kilde, `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, 2026-10-01), gennemførte samme kontrollerede flow og gav 10 nye `ai_extracted` kandidater.
+- En nyere kilde, `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, publiceret 2026-10-01), gennemførte samme kontrollerede flow og gav 10 nye `ai_extracted` kandidater.
 - Fysisk evidenskontrol viste, at **0/10** evidensuddrag fra den nyere kilde kunne genfindes i den kontrollerede kildekopi, både ved ordret søgning og efter whitespace-normalisering. Modellen havde parafraseret evidensen, selv om prompten bad om ordret evidens.
 - PR #19 gør derfor approval fail-closed for aktuelle Mistral/OpenAI-kandidater: `approved`/`corrected` kræver læsbar kildekopi, matchende SHA-256 og et evidensuddrag, der kan genfindes ordret med tolerance for whitespace. Historisk ingestion/backfill ændres ikke og kan fortsat ligge som `ai_extracted`.
 - Extraction-schemaets beskrivelser præciserer, at `evidence.excerpt` skal være et sammenhængende ordret uddrag kopieret fra `source_text`, ikke en parafrase.
