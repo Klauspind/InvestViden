@@ -95,7 +95,7 @@ En konkret `ask`-kilde kan godkendes til netop denne eksport med:
 8. Den anvendte SQLite-database forbliver byte-uændret i den syntetiske regressionstest.
 9. Ingen ekstern AI kaldes under eksporten.
 10. Hele GitHub Actions-testpakken består på Python 3.10 og 3.12.
-11. `KRÆVER BRUGERTEST`: den rigtige consumer-database kan via `LAV_UGEPAKKE.cmd` producere en fysisk ugepakke, hvis dækning og indhold kan vurderes som et brugbart grundlag for næste sprinttrin.
+11. Den rigtige consumer-database kan via `LAV_UGEPAKKE.cmd` producere en fysisk ugepakke, hvis dækning og indhold kan vurderes som et brugbart grundlag for næste sprinttrin.
 
 ## Automatisk verifikation
 
@@ -112,11 +112,27 @@ En konkret `ask`-kilde kan godkendes til netop denne eksport med:
 - at rå tekst fra en ubehandlet kilde ikke kopieres ind,
 - at SQLite-filen er byte-uændret før/efter eksporten.
 
-`VERIFICERET`: GitHub Actions run `37989377524` bestod på Python 3.10 og 3.12 med hele repository-testpakken.
+`VERIFICERET`: afsluttende PR #35 GitHub Actions run `37989694872` bestod på Python 3.10 og 3.12 med hele repository-testpakken.
+
+## Fysisk acceptance 09.10.2026
+
+`VERIFICERET` på workstationen mod den normale persistente consumer-database:
+
+- første ugepakke for perioden `2026-10-03 – 2026-10-09` fandt 3 kilder, alle 3 tilladt efter AI-politik, men `0` med AI-udtræk og `0` udsagn; dækningshullet blev dermed synligt som designet,
+- de tre aktuelle kilder blev deterministisk identificeret som `src-3603b6dc514e93f6`, `src-c6244f47e6d8bd80` og `src-a7883c35b755ceb2`,
+- de eksisterende Mistral Small-jobkladder blev genbrugt; brugeren godkendte eksplicit netop de tre eksterne kald med samlet lokalt estimat USD `0.0412`, og alle tre jobs sluttede `completed` med kildeitems `validated`,
+- `process-ai --dry-run` validerede 35 udsagn fra 3 udtræk i 3 filer,
+- efter særskilt brugeraccept blev de 35 udsagn indlæst i den aktive consumer-database som AI-output; 3 svarfiler blev arkiveret, og `process-ai` rapporterede en verificeret post-write backup,
+- `AFKLARING`: der er ikke vist evidens for, at den foreslåede særskilte pre-write backup blev kørt; den rapporterede `process-ai`-backup er den kendte post-write backup,
+- den efterfølgende ugepakke viste `3` kilder i perioden, `3` medtaget, `0` policy-udeladt, `3` med AI-udtræk, `0` uden AI-udtræk og `35` udsagn,
+- selve ugepakke-generatoren sendte fortsat ingen data til AI og åbnede databasen read-only.
+
+De eksterne Mistral-kald og den efterfølgende `process-ai`-skrivning var ikke nye IV-018-funktioner; de brugte det eksisterende D-005-gatede flow for at lukke det konkrete dækningshul, som den første fysiske ugepakke afslørede.
 
 ## Status
 
-- `VERIFICERET`: implementering og automatiske regressionstests er grønne på PR #35.
-- `VERIFICERET`: ingen schemaændring, migration, database-skrivning eller eksternt AI-kald indgår i IV-018.
-- `KRÆVER BRUGERTEST`: fysisk ugepakke fra den normale consumer-database efter merge.
-- `NÆSTE`: vurder den fysiske pakkes dækningsregnskab. Hvis dækningen er tilstrækkelig, fortsætter sprinten til IV-019 med fast analyseprompt/rapportformat. Hvis mange aktuelle kilder mangler AI-udtræk, løses det som den mindste nødvendige dækningsgate før IV-019.
+- `VERIFICERET`: PR #35 er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
+- `VERIFICERET`: implementering, automatiske regressionstests og fysisk ugepakke-accept er bestået.
+- `VERIFICERET`: ingen schemaændring eller migration indgår i IV-018, og ugepakke-generatoren skriver ikke til SQLite og foretager ikke selv eksterne AI-kald.
+- IV-018 er **AFSLUTTET**.
+- `NÆSTE`: IV-019 — vurder den faktiske `ugepakke-2026-10-09.md` og fastlæg den mindste faste ugeanalyse-prompt og rapportstruktur til manuel AI-analyse. Første IV-019-test skal fortsat være manuel; ingen ny automatisk AI-integration er nødvendig for at bevise værdien.
