@@ -1,5 +1,25 @@
 # Handover – InvestViden
 
+## 09.10.2026 — IV-019 manuel ugeanalyse: første prøve gennemført
+
+IV-019 er aktivt som en manuel værdiprøve, ikke som ny produktkode.
+
+Den fysisk accepterede ugepakke fra IV-018 blev uploadet til ChatGPT og gennemgået. Den indeholder 3 AI-behandlede kilder og 35 strukturerede udsagn; alle 35 står fortsat som `ai_extracted`, og ingen blev menneskeligt godkendt af analyseforløbet.
+
+`VERIFICERET` ved manuel gennemgang af ugepakken:
+
+- materialet kan samles til en reel tværgående ugeanalyse med større temaer og fremadrettede signaler,
+- `source_id`, `claim_id` og registreret evidens giver tilstrækkelig sporbarhed til at kontrollere væsentlige konklusioner,
+- enkelte strukturerede kandidater går længere end evidensen, er internt inkonsistente eller ser fejlklassificerede ud,
+- analyselaget bør derfor fungere som en ekstra kontrolbarriere: væsentlige konklusioner skal kontrolleres mod evidens, og tvivlsomme kandidater skal samles under **Kræver kontrol** i stedet for at blive videreført som sikre fakta,
+- dette passer med D-010 og D-013: AI-kandidater må bruges i research, men menneskelig review skal fortsat være on-demand frem for en manuel restanceliste.
+
+Et første promptudkast og rapportformat er dokumenteret i `docs/iv-019-weekly-analysis.md`. Rapportstruktur v1 er: **Ugens vigtigste billede → 3–5 vigtigste temaer → Fremadrettede signaler → Selskaber/aktiver værd at følge → Modstridende signaler → Kræver kontrol → Hvad bør følges næste uge**.
+
+`IKKE TESTET`: om denne form er den rapport, brugeren faktisk ønsker at læse uge efter uge. Der er heller ikke testet en anden ugepakke eller en anden AI-model.
+
+`NÆSTE`: fortsæt uden kode. Gennemgå den første rapportprøve med brugeren og juster længde, prioritering, tone, detaljeniveau og **Kræver kontrol**. Først når denne manuelle kæde har vist værdi, besluttes om prompt/rapportformat skal gemmes som en fast skabelon eller integreres i InvestViden.
+
 ## 09.10.2026 — IV-018 fysisk accepteret; sprint fortsætter til IV-019
 
 IV-018 er afsluttet efter fysisk test på den normale persistente consumer-database. PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
