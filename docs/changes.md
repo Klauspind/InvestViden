@@ -1,3 +1,14 @@
+## 2026-10-09 — IV-018 fysisk accepteret
+
+- PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
+- `VERIFICERET`: afsluttende PR-CI run `37989694872` bestod på Python 3.10 og 3.12 med smoke- og unit-testpakken.
+- Første fysiske ugepakke for `2026-10-03 – 2026-10-09` fandt 3 policy-tilladte kilder, men 0 AI-behandlede og 0 udsagn; IV-018 viste dermed dækningshullet i stedet for at skjule det.
+- Brugeren godkendte eksplicit de tre eksisterende `mistral-small-2603`-jobs med samlet lokalt estimat USD `0.0412`. Alle tre jobs sluttede `completed` og de tre source-items `validated`.
+- `process-ai --dry-run` validerede 35 udsagn fra 3 udtræk i 3 filer. Efter særskilt brugeraccept blev de 35 udsagn indlæst i den aktive consumer-database, 3 svarfiler arkiveret, og `process-ai` rapporterede verificeret post-write backup.
+- `AFKLARING`: der er ikke vist evidens for en særskilt pre-write backup før denne aktive databaseskrivning.
+- Den efterfølgende ugepakke viste `3 kilder / 3 medtaget / 0 policy-udeladt / 3 med AI-udtræk / 0 uden AI-udtræk / 35 udsagn`. Eksporten foretog fortsat intet AI-kald og åbnede databasen read-only.
+- IV-018 er **AFSLUTTET**. Næste sprinttrin er IV-019: vurder den faktiske ugepakke og test en fast prompt/rapportstruktur manuelt, før der bygges integration.
+
 ## 2026-10-09 — IV-017 fysisk accepteret
 
 - PR #34 (`IV-017: Keep company sentiment company-specific`) er merged til `main` som `c7bed2816a5e0eb562dcc3f54f786e25fc57b07b`.
@@ -49,7 +60,7 @@
 - Beslutningsbilledet viser nu Research-dækning for en portefølje-/watchlistpost og genbruger det eksisterende Mistral-jobflow frem for at oprette et nyt AI-flow.
 - `VERIFICERET` ved fysisk workstation-test med Novo: UI'en viste de 8 nyeste af 89 relevante ubehandlede kilder. Kilder med eksisterende jobs havde direkte links med status, mens kilder uden job kunne vælges til Mistral.
 - `VERIFICERET`: **Udvid research** åbnede Mistral-job filtreret på `Novo`; 83 kilder uden eksisterende job var valgbare.
-- Brugeren oprettede én lokal jobkladde fra dette flow. UI'en bekræftede, at ingen tekst var sendt, og den valgbare filtrerede liste faldt fra 83 til 82. Acceptance-testen udløste derfor ikke et eksternt AI-kald.
+- Brugeren oprettede én ny lokal jobkladde fra dette flow. UI'en bekræftede, at ingen tekst var sendt, og den valgbare filtrerede liste faldt fra 83 til 82. Acceptance-testen udløste derfor ikke et eksternt AI-kald.
 - Ingen schemaændring eller migration indgik i IV-013. Ingen AI-kandidat blev automatisk godkendt.
 - IV-013 er afsluttet. Næste standard er **BRUG → OBSERVÉR → EVALUÉR** med portefølje-/Research-flowet; massebehandling af historiske kilder er ikke en del af IV-013.
 
@@ -57,8 +68,8 @@
 
 - PR #23 (`IV-010: Brug kildeunderbyggede AI-signaler i research`) er merged til `main` som `a7d0db38356f5cbb3300694ed5d0bbf9fc1cbc97`.
 - `VERIFICERET`: GitHub Actions bestod på Python 3.10 og 3.12 for kodeændringen og den afsluttende dokumentation.
-- `VERIFICERET` ved fysisk workstation-brugertest: alle fire acceptpunkter bestod i den rigtige consumer-UI. Reviewhandlinger findes direkte på detaljesiden, tilbage-navigationen bevarer placeringen i reviewlisten, **Research** er standardområdet, og **Aktiv viden** viser kun `approved`/`corrected`.
-- Kildeunderbyggede `ai_extracted` kandidater må nu indgå i research uden at blive automatisk menneskeligt godkendt. De markeres tydeligt som ikke menneskeligt verificerede; confidence alene ændrer ikke reviewstatus.
+- `VERIFICERET` ved fysisk workstation-brugertest: alle fire IV-010-punkter bestod i den rigtige consumer-UI. Reviewhandlinger findes direkte på detaljesiden, tilbage-navigationen bevarer placeringen i reviewlisten, **Research** er standardområdet, og **Aktiv viden** viser kun `approved`/`corrected`.
+- Kildeunderbyggede `ai_extracted` kandidater må nu indgå i research uden at blive automatisk menneskeligt godkendt. De markeres tydeligt som ikke menneskeligt verificerede; confidence alene ændrer reviewstatus.
 - D-010 dokumenterer den nye researchregel. D-011 dokumenterer brugerens beslutning om proportional sikkerhedsindsats for overvejende offentligt investeringskildeindhold.
 - Ingen schemaændring, migration eller ny ekstern AI-kørsel indgik i IV-010.
 - IV-010 er afsluttet. Projektet fortsætter med **BRUG → OBSERVÉR → EVALUÉR**.
@@ -66,7 +77,7 @@
 ## 2026-10-06 — Aktiv consumer-evidens opdateret og MVP-gate lukket
 
 - Brugeren godkendte eksplicit en kontrolleret `process-ai`-genbehandling mod den separate persistente schema-4 consumer-database.
-- `VERIFICERET`: read-only preflight viste `integrity_check=ok`, korrekt SHA-256 for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning.
+- `VERIFICERET`: read-only preflight viste `integrity_check=ok`, korrekt hash for både rå Mistral-svarfil og kontrolleret kildekopi samt 12/12 claims som `ai_extracted` og 0 `approved` før skrivning.
 - `VERIFICERET`: den aktive kørsel gennemførte og efterlod databasen med `integrity_check=ok`, 12/12 ordrette lokalt udledte evidenspassager, 12/12 fortsat `ai_extracted`, 0 `approved`, byte-uændret arkiveret rå AI-svarfil og præcis én current claim-version pr. claim.
 - `VERIFICERET`: version 2 for alle 12 claims blev oprettet i den aktive consumer-database ved `2026-10-06T11:28:30+00:00`. Den isolerede acceptance-kopi havde sin separate version 2 fra `2026-10-06T10:47:16+00:00`.
 - `AFKLARING`: `process-ai`-CLI'ens `Verificeret backup` er i den nuværende rækkefølge en verificeret post-write backup, fordi ingestion sker før `backup_database` kaldes. Dette er dokumenteret som en ikke-blokerende sikkerhedsforbedring, ikke som en ny aktiv udviklingsopgave.
