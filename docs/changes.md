@@ -1,14 +1,14 @@
-## 2026-10-09 — IV-017 selskabsspecifikt sentiment implementeret
+## 2026-10-09 — IV-017 fysisk accepteret
 
-- Fysisk brug af Novo-beslutningsbilledet efter IV-016 viste en konkret friktion: indirekte udsagn om fx OpenAI eller markedsforhold kunne påvirke Novo-sentimentet, fordi kilden som helhed var Novo-relevant.
-- D-014 fastlægger derfor, at `primary` og `discussed` for porteføljeselskabet tæller som direkte selskabsudsagn, mens `comparison`, `mention` eller manglende direkte relation behandles som kontekst.
-- Porteføljens sentimenttal og sentimentkort bruger nu kun direkte selskabsudsagn. Øvrige Research-udsagn bevares i **Kontekst fra relevante kilder** med kilde, reviewstatus og link til eksisterende detalje/evidens og forbliver også i den samlede **Udsagn og kilder**-liste.
-- Den eksisterende strukturerede `claim_companies`-relation genbruges; der er ikke indført ny AI-klassifikation eller schemaændring.
-- Regressionstesten dækker Novo som `primary`, Novo som `discussed` og et negativt OpenAI-udsagn, hvor Novo kun er `mention`. For Novo forventes `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet stadig vises som kontekst.
-- Testen bruger den faktiske korte porteføljebetegnelse `Novo` med ticker `NOVO-B` og matcher den strukturerede relation `Novo Nordisk` via ticker/hele tokens, ikke vilkårlig delstreng.
-- Første CI-kørsel fandt én forældet assertion om relevansforklaringen; selve den nye sentimentadfærd var korrekt. Efter assertionrettelsen bestod GitHub Actions run `37983109728` på Python 3.10 og 3.12.
-- Ingen reviewstatus, kildedata, porteføljedata eller ekstern AI blev ændret. Risiko-/katalysator-/betingelsesvisningen er bevidst uændret i IV-017.
-- `KRÆVER BRUGERTEST`: fysisk Novo-accept i den normale consumer-UI efter merge.
+- PR #34 (`IV-017: Keep company sentiment company-specific`) er merged til `main` som `c7bed2816a5e0eb562dcc3f54f786e25fc57b07b`.
+- D-014 er fysisk verificeret i den normale consumer-UI: kun `primary`/`discussed`-relationer til porteføljeselskabet tæller i sentimentet; `comparison`/`mention` og øvrig kildekontekst bevares separat.
+- Novo havde 12 Researchudsagn, men kun tre direkte Novo-udsagn indgik i sentimentet (`1 positiv / 1 neutral / 1 negativ / 0 blandet/uklar`). Ni øvrige udsagn blev vist som **Kontekst fra relevante kilder** og omfattede blandt andet DSV, OpenAI, Anthropic, Federal Reserve, ECB og Oracle.
+- Novo Research-dækning forblev `86 relevante / 4 AI-behandlede / 20 aktuelle uden AI / 62 historisk baggrund`; ændringen fjernede ikke researchmateriale.
+- Meta gav en ekstra fysisk kontrol: 13 Researchudsagn blev opdelt i to direkte Meta-udsagn (`0 positiv / 0 neutral / 2 negativ / 0 blandet/uklar`) og 11 kontekstudsagn.
+- Et konkret Meta-kontekstudsagn om amerikansk AI-selvregulering åbnede den eksisterende udsagnsdetalje med registreret kildepassage, omkringliggende kildetekst, klassifikation, selskaber/temaer og reviewhandlinger.
+- `VERIFICERET`: GitHub Actions run `37983109728` bestod på Python 3.10 og 3.12 før den fysiske acceptance. Acceptance ændrede ikke kode og krævede derfor ikke en ny automatisk testkørsel.
+- Ingen schemaændring, migration, reviewstatusændring, porteføljeskrivning eller ekstern AI-kørsel blev indført eller nødvendig for acceptance.
+- IV-017 er **AFSLUTTET**. Standardforløbet er igen **BRUG → OBSERVÉR → EVALUÉR**.
 
 ## 2026-10-09 — IV-016 fysisk accepteret
 
