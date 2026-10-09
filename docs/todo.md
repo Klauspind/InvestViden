@@ -1,5 +1,15 @@
 # Todo – InvestViden
 
+## Status 09.10.2026 — IV-019 manuel ugeanalyse i gang
+
+- `VERIFICERET`: den fysisk accepterede IV-018-ugepakke blev uploadet manuelt til ChatGPT og kunne bruges som grundlag for en samlet investeringsanalyse på tværs af de 3 kilder og 35 strukturerede udsagn.
+- `VERIFICERET`: alle 35 udsagn i prøvepakken står fortsat som `ai_extracted`; ingen blev ophøjet til menneskeligt verificeret viden af analyseprøven.
+- `VERIFICERET`: manuel kontrol viste flere typer kvalitetsfriktion i extraction-laget, herunder kandidater der går længere end evidensen, interne inkonsistenser og mulig fejlklassifikation. Det understøtter en fast rapportsektion **Kræver kontrol** frem for manuel review af alle 35 udsagn.
+- `FORSLAG`: prompt v1 skal behandle `ai_extracted` som kandidater, kontrollere væsentlige konklusioner mod evidens, samle overlappende udsagn i temaer, adskille observation/vurdering/forudsigelse og bevare `source_id`/`claim_id`-sporbarhed.
+- `FORSLAG`: rapportstruktur v1 er **Ugens vigtigste billede → 3–5 vigtigste temaer → Fremadrettede signaler → Selskaber/aktiver værd at følge → Modstridende signaler → Kræver kontrol → Hvad bør følges næste uge**.
+- `IKKE TESTET`: om prompt/rapportstruktur v1 er den form, brugeren ønsker at læse uge efter uge, eller om den er reproducerbar på en anden ugepakke/model.
+- `NÆSTE`: fortsæt IV-019 uden kode. Gennemgå den første rapportprøve med brugeren og fastlæg længde, prioritering, tone, detaljeniveau og **Kræver kontrol**, før prompt/format låses. Se `docs/iv-019-weekly-analysis.md`.
+
 ## Status 09.10.2026 — IV-018 fysisk accepteret og afsluttet
 
 - `VERIFICERET`: PR #35 (`IV-018: Add weekly AI research package`) er merged til `main` som `cbbe7bcc14cb17badcd943f52b352498f05167ad`.
@@ -53,7 +63,7 @@
 - `VERIFICERET`: den afsluttende GitHub Actions-kørsel `37590311085` bestod på Python 3.10 og 3.12 efter sentimentopfølgningen; den oprindelige IV-015-prioritering var allerede grøn i run `37586980131`.
 - `VERIFICERET` ved fysisk workstation-test: Novo-beslutningsbilledet viste 86 relevante kilder, 4 AI-behandlede og 82 ubehandlede. De otte viste ubehandlede kilder var prioriteret med nyere tydeligt Novo-relevante kilder øverst og synlig forklaring på relevansen.
 - `VERIFICERET` ved fysisk workstation-test: sentimentkortet viste alle 12 Researchudsagn som `1 positiv / 8 neutrale / 3 negative / 0 blandet/uklar`, og **Se udsagn og kilder** viste de konkrete udsagn med kilde, dato og reviewstatus.
-- `VERIFICERET` ved fysisk workstation-test: klik på et konkret sentimentudsagn åbnede den eksisterende udsagnsdetalje/evidens som forventet.
+- `VERIFICERET` ved fysisk workstation-test: klik på et konkret sentimentudsagn åbnede udsagnsdetalje/evidens som forventet.
 - `VERIFICERET`: ændringen indfører ingen schemaændring, migration, automatisk reviewstatusændring eller automatisk ekstern AI-kørsel. Den eksisterende Mistral-kilde-/pris-/bekræftelsesgate er bevaret.
 - IV-015 er **AFSLUTTET**. Se `docs/iv-015-source-prioritization.md` og `docs/iv-015-sentiment-traceability.md`.
 - `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR** med portefølje-/Research-flowet. Start ikke ny udvikling eller massebehandling af historiske kilder, før reel brug viser en ny konkret friktion eller nødvendig produktgate.
