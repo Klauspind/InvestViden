@@ -50,7 +50,19 @@ Lav. Ændringen er read-only visningslogik oven på eksisterende strukturerede r
 
 Det forventede Novo-sentiment er derfor `1 positiv / 1 neutral / 0 negativ / 0 blandet/uklar`, mens OpenAI-udsagnet fortsat vises som kontekst.
 
+## Fysisk accept 09.10.2026
+
+`VERIFICERET` i den normale consumer-UI på workstationen efter merge af PR #34:
+
+- Novo havde 12 Researchudsagn, men kun tre direkte Novo-udsagn indgik i sentimentet: `1 positiv / 1 neutral / 1 negativ / 0 blandet/uklar`.
+- De øvrige ni udsagn blev vist under **Kontekst fra relevante kilder** og omfattede blandt andet DSV, OpenAI, Anthropic, Federal Reserve, ECB og Oracle. De påvirkede ikke Novo-sentimentet.
+- Research-dækningen forblev `86 relevante / 4 AI-behandlede / 20 aktuelle uden AI / 62 historisk baggrund`; IV-017 fjernede altså ikke researchmateriale.
+- Meta gav en ekstra fysisk kontrol: 13 Researchudsagn blev opdelt i to direkte Meta-udsagn (`0 positiv / 0 neutral / 2 negativ / 0 blandet/uklar`) og 11 kontekstudsagn.
+- Et konkret Meta-kontekstudsagn om amerikansk AI-selvregulering kunne åbnes fra kontekstlisten til den eksisterende udsagnsdetalje. Her var registreret kildepassage, omkringliggende kildetekst, klassifikation, selskaber/temaer og de eksisterende reviewhandlinger synlige.
+- Ingen AI-kørsel, reviewstatusændring, databaseændring eller anden skrivehandling var nødvendig for acceptance.
+
 ## Status
 
 - `VERIFICERET`: GitHub Actions run `37983109728` bestod efter rettelse af en forældet tekstassertion; kode- og regressionstesten er grøn på Python 3.10 og 3.12.
-- `KRÆVER BRUGERTEST`: fysisk Novo-accept efter merge.
+- `VERIFICERET`: fysisk Novo- og Meta-accept er bestået på workstationen.
+- IV-017 er **AFSLUTTET**.
