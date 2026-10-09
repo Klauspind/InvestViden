@@ -76,10 +76,21 @@ Fysisk workstation-test efter merge:
 5. Hvis der findes historiske kilder, kontroller at de ikke fylder som proaktive kildekort, men stadig kan findes via **Vælg kilder ved behov**.
 6. Der skal ikke sendes et Mistral-job for at acceptere UI-ændringen.
 
+## Fysisk acceptance 09.10.2026
+
+- `VERIFICERET`: Meta-beslutningsbilledet viste **Review-on-demand** med tydelig forklaring om, at menneskelig verifikation ikke er en restanceliste.
+- `VERIFICERET`: Meta viste 2 relevante kilder, begge AI-behandlede, og derfor `Aktuelle uden AI = 0` og `Historisk baggrund = 0`.
+- `VERIFICERET`: Novo-beslutningsbilledet viste 86 relevante kilder fordelt på 4 AI-behandlede, 20 **Aktuelle uden AI** og 62 **Historisk baggrund**. Regnskabet 4 + 20 + 62 = 86 stemte.
+- `VERIFICERET`: kun aktuelle Novo-kilder blev vist proaktivt som kildekort. UI viste de 8 højest prioriterede af 20 aktuelle kilder, mens de 62 historiske blev samlet som baggrund med teksten, at de ikke er en opgaveliste.
+- `VERIFICERET`: **Vælg kilder ved behov** åbnede det eksisterende Mistral-flow filtreret på `Novo`. Flowet viste 79 ubehandlede Novo-kilder; dette overstiger de 20 aktuelle kilder og dokumenterer, at historisk baggrund fortsat er manuelt tilgængelig i Mistral-flowet. Ingen jobafsendelse var nødvendig for acceptance.
+- `VERIFICERET`: UI viste fortsat særskilt kildevalg, AI-politik og prisloft; intet blev sendt automatisk som del af testen.
+
 ## Status
 
-- `VERIFICERET`: IV-016 er implementeret i PR #33 på branch `iv-016-review-on-demand`.
+- `VERIFICERET`: PR #33 er merged til `main` som `acfa6514666d76e35f1e04e54e9c98fefa51fb0f`.
 - `VERIFICERET`: GitHub Actions run `37781420312` bestod på Python 3.10 og 3.12. Begge jobs bestod IV-008 syntax/smoke, IV-009 smoke og hele unit-testpakken.
 - `VERIFICERET`: de automatiske porteføljetests dækker review-on-demand-teksten, én aktuel og én historisk relevant kilde, separate tællere, at kun den aktuelle kilde vises proaktivt, samt at den historiske kilde fortsat kan findes i det eksisterende Mistral-flow.
-- `KRÆVER BRUGERTEST`: fysisk workstation-accept af den nye UI-opdeling efter merge.
+- `VERIFICERET`: fysisk workstation-accept er bestået på den rigtige consumer-UI med både Meta og Novo.
+- IV-016 er **AFSLUTTET**.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Start ikke ny udvikling eller automatisk/batch AI-behandling, før reel brug viser en ny konkret friktion eller nødvendig produktgate.
 - Se D-013 i `docs/decisions.md`.
