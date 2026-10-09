@@ -164,7 +164,7 @@ class WeeklyPackageTest(unittest.TestCase):
         self.assertIn("Reviewstatus: `approved`", body)
         self.assertIn("Novo Nordisk [primary]", body)
         self.assertIn("Registreret evidens (00:01:00–00:01:20)", body)
-        self.assertIn("A current weekly source without extraction", body)
+        self.assertNotIn("A current weekly source without extraction.", body)
         self.assertNotIn("ask-weekly", body)
         self.assertNotIn("blocked-weekly", body)
         self.assertNotIn("old-source", body)
