@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Status 09.10.2026 — IV-016 fysisk accepteret og afsluttet
+
+- `VERIFICERET`: PR #33 (`IV-016: Review-on-demand for historical research`) er merged til `main` som `acfa6514666d76e35f1e04e54e9c98fefa51fb0f`.
+- `VERIFICERET`: fysisk consumer-UI-test viste **Review-on-demand** på både Meta og Novo og gjorde tydeligt, at menneskelig verifikation ikke er en restanceliste.
+- `VERIFICERET`: Novo viste 86 relevante kilder fordelt på 4 AI-behandlede, 20 **Aktuelle uden AI** og 62 **Historisk baggrund**; kun de aktuelle blev vist proaktivt som kildekort.
+- `VERIFICERET`: de 62 historiske blev præsenteret som baggrund uden reviewpligt. **Vælg kilder ved behov** åbnede det eksisterende Mistral-flow med `Novo`-filter og 79 viste ubehandlede kilder, altså også kilder ud over de 20 aktuelle.
+- `VERIFICERET`: der blev ikke sendt et Mistral-job som del af acceptance. Kildevalg, AI-politik, prisestimat/-loft og særskilt bekræftelsesgate forblev synlige.
+- `VERIFICERET`: GitHub Actions run `37781420312` var allerede grøn på Python 3.10 og 3.12; acceptance krævede ingen ny kodeændring eller ny testkørsel.
+- IV-016 er **AFSLUTTET**. Se `docs/iv-016-review-on-demand.md` og D-013.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Start ikke ny udvikling eller automatisk/batch AI-behandling, før reel brug viser en ny konkret friktion eller nødvendig produktgate.
+
 ## Status 08.10.2026 — IV-016 review-on-demand implementeret; fysisk UI-accept mangler
 
 - `BRUGERBESLUTNING`: historiske AI-kandidater og historiske kilder er ikke en bagudrettet manuel review-restanceliste. Manuel verifikation er review-on-demand; se D-013.
