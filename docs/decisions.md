@@ -103,6 +103,24 @@ De eksisterende strukturerede `claim_companies`-relationer er autoritative for d
 
 Reglen ændrer ikke reviewstatus, evidens, provenance eller lagrede selskabsrelationer. Den indfører ingen ny AI-klassifikation; IV-017 er read-only visningslogik oven på allerede lagrede relationer.
 
+## D-015 — Exception-based review i analyser
+
+InvestVidens normale researcharbejde må ikke omdannes til en manuel reviewkø alene fordi der findes mange `ai_extracted` udsagn. Kildeunderbyggede AI-kandidater bruges som almindeligt researchinput efter D-010 og forbliver tydeligt mærket som ikke menneskeligt verificerede.
+
+Menneskelig opmærksomhed prioriteres i stedet efter **exception-based review**. En analyse eller rapport skal samle udsagn under **Kræver kontrol**, når mindst ét af følgende gælder:
+
+- den registrerede evidens understøtter ikke hele den væsentlige konklusion,
+- udsagnet er internt inkonsistent eller modsiges væsentligt af andet materiale i analysen,
+- klassifikation, selskabsrelation, tema eller anden struktureret fortolkning virker tvivlsom,
+- analysen er ved at basere en væsentlig konklusion eller beslutningsrelevant vurdering på udsagnet,
+- brugeren vælger selv udsagnet til kontrol eller opdager en mulig fejl.
+
+Et udsagn bliver ikke `approved` eller `corrected`, blot fordi det ikke havner under **Kræver kontrol**. Omvendt ændrer placering under **Kræver kontrol** heller ikke automatisk reviewstatus. `approved`/`corrected` kræver fortsat individuel menneskelig vurdering efter D-001.
+
+AI-confidence, udsagnets alder eller antallet af udsagn må ikke alene udløse automatisk godkendelse eller en manuel restanceliste. D-013's 12-månedersgrænse fortsætter som prioriteringsregel for aktuelle versus historiske kilder; historisk materiale skal ikke kræve menneskelig gennemgang alene fordi det eksisterer.
+
+D-015 er en analyse- og triageregel. Den indfører ikke schemaændring, automatisk ekstern AI-kørsel eller automatisk ændring af reviewstatus. IV-019 skal først afprøve reglen manuelt i ugeanalysen, før der eventuelt bygges produktintegration.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
