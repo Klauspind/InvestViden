@@ -1,8 +1,8 @@
 # Handover – InvestViden
 
-## 10.10.2026 — IV-019 vedvarende progressiv AI-kontrol implementeret på PR #39
+## 10.10.2026 — IV-019 vedvarende progressiv AI-kontrol merged; fysisk accept mangler
 
-Brugeren har efter den manuelle Meta-prøve valgt at gøre AI-kontrolresultater vedvarende, så kontrolleret materiale kan genbruges i senere portefølje-, watchlist- og emneanalyser.
+Brugeren har efter den manuelle Meta-prøve valgt at gøre AI-kontrolresultater vedvarende, så kontrolleret materiale kan genbruges i senere portefølje-, watchlist- og emneanalyser. PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b`.
 
 Den gældende produktmodel er nu D-015, D-016 og D-017 samlet:
 
@@ -15,13 +15,13 @@ Den første implementeringsretning var et schema-bump fra 4 til 5 i knowledgebas
 
 PR #39 implementerer i stedet en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Knowledgebasen forbliver schema 4. Sidecaren gemmer kontrolresultater bundet til `claim_id`, konkret claim-version, claim-payload-hash, source-version og source SHA-256 samt validator/provider/model/version. Når claim- eller source-konteksten ikke længere matcher, betragtes det tidligere resultat som stale og genbruges ikke som aktuelt **AI-kontrolleret**.
 
-`VERIFICERET` automatisk: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og nye tests for persistence/reopen, stale claim-version, stale source-version og isolation fra menneskelig reviewstatus.
+`VERIFICERET` automatisk: afsluttende PR-CI run `38083761961` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og nye tests for persistence/reopen, stale claim-version, stale source-version og isolation fra menneskelig reviewstatus.
 
 `VERIFICERET`: den implementerede persistence kræver ingen migration eller skrivning til den eksisterende schema-4 knowledgebase og foretager ingen ekstern AI-kørsel.
 
 `KRÆVER BRUGERTEST`: sidecar-laget er endnu ikke fysisk accepteret mod den normale workstation-runtime eller integreret i den normale UI.
 
-`NÆSTE`: efter merge af PR #39 gennemføres en lille workstation-accept, hvor den normale schema-4 consumer-database læses, lokal `ai_validation.sqlite` oprettes/benyttes, et testkontrolresultat gemmes og genfindes, og det verificeres, at `claims.review_status` er uændret. Ingen ekstern AI er nødvendig for denne acceptance.
+`NÆSTE`: gennemfør en lille workstation-accept, hvor den normale schema-4 consumer-database læses, lokal `ai_validation.sqlite` oprettes/benyttes, et testkontrolresultat gemmes og genfindes, og det verificeres, at `claims.review_status` er uændret. Ingen ekstern AI er nødvendig for denne acceptance.
 
 ## 09.10.2026 — IV-019 manuel ugeanalyse: første prøve gennemført
 
