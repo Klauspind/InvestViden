@@ -1,8 +1,8 @@
 # IV-019 — progressiv AI-kontrol ved anvendelse
 
-## Status 10.10.2026 — persistence merged; fysisk accept mangler
+## Status 10.10.2026 — persistence fysisk accepteret
 
-Den manuelle Meta-prøve viste tilstrækkelig værdi til, at brugeren har valgt at gøre AI-kontrolresultater vedvarende. PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b`.
+Den manuelle Meta-prøve viste tilstrækkelig værdi til, at brugeren valgte at gøre AI-kontrolresultater vedvarende. PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b`, og den efterfølgende sikre workstation-accept er leveret via PR #40, merged som `8ccf95b6d841c5fff9ecfdce31d4302197d8dada`.
 
 Den gældende produktregel er fortsat:
 
@@ -74,19 +74,33 @@ Et gemt resultat betragtes kun som aktuelt, når alle claim-/source-identiteter 
 
 ## Implementeringsstatus
 
-`VERIFICERET`: afsluttende PR-CI run `38083761961` bestod på Python 3.10 og 3.12 på den mergede PR-head, inklusive smoke- og unit-tests.
+`VERIFICERET` automatisk:
 
-Automatiske tests verificerer, at:
+- afsluttende PR #39-CI run `38083761961` bestod på Python 3.10 og 3.12,
+- PR #40 tilføjede et sikkert workstation-acceptværktøj og blev verificeret i GitHub Actions run `38084462293` på Python 3.10 og 3.12,
+- persistence/reopen, stale claim-version, stale source-version, reviewstatus-isolation og fail-closed schema-kontrol er dækket.
 
-- AI-kontrol kan gemmes i en separat sidecar og genlæses efter genåbning,
-- knowledgebase forbliver schema 4,
-- menneskelig `review_status` ændres ikke,
-- kontrol bliver stale efter ændret claim-version,
-- kontrol bliver stale, hvis kildeversionen ikke længere er aktuel,
-- ugyldigt kontrolresultat afvises.
+## Fysisk workstation-accept 10.10.2026
 
-`KRÆVER BRUGERTEST`: den nye persistence er endnu ikke koblet ind i den normale workstation-UI eller fysisk afprøvet mod den lokale runtime-state.
+`VERIFICERET` fra brugerens PowerShell-output mod den normale lokale consumer-runtime:
+
+- knowledgebasen var schema 4,
+- knowledgebasen blev åbnet read-only,
+- knowledgebasefilens SHA-256 var uændret før/efter testen,
+- menneskelig `review_status` var `ai_extracted` både før og efter testen,
+- den rigtige lokale `ai_validation.sqlite` blev oprettet ved siden af knowledgebasen med sidecar-schema 1,
+- den permanente sidecar havde 0 kontrolresultater efter accepten; testen mærkede derfor ikke et rigtigt investeringsudsagn som semantisk **AI-kontrolleret**,
+- et midlertidigt syntetisk `passed`-resultat kunne gemmes, genfindes efter genåbning og blev derefter slettet,
+- `external_ai_calls=0`.
+
+De konkrete lokale databasehashes og claim-id'er er bevidst ikke kopieret til GitHub-dokumentationen.
+
+## Afgrænsning efter acceptance
+
+`IKKE TESTET`: den normale UI viser endnu ikke **AI-kontrolleret**, og en rigtig analyse gemmer endnu ikke automatisk semantiske kontrolresultater i sidecaren. Det er ikke nødvendigt for at acceptere persistence-MVP'en.
+
+IV-019's persistence-MVP er **AFSLUTTET**.
 
 ## Næste konkrete todo
 
-Lav en lille workstation-accept, hvor InvestViden læser den eksisterende schema-4 knowledgebase, opretter/benytter lokal `ai_validation.sqlite` og demonstrerer, at et kontrolleret udsagn kan genfindes som **AI-kontrolleret** uden ændring af menneskelig reviewstatus. Ingen automatisk ekstern AI-kørsel er nødvendig for denne acceptance.
+**BRUG → OBSERVÉR → EVALUÉR.** Byg ikke UI- eller automatisk AI-kontrolintegration alene fordi persistence-laget nu virker. Næste udviklingstrin skal komme fra reel brug, hvor en portefølje-, watchlist- eller emneanalyse konkret har behov for at læse eller skrive det vedvarende AI-kontrollag.
