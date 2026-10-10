@@ -1,15 +1,17 @@
 # Todo – InvestViden
 
-## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag merged; fysisk accept mangler
+## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag fysisk accepteret og afsluttet
 
 - `BRUGERBESLUTNING`: progressive AI-kontrolresultater skal bevares og kunne genbruges ved senere analyser, uden at `AI-kontrolleret` bliver menneskelig `approved`/`corrected` viden.
 - `VERIFICERET`: den første schema-5-tilgang blev forkastet efter CI viste tværgående regressioner i schema-4-kontrakterne. Knowledgebasen forbliver derfor schema 4.
-- `VERIFICERET`: PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b` og implementerer en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Sidecaren gemmer claim-version/payload-hash, source-version/source-hash, validator/provider/model/version, resultat, note og tidspunkt.
-- `VERIFICERET`: et kontrolresultat er kun aktuelt, når claim-version, claim-payload, kildeversion og source-hash stadig matcher. Ændret claim eller ikke-aktuel kildeversion gør den gamle kontrol stale.
-- `VERIFICERET`: persistence-laget ændrer ikke `claims.review_status`, migrerer ikke knowledgebasen og udløser ingen ekstern AI-kørsel.
-- `VERIFICERET`: afsluttende PR-CI run `38083761961` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og de nye persistence-/stale-tests.
-- `KRÆVER BRUGERTEST`: sidecaren er endnu ikke koblet ind i den normale workstation-UI eller fysisk afprøvet mod den lokale consumer-runtime.
-- `NÆSTE`: lav en lille workstation-accept: læs eksisterende schema-4 knowledgebase, opret/brug lokal `ai_validation.sqlite`, registrér et testkontrolresultat og verificér, at det kan genfindes uden ændring af menneskelig reviewstatus. Ingen ekstern AI er nødvendig for accepten.
+- `VERIFICERET`: PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b` og implementerer en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1.
+- `VERIFICERET`: PR #40 er merged som `8ccf95b6d841c5fff9ecfdce31d4302197d8dada` og tilføjer et sikkert workstation-acceptværktøj; GitHub Actions run `38084462293` bestod på Python 3.10 og 3.12.
+- `VERIFICERET` på workstationen: knowledgebasen var schema 4 og read-only, databasehash var uændret før/efter, `review_status` var `ai_extracted` før/efter, `ai_validation.sqlite` blev oprettet med sidecar-schema 1, den permanente sidecar havde 0 kontrolresultater, et midlertidigt syntetisk `passed`-resultat kunne genfindes efter genåbning og blev derefter slettet, og `external_ai_calls=0`.
+- `VERIFICERET`: persistence-laget ændrer ikke `claims.review_status`, migrerer ikke knowledgebasen og udløser ingen ekstern AI-kørsel. Et tidligere kontrolresultat genbruges kun, når claim-version, payload-hash, kildeversion og source-hash stadig matcher.
+- Konkrete lokale databasehashes og claim-id'er er bevidst ikke kopieret til GitHub.
+- `IKKE TESTET`: normal UI-visning af **AI-kontrolleret** og automatisk semantisk kontrol/persistence under en rigtig analyse. Det er ikke nødvendigt for den accepterede persistence-MVP.
+- IV-019's persistence-MVP er **AFSLUTTET**. Se `docs/iv-019-progressive-ai-validation.md` og D-017.
+- `NÆSTE`: **BRUG → OBSERVÉR → EVALUÉR**. Start ikke yderligere UI-/automationsarbejde alene fordi persistence-laget nu virker; næste udviklingstrin skal komme fra en konkret friktion i reel portefølje-, watchlist- eller emneanalyse.
 
 ## Status 09.10.2026 — IV-019 manuel ugeanalyse i gang
 
