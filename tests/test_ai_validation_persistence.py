@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
-from investkb.ai_validation import current_ai_validation, record_ai_validation
+from investkb.ai_validation import AIValidationStore, default_validation_db_path
 from investkb.migrations import current_schema_version
 from investkb.repository import KnowledgeBase
 from investkb.validation import ValidationError
@@ -23,7 +23,7 @@ class AIValidationPersistenceTest(unittest.TestCase):
             "[00:01] Meta ad demand remains strong.\n",
             encoding="utf-8",
         )
-        self.kb = KnowledgeBase(self.root / "kb.sqlite")
+        self.kb = KnowledgeBase(self.root / "knowledgebase.sqlite")
         self.kb.initialize()
         self.source_id, _ = self.kb.import_source(
             self.source,
@@ -66,15 +66,19 @@ class AIValidationPersistenceTest(unittest.TestCase):
             }
         )
         self.claim_id = str(self.kb.claims()[0]["id"])
+        self.validation_path = default_validation_db_path(self.kb.db_path)
+        self.store = AIValidationStore(self.validation_path)
 
     def tearDown(self):
+        self.store.close()
         self.kb.close()
         self.temp.cleanup()
 
-    def test_schema5_and_passed_validation_do_not_change_human_review_status(self):
-        self.assertEqual(5, current_schema_version(self.kb.conn))
+    def test_passed_validation_persists_without_changing_schema_or_human_review_status(self):
+        self.assertEqual(4, current_schema_version(self.kb.conn))
+        self.assertEqual(self.root / "ai_validation.sqlite", self.validation_path)
 
-        validation_id = record_ai_validation(
+        validation_id = self.store.record(
             self.kb.conn,
             self.claim_id,
             outcome="passed",
@@ -85,16 +89,23 @@ class AIValidationPersistenceTest(unittest.TestCase):
             created_at="2026-10-10T12:30:00+00:00",
         )
 
-        current = current_ai_validation(self.kb.conn, self.claim_id)
+        current = self.store.current(self.kb.conn, self.claim_id)
         self.assertIsNotNone(current)
         self.assertEqual(validation_id, current["id"])
         self.assertEqual("ai_controlled", current["quality_status"])
         self.assertEqual(self.source_id, current["source_version_id"])
         self.assertEqual(hashlib.sha256(self.source.read_bytes()).hexdigest(), current["source_sha256"])
         self.assertEqual("ai_extracted", self.kb.claim_detail(self.claim_id)["review_status"])
+        self.assertEqual(4, current_schema_version(self.kb.conn))
+
+        self.store.close()
+        self.store = AIValidationStore(self.validation_path)
+        reopened = self.store.current(self.kb.conn, self.claim_id)
+        self.assertIsNotNone(reopened)
+        self.assertEqual(validation_id, reopened["id"])
 
     def test_validation_becomes_stale_when_claim_version_changes(self):
-        record_ai_validation(
+        self.store.record(
             self.kb.conn,
             self.claim_id,
             outcome="passed",
@@ -102,7 +113,7 @@ class AIValidationPersistenceTest(unittest.TestCase):
             validator_model="test-validator",
             validator_version="iv-019-v1",
         )
-        self.assertIsNotNone(current_ai_validation(self.kb.conn, self.claim_id))
+        self.assertIsNotNone(self.store.current(self.kb.conn, self.claim_id))
 
         previous = self.kb.conn.execute(
             "SELECT * FROM claim_versions WHERE claim_id=? AND is_current=1",
@@ -133,10 +144,11 @@ class AIValidationPersistenceTest(unittest.TestCase):
                 ),
             )
 
-        self.assertIsNone(current_ai_validation(self.kb.conn, self.claim_id))
+        self.assertIsNone(self.store.current(self.kb.conn, self.claim_id))
+        self.assertEqual(1, len(self.store.history(self.claim_id)))
 
     def test_validation_becomes_stale_and_new_writes_fail_when_source_is_not_current(self):
-        record_ai_validation(
+        self.store.record(
             self.kb.conn,
             self.claim_id,
             outcome="needs_review",
@@ -150,9 +162,9 @@ class AIValidationPersistenceTest(unittest.TestCase):
                 (self.source_id,),
             )
 
-        self.assertIsNone(current_ai_validation(self.kb.conn, self.claim_id))
+        self.assertIsNone(self.store.current(self.kb.conn, self.claim_id))
         with self.assertRaises(ValidationError):
-            record_ai_validation(
+            self.store.record(
                 self.kb.conn,
                 self.claim_id,
                 outcome="passed",
@@ -163,7 +175,7 @@ class AIValidationPersistenceTest(unittest.TestCase):
 
     def test_invalid_outcome_is_rejected(self):
         with self.assertRaises(ValidationError):
-            record_ai_validation(
+            self.store.record(
                 self.kb.conn,
                 self.claim_id,
                 outcome="approved",
