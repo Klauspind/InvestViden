@@ -1,4 +1,4 @@
-## 2026-10-10 — IV-019 vedvarende progressiv AI-kontrol
+## 2026-10-10 — IV-019 vedvarende progressiv AI-kontrol fysisk accepteret
 
 - Brugeren valgte at gøre D-016's progressive AI-kontrol vedvarende efter den manuelle Meta-prøve.
 - Første implementeringsforsøg brugte schema 5 i knowledgebasen. GitHub CI viste, at dette unødigt brød eksisterende schema-4-kontrakter i consumer, weekly runner, migrationsverifier og rollbacktests. Tilgangen blev derfor forkastet før merge og uden nogen aktiv databaseændring.
@@ -7,8 +7,11 @@
 - Et resultat genbruges kun, når claim- og source-identitet/hashes stadig matcher aktuel knowledgebase-state; ændrede claims eller ikke-aktuelle kildeversioner gør kontrollen stale.
 - `passed` repræsenterer **AI-kontrolleret**, `needs_review` repræsenterer **Kræver kontrol**, og `error` repræsenterer kontrolfejl. Ingen af resultaterne ændrer `claims.review_status` eller kan skabe `approved`/`corrected`.
 - Ingen automatisk AI-kørsel, provider-fallback eller ekstern transport er tilføjet. D-005 gælder fortsat, hvis selve kontrollen senere udføres eksternt.
-- `VERIFICERET`: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og nye tests for persistence/reopen, stale claim-version, stale source-version og reviewstatus-isolation.
-- D-017 dokumenterer sidecar-arkitekturen. `KRÆVER BRUGERTEST`: fysisk workstation-accept mod den lokale consumer-runtime efter merge.
+- `VERIFICERET`: afsluttende PR #39-CI run `38083761961` bestod på Python 3.10 og 3.12.
+- PR #40 tilføjede en sikker workstation-accept, som åbner knowledgebasen read-only, kræver schema 4, opretter/validerer den rigtige lokale sidecar og bruger en separat midlertidig sidecar til persistence/reopen-testen. PR #40 er merged som `8ccf95b6d841c5fff9ecfdce31d4302197d8dada`; GitHub Actions run `38084462293` bestod på Python 3.10 og 3.12.
+- `VERIFICERET` fysisk på workstationen: knowledgebasen var schema 4 og read-only, databasehash var uændret før/efter, `review_status` var `ai_extracted` før/efter, `ai_validation.sqlite` blev oprettet med sidecar-schema 1, den permanente sidecar havde 0 kontrolresultater, et midlertidigt syntetisk `passed`-resultat overlevede genåbning og blev derefter slettet, og `external_ai_calls=0`.
+- Konkrete lokale databasehashes og claim-id'er er bevidst ikke kopieret til GitHub.
+- D-017 dokumenterer sidecar-arkitekturen. IV-019's persistence-MVP er **AFSLUTTET**; næste standard er **BRUG → OBSERVÉR → EVALUÉR**.
 
 ## 2026-10-09 — IV-019 første manuelle ugeanalyseprøve
 
