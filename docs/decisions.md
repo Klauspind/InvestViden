@@ -144,6 +144,26 @@ Ekstern AI-kontrol er fortsat omfattet af D-005. D-016 indfører derfor ingen au
 
 IV-019 skal først afprøve denne model manuelt på en konkret portefølje- eller watchlistanalyse, før schema, UI eller automation bygges.
 
+## D-017 — Vedvarende AI-kontrol gemmes i separat lokal sidecar
+
+Efter den manuelle Meta-prøve i IV-019 har brugeren valgt at gøre AI-kontrolresultater vedvarende. Persistensen implementeres i en separat lokal SQLite-fil `ai_validation.sqlite` ved siden af consumer-knowledgebasen frem for som schemaændring i den fysisk accepterede schema-4 knowledgebase.
+
+Knowledgebasen forbliver autoritativ for kilder, kildeversioner, claims, claim-versioner, evidens og menneskelig reviewstatus. `ai_validation.sqlite` er autoritativ alene for det afledte AI-kontrollag. Sidecar-filen er lokal runtime-state og må ikke pushes til GitHub.
+
+Et gemt kontrolresultat skal mindst være bundet til:
+
+- `claim_id` og konkret `claim_version_id`,
+- claim-versionens payload-hash,
+- konkret `source_version_id` og source SHA-256,
+- validator/provider, model og kontrol-/promptversion,
+- kontrolresultat og tidspunkt.
+
+Et tidligere resultat må kun betragtes som aktuelt, når claim-version, claim-payload, kildeversion og source-hash stadig matcher den aktuelle knowledgebase-state. Ellers er resultatet historik/stale og må ikke vises som aktuelt **AI-kontrolleret**.
+
+Sidecar-laget må læse knowledgebasen for at verificere den aktuelle kontekst, men må ikke ændre `claims.review_status` eller anden knowledgebase-state. `approved`/`corrected` forbliver rent menneskelige statuser efter D-001.
+
+D-017 indfører ingen automatisk AI-kørsel. Hvis selve kontrollen senere udføres af en ekstern AI, gælder D-005 fortsat. Første implementering omfatter persistence og stale-detektion, ikke batchkontrol, UI-integration eller automatisk ekstern transport.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`

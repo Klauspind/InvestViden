@@ -1,5 +1,16 @@
 # Todo – InvestViden
 
+## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag implementeret på PR #39
+
+- `BRUGERBESLUTNING`: progressive AI-kontrolresultater skal bevares og kunne genbruges ved senere analyser, uden at `AI-kontrolleret` bliver menneskelig `approved`/`corrected` viden.
+- `VERIFICERET`: den første schema-5-tilgang blev forkastet efter CI viste tværgående regressioner i schema-4-kontrakterne. Knowledgebasen forbliver derfor schema 4.
+- `VERIFICERET`: PR #39 implementerer i stedet en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Sidecaren gemmer claim-version/payload-hash, source-version/source-hash, validator/provider/model/version, resultat, note og tidspunkt.
+- `VERIFICERET`: et kontrolresultat er kun aktuelt, når claim-version, claim-payload, kildeversion og source-hash stadig matcher. Ændret claim eller ikke-aktuel kildeversion gør den gamle kontrol stale.
+- `VERIFICERET`: persistence-laget ændrer ikke `claims.review_status`, migrerer ikke knowledgebasen og udløser ingen ekstern AI-kørsel.
+- `VERIFICERET`: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og de nye persistence-/stale-tests.
+- `KRÆVER BRUGERTEST`: sidecaren er endnu ikke koblet ind i den normale workstation-UI eller fysisk afprøvet mod den lokale consumer-runtime.
+- `NÆSTE`: efter merge af PR #39 laves en lille workstation-accept: læs eksisterende schema-4 knowledgebase, opret/brug lokal `ai_validation.sqlite`, registrér et testkontrolresultat og verificér, at det kan genfindes uden ændring af menneskelig reviewstatus. Ingen ekstern AI er nødvendig for accepten.
+
 ## Status 09.10.2026 — IV-019 manuel ugeanalyse i gang
 
 - `VERIFICERET`: den fysisk accepterede IV-018-ugepakke blev uploadet manuelt til ChatGPT og kunne bruges som grundlag for en samlet investeringsanalyse på tværs af de 3 kilder og 35 strukturerede udsagn.

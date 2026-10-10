@@ -1,3 +1,15 @@
+## 2026-10-10 — IV-019 vedvarende progressiv AI-kontrol
+
+- Brugeren valgte at gøre D-016's progressive AI-kontrol vedvarende efter den manuelle Meta-prøve.
+- Første implementeringsforsøg brugte schema 5 i knowledgebasen. GitHub CI viste, at dette unødigt brød eksisterende schema-4-kontrakter i consumer, weekly runner, migrationsverifier og rollbacktests. Tilgangen blev derfor forkastet før merge og uden nogen aktiv databaseændring.
+- PR #39 bruger i stedet en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Knowledgebasen forbliver schema 4.
+- Sidecaren gemmer `claim_id`, konkret claim-version og payload-hash, source-version og source SHA-256 samt validator/provider/model/version, resultat, note og tidspunkt.
+- Et resultat genbruges kun, når claim- og source-identitet/hashes stadig matcher aktuel knowledgebase-state; ændrede claims eller ikke-aktuelle kildeversioner gør kontrollen stale.
+- `passed` repræsenterer **AI-kontrolleret**, `needs_review` repræsenterer **Kræver kontrol**, og `error` repræsenterer kontrolfejl. Ingen af resultaterne ændrer `claims.review_status` eller kan skabe `approved`/`corrected`.
+- Ingen automatisk AI-kørsel, provider-fallback eller ekstern transport er tilføjet. D-005 gælder fortsat, hvis selve kontrollen senere udføres eksternt.
+- `VERIFICERET`: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og nye tests for persistence/reopen, stale claim-version, stale source-version og reviewstatus-isolation.
+- D-017 dokumenterer sidecar-arkitekturen. `KRÆVER BRUGERTEST`: fysisk workstation-accept mod den lokale consumer-runtime efter merge.
+
 ## 2026-10-09 — IV-019 første manuelle ugeanalyseprøve
 
 - Den fysisk accepterede IV-018-ugepakke blev manuelt uploadet til ChatGPT og analyseret uden ny produktkode eller automatisk AI-integration.
