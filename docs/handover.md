@@ -1,5 +1,28 @@
 # Handover – InvestViden
 
+## 10.10.2026 — IV-019 vedvarende progressiv AI-kontrol implementeret på PR #39
+
+Brugeren har efter den manuelle Meta-prøve valgt at gøre AI-kontrolresultater vedvarende, så kontrolleret materiale kan genbruges i senere portefølje-, watchlist- og emneanalyser.
+
+Den gældende produktmodel er nu D-015, D-016 og D-017 samlet:
+
+- kildeunderbyggede `ai_extracted` udsagn kan bruges i Research uden manuel masse-review,
+- analyser kontrollerer væsentlige anvendte udsagn mod evidensen og sender kun konkrete problemer til **Kræver kontrol**,
+- et vellykket kontrolresultat kan genbruges som **AI-kontrolleret**, men ændrer aldrig menneskelig `review_status`,
+- `approved`/`corrected` kræver fortsat individuel menneskelig vurdering efter D-001.
+
+Den første implementeringsretning var et schema-bump fra 4 til 5 i knowledgebasen. GitHub CI viste, at dette unødigt ramte eksisterende schema-4-kontrakter i consumer, weekly runner, migrationsverifier og rollbacktests. Den retning blev derfor forkastet før merge og uden fysisk migration.
+
+PR #39 implementerer i stedet en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Knowledgebasen forbliver schema 4. Sidecaren gemmer kontrolresultater bundet til `claim_id`, konkret claim-version, claim-payload-hash, source-version og source SHA-256 samt validator/provider/model/version. Når claim- eller source-konteksten ikke længere matcher, betragtes det tidligere resultat som stale og genbruges ikke som aktuelt **AI-kontrolleret**.
+
+`VERIFICERET` automatisk: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og nye tests for persistence/reopen, stale claim-version, stale source-version og isolation fra menneskelig reviewstatus.
+
+`VERIFICERET`: den implementerede persistence kræver ingen migration eller skrivning til den eksisterende schema-4 knowledgebase og foretager ingen ekstern AI-kørsel.
+
+`KRÆVER BRUGERTEST`: sidecar-laget er endnu ikke fysisk accepteret mod den normale workstation-runtime eller integreret i den normale UI.
+
+`NÆSTE`: efter merge af PR #39 gennemføres en lille workstation-accept, hvor den normale schema-4 consumer-database læses, lokal `ai_validation.sqlite` oprettes/benyttes, et testkontrolresultat gemmes og genfindes, og det verificeres, at `claims.review_status` er uændret. Ingen ekstern AI er nødvendig for denne acceptance.
+
 ## 09.10.2026 — IV-019 manuel ugeanalyse: første prøve gennemført
 
 IV-019 er aktivt som en manuel værdiprøve, ikke som ny produktkode.
@@ -82,6 +105,7 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 
 - Den normale consumer-UI startes via `START_INVESTVIDEN.cmd` mod den separate persistente schema-4 consumer-database under `%LOCALAPPDATA%\InvestViden\runtime\transskribinator-consumer\knowledgebase.sqlite`.
 - Den personlige portefølje/watchlist ligger separat i lokal `portfolio.sqlite`; den må ikke pushes til GitHub.
+- D-017 tilføjer en separat lokal `ai_validation.sqlite` ved siden af consumer-knowledgebasen. Den er kun autoritativ for AI-kontrollaget; knowledgebasen forbliver autoritativ for claims, evidens og menneskelig reviewstatus. Sidecaren må ikke pushes til GitHub.
 - Den beskyttede legacy-database er fortsat en separat historisk database og må ikke migreres eller skrives til uden ny, udtrykkelig brugerbeslutning.
 - SQLite er autoritativ for struktureret knowledge-state; private kilder, databaser, backups, credentials og personlige settings må ikke ligge i GitHub.
 - UI er localhost-only.
@@ -94,6 +118,9 @@ D-013 er den gældende produktregel sammen med D-010: kildeunderbyggede `ai_extr
 - D-010: kildeunderbyggede AI-kandidater kan bruges i Research med tydelig status uden først at blive menneskeligt godkendt.
 - D-013: historiske kandidater og kilder er ikke en manuel restanceliste; review sker efter behov.
 - D-014: porteføljesentiment tæller kun direkte selskabsudsagn (`primary`/`discussed`); øvrig kildekontekst bevares separat.
+- D-015: menneskelig opmærksomhed er exception-based og samles under **Kræver kontrol**, ikke som masse-review af alle kandidater.
+- D-016: AI-kontrol sker progressivt ved anvendelse og må genbruges, når claim/source-konteksten stadig matcher.
+- D-017: vedvarende AI-kontrol gemmes separat i lokal `ai_validation.sqlite`; den ændrer ikke menneskelig reviewstatus eller knowledgebase-schema.
 - D-001 og D-009 gælder fortsat for aktiv viden: `approved`/`corrected` kræver individuel menneskelig vurdering og source-verificerbar evidens for aktuelle AI-afledte udsagn.
 
 ## Seneste afsluttede produktmilepæle
