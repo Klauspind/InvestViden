@@ -121,6 +121,29 @@ AI-confidence, udsagnets alder eller antallet af udsagn må ikke alene udløse a
 
 D-015 er en analyse- og triageregel. Den indfører ikke schemaændring, automatisk ekstern AI-kørsel eller automatisk ændring af reviewstatus. IV-019 skal først afprøve reglen manuelt i ugeanalysen, før der eventuelt bygges produktintegration.
 
+## D-016 — Progressiv AI-kontrol ved anvendelse
+
+InvestViden skal foretrække **AI-kontrol ved anvendelse** frem for at massevalidere alle eksisterende eller nye AI-kandidater uden et konkret researchbehov.
+
+Når en rapport, porteføljeanalyse eller watchlist-/emneanalyse bruger et `ai_extracted` udsagn, må analyselaget kontrollere udsagnet mod den registrerede evidens. Et vellykket AI-kontrolresultat er et separat kvalitetslag og må ikke ændre eller udvande den menneskelige reviewstatus.
+
+Det betyder:
+
+- `ai_extracted` forbliver AI-kandidat,
+- **AI-kontrolleret** betyder, at en efterfølgende AI-kontrol ikke fandt et væsentligt problem mellem udsagn og registreret evidens,
+- `approved`/`corrected` betyder fortsat individuel menneskelig vurdering efter D-001,
+- udsagn med problemer sendes til **Kræver kontrol** efter D-015 i stedet for automatisk at blive godkendt eller kasseret.
+
+Når et vedvarende AI-kontrol-lag senere implementeres, skal kontrollen være bundet til den konkrete udsagns- og kildeversion, så et ændret udsagn eller en ændret kildekopi kan gøre en tidligere kontrol forældet. Implementeringen skal som minimum kunne spore den relevante claim-version, kildeversion/source-hash og hvilken validator/model-/kontrolversion der blev anvendt.
+
+D-016 beslutter **produktreglen**, men ikke det endelige databaseschema. Der er ikke godkendt migration eller skrivning til den aktive database som følge af denne beslutning.
+
+AI-kontrol skal ikke automatisk køres på hele historikken eller på alle nye udsagn hver uge. Den primære strategi er progressiv akkumulering gennem reel brug: relevante udsagn kontrolleres, når de bruges, og et fremtidigt vedvarende kontrolresultat kan genbruges, så længe udsagn og kildeversion stadig matcher.
+
+Ekstern AI-kontrol er fortsat omfattet af D-005. D-016 indfører derfor ingen automatisk ekstern AI-kørsel, ingen provider-fallback og ingen undtagelse fra kildepolitik, prisestimat/-loft eller særskilt menneskelig bekræftelse.
+
+IV-019 skal først afprøve denne model manuelt på en konkret portefølje- eller watchlistanalyse, før schema, UI eller automation bygges.
+
 ## Åbne afklaringer
 
 ### A-001 — Ugentlig runner og `ask`
