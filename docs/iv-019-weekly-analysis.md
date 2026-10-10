@@ -1,5 +1,21 @@
 # IV-019 — fast ugeanalyse-prompt og rapportformat
 
+## Status 10.10.2026 — progressiv AI-kontrol valgt
+
+Efter den manuelle exception-based review-prøve har brugeren valgt en progressiv kontrolmodel:
+
+**AI-kontrol skal primært ske, når udsagn faktisk bruges i en rapport, porteføljeanalyse eller watchlist-/emneanalyse. Kontrolresultater bør senere kunne genbruges, så mængden af AI-kontrolleret materiale vokser som et biprodukt af normal brug.**
+
+Beslutningen er dokumenteret som D-016 og uddybet i `docs/iv-019-progressive-ai-validation.md`.
+
+Det betyder, at IV-019 ikke skal udvikle en ugentlig massevalidering eller en ny manuel reviewrestanceliste. Den næste værdiprøve skal i stedet være en konkret portefølje- eller watchlistanalyse, hvor relevante udsagn kontrolleres mod evidensen før de bruges i analysen, og hvor problemer samles under **Kræver kontrol**.
+
+**AI-kontrolleret** er kun et kvalitetslag. Det ændrer ikke reviewstatus: udsagnet forbliver `ai_extracted`, indtil et menneske eventuelt godkender eller korrigerer det efter D-001.
+
+`IKKE IMPLEMENTERET`: InvestViden har endnu ingen vedvarende database-status for AI-kontrol. Der er ikke besluttet schemafelter, migration, UI eller automation, og den aktive database må ikke ændres som følge af denne designbeslutning.
+
+`NÆSTE`: afprøv progressiv AI-kontrol manuelt på en konkret portefølje- eller watchlistanalyse. Mål om kontrollen giver reel kvalitetsgevinst, hvor mange udsagn der ender under **Kræver kontrol**, og om genbrug af kontrolresultater er værd at implementere. Først derefter vurderes schema/UI/automation.
+
 ## Status 10.10.2026 — exception-based review fastlagt
 
 Brugeren har godkendt den normale reviewmodel for InvestViden:
