@@ -1,5 +1,39 @@
 # IV-019 — fast ugeanalyse-prompt og rapportformat
 
+## Status 10.10.2026 — exception-based review fastlagt
+
+Brugeren har godkendt den normale reviewmodel for InvestViden:
+
+**kildeunderbyggede `ai_extracted` udsagn bruges som almindeligt researchinput; kun undtagelser samles under `Kræver kontrol`.**
+
+Beslutningen er dokumenteret som D-015 og bygger videre på D-010 og D-013. Den ændrer ikke betydningen af `approved`/`corrected`, og den indfører ingen automatisk reviewstatusændring.
+
+### Reviewregel for IV-019
+
+Ugeanalysen skal ikke præsentere alle AI-kandidater som en menneskelig opgave. Den skal i stedet:
+
+1. bruge kildeunderbyggede `ai_extracted` udsagn som almindeligt researchmateriale med tydelig kandidatstatus,
+2. kontrollere væsentlige konklusioner mod registreret evidens,
+3. samle kun de udsagn under **Kræver kontrol**, hvor evidens, intern konsistens, klassifikation eller beslutningsrelevans giver konkret grund til ekstra menneskelig opmærksomhed,
+4. bevare `source_id` og relevante `claim_id` for hvert kontrolpunkt,
+5. aldrig ændre `ai_extracted` til `approved`/`corrected` automatisk,
+6. ikke skabe en review-restanceliste af historiske udsagn alene fordi de er gamle eller mange.
+
+### Acceptkriterier for den næste manuelle prøve
+
+Den næste IV-019-rapportprøve er tilfredsstillende, når:
+
+- hovedrapporten kan læses uden at brugeren først skal gennemgå alle underliggende udsagn,
+- **Kræver kontrol** kun indeholder konkrete undtagelser med en kort årsag til kontrollen,
+- væsentlige konklusioner kan spores tilbage til kilde og udsagn,
+- `ai_extracted` fortsat fremstår som AI-kandidat og ikke som menneskeligt verificeret viden,
+- historisk baggrund ikke fremstilles som en manuel oprydningsopgave,
+- rapporten ikke giver en automatisk køb/hold/sælg-anbefaling.
+
+`IKKE TESTET`: hvor stor **Kræver kontrol**-sektionen typisk bliver på andre ugepakker. Der fastsættes derfor ikke et kunstigt maksimum; målet er en lille undtagelsesliste, ikke en numerisk kvote.
+
+`NÆSTE`: fortsæt IV-019 manuelt med samme ugepakke eller næste ugepakke og vurder, om rapportens længde, prioritering, tone, detaljeniveau og **Kræver kontrol** fungerer i reel brug. Ingen kodeintegration endnu.
+
 ## Status 09.10.2026 — checkpoint efter første manuelle analyseprøve
 
 IV-019 er **AKTIV**, men der er endnu ikke implementeret ny kode eller automatisk AI-integration.
@@ -57,7 +91,7 @@ Det første forslag er:
 
 `IKKE TESTET`: reproducerbarhed på en anden ugepakke eller med en anden AI-model.
 
-`KRÆVER BRUGERTEST`: næste session skal tage den allerede genererede første rapportprøve og justere længde, prioritering, tone, detaljeniveau og sektionen **Kræver kontrol**, før formatet låses.
+`KRÆVER BRUGERTEST`: næste session skal tage den allerede genererede første rapportprøve og justere længde, prioritering, tone, detaljeniveau og **Kræver kontrol**, før formatet låses.
 
 ## Næste konkrete todo
 
