@@ -1,15 +1,15 @@
 # Todo – InvestViden
 
-## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag implementeret på PR #39
+## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag merged; fysisk accept mangler
 
 - `BRUGERBESLUTNING`: progressive AI-kontrolresultater skal bevares og kunne genbruges ved senere analyser, uden at `AI-kontrolleret` bliver menneskelig `approved`/`corrected` viden.
 - `VERIFICERET`: den første schema-5-tilgang blev forkastet efter CI viste tværgående regressioner i schema-4-kontrakterne. Knowledgebasen forbliver derfor schema 4.
-- `VERIFICERET`: PR #39 implementerer i stedet en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Sidecaren gemmer claim-version/payload-hash, source-version/source-hash, validator/provider/model/version, resultat, note og tidspunkt.
+- `VERIFICERET`: PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b` og implementerer en separat lokal SQLite-sidecar `ai_validation.sqlite` med eget schema v1. Sidecaren gemmer claim-version/payload-hash, source-version/source-hash, validator/provider/model/version, resultat, note og tidspunkt.
 - `VERIFICERET`: et kontrolresultat er kun aktuelt, når claim-version, claim-payload, kildeversion og source-hash stadig matcher. Ændret claim eller ikke-aktuel kildeversion gør den gamle kontrol stale.
 - `VERIFICERET`: persistence-laget ændrer ikke `claims.review_status`, migrerer ikke knowledgebasen og udløser ingen ekstern AI-kørsel.
-- `VERIFICERET`: GitHub Actions run `38083427492` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og de nye persistence-/stale-tests.
+- `VERIFICERET`: afsluttende PR-CI run `38083761961` bestod på Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke, hele unit-testpakken og de nye persistence-/stale-tests.
 - `KRÆVER BRUGERTEST`: sidecaren er endnu ikke koblet ind i den normale workstation-UI eller fysisk afprøvet mod den lokale consumer-runtime.
-- `NÆSTE`: efter merge af PR #39 laves en lille workstation-accept: læs eksisterende schema-4 knowledgebase, opret/brug lokal `ai_validation.sqlite`, registrér et testkontrolresultat og verificér, at det kan genfindes uden ændring af menneskelig reviewstatus. Ingen ekstern AI er nødvendig for accepten.
+- `NÆSTE`: lav en lille workstation-accept: læs eksisterende schema-4 knowledgebase, opret/brug lokal `ai_validation.sqlite`, registrér et testkontrolresultat og verificér, at det kan genfindes uden ændring af menneskelig reviewstatus. Ingen ekstern AI er nødvendig for accepten.
 
 ## Status 09.10.2026 — IV-019 manuel ugeanalyse i gang
 
@@ -140,7 +140,7 @@
 
 - `VERIFICERET`: Mistral pay-as-you-go er aktiveret. Både `mistral-small-2603` og `mistral-large-2512` svarede på et minimalt syntetisk API-kald; Large 3 kørte på `service_tier=standard`.
 - `VERIFICERET`: første rigtige Large 3-extraction på `src-256795459ce7aa09` (“Is the yield curve inverted?”) gennemførte `completed/validated`; 10 udsagn blev dry-run-valideret og derefter indlæst som `ai_extracted` med verificeret backup.
-- `VERIFICERET`: en nyere kilde `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, 2026-10-01) gennemførte samme flow og gav 10 `ai_extracted` kandidater.
+- `VERIFICERET`: en nyere kilde `src-874f2d665efb4281` (“Bragende stærkt regnskab puster liv i aktierne - skal du med på bølgen?”, 2026-10-01) gennemførte samme kontrollerede flow og gav 10 `ai_extracted` kandidater.
 - `VERIFICERET`: alle 10 evidensuddrag fra den nyere kilde kunne **ikke** genfindes i den kontrollerede kildekopi, hverken ordret eller efter ren whitespace-normalisering. Mistral havde parafraseret evidensen. Ingen af de 10 er menneskeligt godkendt.
 - Implementeret i PR #19: Mistral/OpenAI-kandidater kan ikke sættes til `approved`/`corrected`, medmindre kildekopien kan læses, hash matcher, og evidensuddraget kan genfindes ordret med tolerance for whitespace. Extraction-schemaet præciserer samtidig, at `evidence.excerpt` skal kopieres ordret fra `source_text`. Ingestion og historisk backfill er uændret; historiske udsagn kan fortsat ligge som `ai_extracted`.
 - `VERIFICERET`: GitHub Actions run `37435232565` bestod på både Python 3.10 og 3.12, inklusive IV-008/IV-009 smoke og unit tests.
