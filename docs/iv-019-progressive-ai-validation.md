@@ -1,8 +1,8 @@
 # IV-019 — progressiv AI-kontrol ved anvendelse
 
-## Status 10.10.2026 — persistence implementeret på kandidatgren
+## Status 10.10.2026 — persistence merged; fysisk accept mangler
 
-Den manuelle Meta-prøve viste tilstrækkelig værdi til, at brugeren har valgt at gøre AI-kontrolresultater vedvarende.
+Den manuelle Meta-prøve viste tilstrækkelig værdi til, at brugeren har valgt at gøre AI-kontrolresultater vedvarende. PR #39 er merged til `main` som `e3520a47c11f6f282b7425edc83626e3ffecb60b`.
 
 Den gældende produktregel er fortsat:
 
@@ -74,7 +74,9 @@ Et gemt resultat betragtes kun som aktuelt, når alle claim-/source-identiteter 
 
 ## Implementeringsstatus
 
-`VERIFICERET` i automatiske tests, når PR-CI er grøn:
+`VERIFICERET`: afsluttende PR-CI run `38083761961` bestod på Python 3.10 og 3.12 på den mergede PR-head, inklusive smoke- og unit-tests.
+
+Automatiske tests verificerer, at:
 
 - AI-kontrol kan gemmes i en separat sidecar og genlæses efter genåbning,
 - knowledgebase forbliver schema 4,
@@ -83,8 +85,8 @@ Et gemt resultat betragtes kun som aktuelt, når alle claim-/source-identiteter 
 - kontrol bliver stale, hvis kildeversionen ikke længere er aktuel,
 - ugyldigt kontrolresultat afvises.
 
-`KRÆVER BRUGERTEST`: den nye persistence er endnu ikke koblet ind i den normale workstation-UI eller en reel Meta-analyse på den lokale runtime-state.
+`KRÆVER BRUGERTEST`: den nye persistence er endnu ikke koblet ind i den normale workstation-UI eller fysisk afprøvet mod den lokale runtime-state.
 
 ## Næste konkrete todo
 
-Efter grøn CI og merge: lav en lille workstation-accept, hvor InvestViden læser den eksisterende schema-4 knowledgebase, opretter/benytter lokal `ai_validation.sqlite` og demonstrerer, at et kontrolleret udsagn kan genfindes som **AI-kontrolleret** uden ændring af menneskelig reviewstatus. Ingen automatisk ekstern AI-kørsel er nødvendig for denne acceptance.
+Lav en lille workstation-accept, hvor InvestViden læser den eksisterende schema-4 knowledgebase, opretter/benytter lokal `ai_validation.sqlite` og demonstrerer, at et kontrolleret udsagn kan genfindes som **AI-kontrolleret** uden ændring af menneskelig reviewstatus. Ingen automatisk ekstern AI-kørsel er nødvendig for denne acceptance.
