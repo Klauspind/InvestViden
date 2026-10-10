@@ -6,7 +6,7 @@ import sqlite3
 from typing import Any
 
 
-LATEST_SCHEMA_VERSION = 5
+LATEST_SCHEMA_VERSION = 4
 
 
 def current_schema_version(conn: sqlite3.Connection) -> int:
@@ -339,35 +339,6 @@ def _migrate_v4(conn: sqlite3.Connection, applied_at: str) -> None:
     )
 
 
-def _migrate_v5(conn: sqlite3.Connection, applied_at: str) -> None:
-    conn.executescript(
-        """
-        CREATE TABLE ai_claim_validations (
-            id TEXT PRIMARY KEY,
-            claim_id TEXT NOT NULL REFERENCES claims(id) ON DELETE CASCADE,
-            claim_version_id TEXT NOT NULL REFERENCES claim_versions(id) ON DELETE CASCADE,
-            source_version_id TEXT NOT NULL REFERENCES source_versions(id) ON DELETE CASCADE,
-            source_sha256 TEXT NOT NULL,
-            validator_provider TEXT NOT NULL,
-            validator_model TEXT NOT NULL,
-            validator_version TEXT NOT NULL,
-            outcome TEXT NOT NULL CHECK (outcome IN ('passed','needs_review','error')),
-            note TEXT,
-            created_at TEXT NOT NULL
-        );
-
-        CREATE INDEX idx_ai_claim_validations_claim
-            ON ai_claim_validations(claim_id, created_at);
-        CREATE INDEX idx_ai_claim_validations_context
-            ON ai_claim_validations(claim_version_id, source_version_id, source_sha256);
-        """
-    )
-    conn.execute(
-        "INSERT INTO schema_version(version, applied_at) VALUES(5, ?)",
-        (applied_at,),
-    )
-
-
 def apply_migrations(conn: sqlite3.Connection, applied_at: str) -> None:
     version = current_schema_version(conn)
     if version > LATEST_SCHEMA_VERSION:
@@ -381,7 +352,3 @@ def apply_migrations(conn: sqlite3.Connection, applied_at: str) -> None:
     if version < 4:
         with conn:
             _migrate_v4(conn, applied_at)
-        version = 4
-    if version < 5:
-        with conn:
-            _migrate_v5(conn, applied_at)
