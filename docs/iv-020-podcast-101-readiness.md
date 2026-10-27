@@ -51,7 +51,7 @@ Brugeren kørte `START_INVESTVIDEN_CONSUMER.ps1 -Check` på sin workstation og d
 
 **VERIFICERET ved næste skrivebeskyttede hash-afstemning:** 15 af de 30 renderede leveringer matcher eksisterende `source_versions.sha256`, 15 matcher ikke og 0 giver læse-/renderfejl. En hash uden match er ikke automatisk en ny episode og kan eksempelvis være en anden transskriptionsversion.
 
-**Mindste næste trin:** Kør den eksisterende `plan_input`-funktion via en SQLite `mode=ro`-forbindelse, og vis kun aggregerede `existing`, `new`, `conflict`, `duplicate`, `errors` og `total`. Dette er det egentlige consumer-preview uden `run` og uden ny AI-kørsel. Import i aktiv state afventer særskilt ejerbeslutning. Fortsæt derefter kun med én isoleret podcast, når 1.0.1 er brugeraccepteret.
+**Mindste næste trin:** Kør den eksisterende `plan_input`-funktion via en SQLite `mode=ro`-forbindelse, og vis kun aggregerede `existing`, `new`, `conflict`, `duplicate`, `errors` og `total`. Det er det egentlige consumer-preview uden `run` og uden ny AI-kørsel. **VERIFICERET med brugerens 27.10-resultat:** `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. Alle 15 er dermed `new` efter den eksisterende intakeregler, men er endnu ikke importeret. Næste praktiske accept kan teste **én kopi af en af de 15 eksisterende episodeleveringer** mod ny, separat teststate for at verificere consumeren – dette er ikke det samme som en 1.0.1-Qt-ende-til-ende-test. Import i aktiv state afventer særskilt ejerbeslutning. Den komplette 1.0.1-Qt-kæde testes først, når release er accepteret.
 
 ## Mindste sikre Windows-accept
 
