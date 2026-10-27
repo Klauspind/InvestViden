@@ -3,7 +3,9 @@
 - `VERIFICERET` efter workstationens `-Check`: 30 episode-JSON, 0 ugyldige, 975 consumerkilder, 2 kladdejobs, schema 4/integritet `ok`, ingen ekstern AI og ingen legacydatabase. Denne read-only kontrol afklarer ikke om alle 30 leveringer er registreret.
 - `VERIFICERET`: efterfølgende read-only hash-afstemning gav 15 matchende kildeteksthashes og 15 uden hashmatch samt 0 læse-/renderfejl. Ingen af de 15 uden hashmatch er endnu klassificeret som sikker ny episode.
 - `VERIFICERET` på workstation: `plan_input` viste `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. Ingen af de 15 nye blev importeret i denne kontrol.
-- `NÆSTE`: isoleret prøveimport af én ny episode til ny, separat teststate, med idempotent genkørsel. Ingen aktiv consumer-databaseskrivning eller AI-kald.
+- `VERIFICERET` på workstation: isoleret single-episode consumer-import `PASS`: første import 1 og én ubekræftet AI-kladde; genkørsel 0 nye og 1 existing; `backup_integrity=ok`, `database_integrity=ok`, `external_ai_calls=0`, `original_unchanged=true`, `active_database_used=false`. Ingen faktiske AI-transportkald.
+- `IKKE TESTET`: manuel Qt fra Transskribinator 1.0.1 til efterbehandlet episode-JSON og normal InvestViden-UI.
+- `NÆSTE`: separat, minimal integrationsgennemgang/evt. PR i Work, ikke en skjult del af 1.0.1-release. Aktiv import af alle 15 afventer særskilt godkendelse.
 
 - Gennemgået den eksisterende producent-/consumerkontrakt og dokumenteret ét isoleret fysisk acceptflow i `docs/iv-020-podcast-101-readiness.md`.
 - Konstateret at legacy morgenflowet afleverer episode-JSON via `tools/podcast_delivery.py`, mens nyere manuel Qt-podcastkørsel alene danner canonical pakker. Automatisk integration er derfor ikke bekræftet.
