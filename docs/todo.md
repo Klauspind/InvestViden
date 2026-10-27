@@ -10,7 +10,8 @@
 - `AFKLARING`: checkets 30 leveringer og 975 registrerede kilder fortæller **ikke**, hvor mange leveringer der er importeret; de to optællinger har forskellige scope.
 - `VERIFICERET` ved efterfølgende lokal read-only hash-afstemning: 15 af de 30 leveringers renderede teksthashes matcher en eksisterende `source_versions.sha256`; 15 matcher ikke; 0 læse-/renderfejl. Dette er **ikke** lig med 15 sikre nye episodeidentiteter.
 - `VERIFICERET` ved næste `plan_input` read-only preview på workstation: `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. De 15 er klar til kontrolleret import, men er **ikke** importeret.
-- `NÆSTE`: én isoleret import af en af de 15 nye afleveringer til **ny lokal teststate**; kræv backup/integritet, ingen AI og idempotent genkørsel. Aktiv consumerdatabase og 1.0.1-producentkæde forbliver uændrede/utestede.
+- `VERIFICERET` af brugerens isolerede enkelt-episode-import: `result=PASS`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `external_ai_calls=0`, `original_unchanged=true`, `active_database_used=false`. Dette er en isoleret prøve af en af de 15 eksisterende `new`-leveringer, **ikke** 1.0.1-Qt end-to-end.
+- `NÆSTE`: afgrænset GitHub-analyse og evt. minimal integrations-PR for manuel Qt canonical→afledt episode-JSON, uden at ændre 1.0.1-releasekandidat, produktionsdata eller AI-politik. `KRÆVER BRUGERBESLUTNING`: eventuel senere import af 15 episoder i aktiv consumerstate. Ingen automatisk opstart af ny udvikling mens 1.0.1-release stadig er aktiv WIP.
 
 ## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag fysisk accepteret og afsluttet
 
