@@ -1,3 +1,9 @@
+## 27.10.2026 — IV-020 klargøring til ny podcastproduktion (dokumentation)
+
+Ny interesse for at benytte den kommende Transskribinator-3000 1.0.1 til løbende InvestViden-analyser. Den eksisterende kontrakt er undersøgt på repositoryniveau: `tools/podcast_delivery.py` kan lave kontrollerede legacy-formede episode-JSON-derivater fra verificerede canonical pakker, og InvestVidens IV-009-consumer kan importere sådanne episodederivater idempotent og oprette ubekræftede Mistral-kladdder. Men L2's manuelle Qt-podcastkørsel slutter efter canonical pakke og starter ikke delivery-adapteren; det gamle `podcast_morning`-flow gør. Den praktiske kæde er derfor **IKKE TESTET** for den nye Qt-/releaseversion.
+
+`docs/iv-020-podcast-101-readiness.md` beskriver én isoleret pilotepisode, datarisiko, kontraktgates og testplan. Den første handling er et read-only check af den eksisterende consumerkonfiguration. Hverken aktive databaser, workstation, API-kald, scheduler eller private data er ændret. Ingen beslutning om automatisk afleveringshandling eller AI-kørsel er taget. Transskribinator 1.0.1 er endnu ikke verificeret som frigivet/installeret i denne InvestViden-iteration.
+
 # Handover – InvestViden
 
 ## 10.10.2026 — IV-019 vedvarende progressiv AI-kontrol fysisk accepteret
