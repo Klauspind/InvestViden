@@ -36,6 +36,21 @@ Dette er en **readiness- og kontrakttest**, ikke bestilling af automatisk ekster
 - Den lokale consumer antager `allow` for de episodeleveringer, der indlæses med dens standardroot. Det er **ikke** en godkendelse til at sende tekst. Eksterne AI-kald kræver fortsat D-005: kildevalg, versions-/hashkontrol, estimeret omkostning/prisloft og særskilt brugerbekræftelse.
 - Sidecar-`ai_validation.sqlite` er testet for vedvarende lagring, men rigtig automatisk semantisk kontrol og normal UI-visning er fortsat **IKKE TESTET** og er ikke nødvendig for denne pilot.
 
+## Workstation-check 27.10.2026 — PASS (read-only)
+
+Brugeren kørte `START_INVESTVIDEN_CONSUMER.ps1 -Check` på sin workstation og delte følgende **aggregerede** resultat:
+
+- `ok=true`, `mode=check`, `delivery_episodes=30`, `delivery_json_files=30`, `invalid_delivery_json=0`.
+- `state_database_exists=true`, `database_schema=4`, `database_integrity=ok`, `sources=975`, `draft_jobs=2`.
+- `external_ai_calls=0`, `active_database_used=false`.
+- Local launcher rapporterede read-only kontrol uden oprettelse af consumerdatabase og uden AI-kald.
+
+**VERIFICERET:** IV-020 trin 1 er gennemført, og leveringsmappen kan læses uden ugyldige episode-JSON'er. Dette er ikke en test af fysisk 1.0.1-producerkompatibilitet, kildeindhold eller semantisk AI-kontrol.
+
+**AFKLARING:** `sources=975` er antal kildeversioner i hele consumerdatabasen; `delivery_episodes=30` er antal JSON-episoder i leveringsmappen. De to størrelser må ikke trækkes direkte fra hinanden. `draft_jobs=2` viser aktuelt antal kladder, men siger ikke hvor mange af de 30 leveringer der er importeret, AI-behandlet eller har en anden episodeversion.
+
+**Mindste næste trin:** Afstem de 30 leveringers **renderede teksthashes** mod `source_versions.sha256` ved en rent read-only SQL-/Python-kontrol. Vis kun aggregerede antal for `allerede registreret`, `ikke fundet ved hash` og `ugyldig`; et hash-mismatch er ikke i sig selv en sikker ny import (kan være episodekonflikt). Ingen `run` uden `-Check` mod den aktive consumerstate, ingen ny AI-kørsel og ingen schemaændring. Fortsæt derefter kun med én isoleret podcast, når 1.0.1 er brugeraccepteret.
+
 ## Mindste sikre Windows-accept
 
 1. **KRÆVER BRUGERTEST — kun læsning:** I den eksisterende InvestViden-checkout, kør `START_INVESTVIDEN_CONSUMER.ps1 -Check` og gem kun de dataminimerede tællinger/statusser. Forvent `ok=true`, `invalid_delivery_json=0`, `external_ai_calls=0`, `active_database_used=false`. `-Check` udfører ingen intake.
