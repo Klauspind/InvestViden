@@ -9,7 +9,8 @@
 - `VERIFICERET` ved workstation-check 27.10.2026: `ok=true`, 30 episode-JSON, 0 ugyldige, 975 kilder i schema-4 consumerdatabase, integritet `ok`, 2 lokale draftjobs, 0 eksterne AI-kald, og beskyttet legacydatabase ikke brugt. Ingen import foretaget i check.
 - `AFKLARING`: checkets 30 leveringer og 975 registrerede kilder fortæller **ikke**, hvor mange leveringer der er importeret; de to optællinger har forskellige scope.
 - `VERIFICERET` ved efterfølgende lokal read-only hash-afstemning: 15 af de 30 leveringers renderede teksthashes matcher en eksisterende `source_versions.sha256`; 15 matcher ikke; 0 læse-/renderfejl. Dette er **ikke** lig med 15 sikre nye episodeidentiteter.
-- `NÆSTE`: read-only forhåndsvisning med **den eksisterende `plan_input`-funktion** mod SQLite `mode=ro`, så 30 leveringer kategoriseres `existing/new/conflict/duplicate`. Kun optællinger og fejltal sendes; ingen aktiv import, ingen API-kald.
+- `VERIFICERET` ved næste `plan_input` read-only preview på workstation: `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. De 15 er klar til kontrolleret import, men er **ikke** importeret.
+- `NÆSTE`: én isoleret import af en af de 15 nye afleveringer til **ny lokal teststate**; kræv backup/integritet, ingen AI og idempotent genkørsel. Aktiv consumerdatabase og 1.0.1-producentkæde forbliver uændrede/utestede.
 
 ## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag fysisk accepteret og afsluttet
 
