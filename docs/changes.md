@@ -1,5 +1,7 @@
 ## 2026-10-27 — IV-020 eksplicit én-pakke-integration
 
+- Native Windows-CI fandt to SQLite-håndtag i consumer-testenes assertions, som ikke blev lukket af SQLite-contextmanageren. Testene lukker nu eksplicit med `contextlib.closing` før temp-oprydning; ingen produktkontrol lempet. Den eksisterende consumer-checkforbindelse lukkes ligeledes eksplicit.
+
 - Ny `scripts/deliver_transskribinator_episode.py`: eksplicit valgt pakke, eksisterende produceradapter, consumer-validering før atomisk publicering, read-only destinationspreview, konflikt-/overlapværn og idempotens. Ingen import/AI eller producerændring.
 - Nyt `scripts/verify_iv020_handoff.py`: én-pakke-accept med eksklusiv ny testrod, aflevering/gentagelse, ny schema-4-consumer, integritet/backup og ingen eksterne AI-kald.
 - Consumer-check viser alle eksisterende kladdekandidater i state; run opdeler nye/eksisterende. Den brede recoveryadfærd er bevidst uændret og synlig før senere aktiv import.

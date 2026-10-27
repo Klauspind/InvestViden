@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -210,7 +211,7 @@ class TransskribinatorConsumerTest(unittest.TestCase):
         self.assertFalse(failure["ok"])
         self.assertEqual("ValidationError", failure["error_type"])
 
-        with sqlite3.connect(self.state / "knowledgebase.sqlite") as conn:
+        with closing(sqlite3.connect(self.state / "knowledgebase.sqlite")) as conn:
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM ai_jobs").fetchone()[0])
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM ai_job_items").fetchone()[0])
@@ -243,7 +244,7 @@ class TransskribinatorConsumerTest(unittest.TestCase):
         self.assertEqual(2, result["draft_jobs_created"])
         self.assertEqual(1, result["draft_jobs_from_new_sources"])
         self.assertEqual(1, result["draft_jobs_from_existing_sources"])
-        with sqlite3.connect(database) as conn:
+        with closing(sqlite3.connect(database)) as conn:
             ids = {r[0] for r in conn.execute("SELECT source_version_id FROM ai_job_items")}
             self.assertIn(old_id, ids)
             self.assertNotIn(blocked_id, ids)
