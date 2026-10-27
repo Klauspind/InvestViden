@@ -1,5 +1,18 @@
 # Todo – InvestViden
 
+## Status 27.10.2026 — IV-020 sikker klargøring til nye Transskribinator-podcasts
+
+- `VERIFICERET` i GitHub-koden: både canonical→episode-JSON-adapteren og InvestVidens idempotente schema-4 consumer findes. Den tidligere morgenkæde kalder aflevering; manuel Qt-podcastkørsel afleverer ikke automatisk til InvestViden.
+- `VERIFICERET`: normal `START_INVESTVIDEN.cmd` peger på separat persistente consumer-state. README's gamle schema-2/previewbeskrivelse er forældet i forhold til `docs/handover.md` og den faktiske starter.
+- `DOKUMENTERET`: den mindste sikre isolerede fysisk accept er beskrevet i `docs/iv-020-podcast-101-readiness.md`. Ingen kode, installation, aktiv SQLite, privat kilde eller ekstern AI er ændret/berørt.
+- `IKKE TESTET`: faktisk 1.0.1 Qt-canonical → afledt leverings-JSON → InvestViden på workstation. Release-/cutoverstatus for 1.0.1 må verificeres særskilt, før den bruges.
+- `VERIFICERET` ved workstation-check 27.10.2026: `ok=true`, 30 episode-JSON, 0 ugyldige, 975 kilder i schema-4 consumerdatabase, integritet `ok`, 2 lokale draftjobs, 0 eksterne AI-kald, og beskyttet legacydatabase ikke brugt. Ingen import foretaget i check.
+- `AFKLARING`: checkets 30 leveringer og 975 registrerede kilder fortæller **ikke**, hvor mange leveringer der er importeret; de to optællinger har forskellige scope.
+- `VERIFICERET` ved efterfølgende lokal read-only hash-afstemning: 15 af de 30 leveringers renderede teksthashes matcher en eksisterende `source_versions.sha256`; 15 matcher ikke; 0 læse-/renderfejl. Dette er **ikke** lig med 15 sikre nye episodeidentiteter.
+- `VERIFICERET` ved næste `plan_input` read-only preview på workstation: `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. De 15 er klar til kontrolleret import, men er **ikke** importeret.
+- `VERIFICERET` af brugerens isolerede enkelt-episode-import: `result=PASS`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `external_ai_calls=0`, `original_unchanged=true`, `active_database_used=false`. Dette er en isoleret prøve af en af de 15 eksisterende `new`-leveringer, **ikke** 1.0.1-Qt end-to-end.
+- `NÆSTE`: afgrænset GitHub-analyse og evt. minimal integrations-PR for manuel Qt canonical→afledt episode-JSON, uden at ændre 1.0.1-releasekandidat, produktionsdata eller AI-politik. `KRÆVER BRUGERBESLUTNING`: eventuel senere import af 15 episoder i aktiv consumerstate. Ingen automatisk opstart af ny udvikling mens 1.0.1-release stadig er aktiv WIP.
+
 ## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag fysisk accepteret og afsluttet
 
 - `BRUGERBESLUTNING`: progressive AI-kontrolresultater skal bevares og kunne genbruges ved senere analyser, uden at `AI-kontrolleret` bliver menneskelig `approved`/`corrected` viden.
