@@ -1,3 +1,10 @@
+## 2026-10-27 — IV-020 readiness til nye Transskribinator-episoder
+
+- Gennemgået den eksisterende producent-/consumerkontrakt og dokumenteret ét isoleret fysisk acceptflow i `docs/iv-020-podcast-101-readiness.md`.
+- Konstateret at legacy morgenflowet afleverer episode-JSON via `tools/podcast_delivery.py`, mens nyere manuel Qt-podcastkørsel alene danner canonical pakker. Automatisk integration er derfor ikke bekræftet.
+- Bekræftet at `START_INVESTVIDEN.cmd` bruger den separate schema-4 consumerdatabase og ikke README's forældede schema-2-starter.
+- Ingen kode, aktiv database, installation, transskription, ekstern AI, migration eller privat kilde ændret. Ingen nye tests kørt; isoleret fysisk 1.0.1-pilot er `KRÆVER BRUGERTEST`.
+
 ## 2026-10-10 — IV-019 vedvarende progressiv AI-kontrol fysisk accepteret
 
 - Brugeren valgte at gøre D-016's progressive AI-kontrol vedvarende efter den manuelle Meta-prøve.
