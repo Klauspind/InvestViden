@@ -1,5 +1,8 @@
 ## 2026-10-27 — IV-020 readiness til nye Transskribinator-episoder
 
+- `VERIFICERET` efter workstationens `-Check`: 30 episode-JSON, 0 ugyldige, 975 consumerkilder, 2 kladdejobs, schema 4/integritet `ok`, ingen ekstern AI og ingen legacydatabase. Denne read-only kontrol afklarer ikke om alle 30 leveringer er registreret.
+- `NÆSTE`: aggregeret, skrivebeskyttet hash-afstemning før nogen egentlig import eller integrationstest med 1.0.1.
+
 - Gennemgået den eksisterende producent-/consumerkontrakt og dokumenteret ét isoleret fysisk acceptflow i `docs/iv-020-podcast-101-readiness.md`.
 - Konstateret at legacy morgenflowet afleverer episode-JSON via `tools/podcast_delivery.py`, mens nyere manuel Qt-podcastkørsel alene danner canonical pakker. Automatisk integration er derfor ikke bekræftet.
 - Bekræftet at `START_INVESTVIDEN.cmd` bruger den separate schema-4 consumerdatabase og ikke README's forældede schema-2-starter.
