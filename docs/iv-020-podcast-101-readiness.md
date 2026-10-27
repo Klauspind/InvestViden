@@ -1,6 +1,6 @@
 # IV-020 — klargøring til nye podcasts fra Transskribinator 1.0.1
 
-Dato: 27.10.2026. Status: **planlagt, ingen produktionsændring**.
+Dato: 27.10.2026. Status: **første read-only workstation-check PASS; fortsat ingen produktionsændring**.
 
 ## Mål og scope
 
