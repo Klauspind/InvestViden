@@ -53,6 +53,18 @@ Brugeren kørte `START_INVESTVIDEN_CONSUMER.ps1 -Check` på sin workstation og d
 
 **Mindste næste trin:** Kør den eksisterende `plan_input`-funktion via en SQLite `mode=ro`-forbindelse, og vis kun aggregerede `existing`, `new`, `conflict`, `duplicate`, `errors` og `total`. Det er det egentlige consumer-preview uden `run` og uden ny AI-kørsel. **VERIFICERET med brugerens 27.10-resultat:** `total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`, `database_read_only=true`. Alle 15 er dermed `new` efter den eksisterende intakeregler, men er endnu ikke importeret. Næste praktiske accept kan teste **én kopi af en af de 15 eksisterende episodeleveringer** mod ny, separat teststate for at verificere consumeren – dette er ikke det samme som en 1.0.1-Qt-ende-til-ende-test. Import i aktiv state afventer særskilt ejerbeslutning. Den komplette 1.0.1-Qt-kæde testes først, når release er accepteret.
 
+## Isoleret consumeraccept 27.10.2026 — PASS
+
+Brugeren valgte lokalt en af de 15 episodeleveringer, som consumer-preview klassificerede `new`, kopierede den byteidentisk til en ny isoleret afleveringsrod og anvendte en ny isoleret state-rod under lokal AppData. Den dedikerede consumer blev testet med `inspect`, `run` og genkørsel med samme episode:
+
+- Første kørsel: `first_imported=1` og `first_drafts=1` (lokal, ubekræftet AI-jobkladde).
+- Gentagelse: `repeat_imported=0`, `repeat_existing=1`; ingen ny jobkladde i rapporten.
+- `backup_integrity=ok`, `database_integrity=ok`, `external_ai_calls=0`, `original_unchanged=true`, `active_database_used=false`.
+
+**VERIFICERET på brugerens workstation:** consumerens ene-episode-import og genkørsel fungerer mod det eksisterende episode-JSON-format uden eksterne AI-kald og uden ændring af den aktive consumerdatabase. **IKKE TESTET:** den nye Qt-producent-/afleveringskontrakt i 1.0.1, komplet end-to-end, normal UI-visning og aktive masseimport af de 15 nye leveringer.
+
+**Sikkerhed og næste handling:** Brug Work/GitHub til at undersøge den mindste nødvendige explicit/manual Qt→consumer-ready afleveringshandling, men hold aktiv 1.0.1-release urørt. Brug mock/syntetiske inputs i test og separat featurebranch/draft PR; ingen merge, privat data, backend-/SQLite-migration, automatisk providerkald eller ændring af eksisterende abonnementer. Aktiv import af de 15 kræver særskilt brugergodkendelse.
+
 ## Mindste sikre Windows-accept
 
 1. **KRÆVER BRUGERTEST — kun læsning:** I den eksisterende InvestViden-checkout, kør `START_INVESTVIDEN_CONSUMER.ps1 -Check` og gem kun de dataminimerede tællinger/statusser. Forvent `ok=true`, `invalid_delivery_json=0`, `external_ai_calls=0`, `active_database_used=false`. `-Check` udfører ingen intake.
