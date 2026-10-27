@@ -1,12 +1,14 @@
+# Todo – InvestViden
+
 ## Status 27.10.2026 — IV-020 sikker klargøring til nye Transskribinator-podcasts
 
 - `VERIFICERET` i GitHub-koden: både canonical→episode-JSON-adapteren og InvestVidens idempotente schema-4 consumer findes. Den tidligere morgenkæde kalder aflevering; manuel Qt-podcastkørsel afleverer ikke automatisk til InvestViden.
 - `VERIFICERET`: normal `START_INVESTVIDEN.cmd` peger på separat persistente consumer-state. README's gamle schema-2/previewbeskrivelse er forældet i forhold til `docs/handover.md` og den faktiske starter.
 - `DOKUMENTERET`: den mindste sikre isolerede fysisk accept er beskrevet i `docs/iv-020-podcast-101-readiness.md`. Ingen kode, installation, aktiv SQLite, privat kilde eller ekstern AI er ændret/berørt.
 - `IKKE TESTET`: faktisk 1.0.1 Qt-canonical → afledt leverings-JSON → InvestViden på workstation. Release-/cutoverstatus for 1.0.1 må verificeres særskilt, før den bruges.
-- `NÆSTE`: én read-only `START_INVESTVIDEN_CONSUMER.ps1 -Check` på workstation. Derefter isoleret én-episode-kontrakttest, først når Transskribinatorens nye release er praktisk klar. Ingen massebehandling eller ny automation.
-
-# Todo – InvestViden
+- `VERIFICERET` ved workstation-check 27.10.2026: `ok=true`, 30 episode-JSON, 0 ugyldige, 975 kilder i schema-4 consumerdatabase, integritet `ok`, 2 lokale draftjobs, 0 eksterne AI-kald, og beskyttet legacydatabase ikke brugt. Ingen import foretaget i check.
+- `AFKLARING`: checkets 30 leveringer og 975 registrerede kilder fortæller **ikke**, hvor mange leveringer der er importeret; de to optællinger har forskellige scope.
+- `NÆSTE`: én skrivebeskyttet hash-afstemning af 30 leveringers renderede indhold mod `source_versions.sha256`. Kun aggregerede counts, ingen aktiv import. Derefter isoleret én-episode-test når Transskribinator 1.0.1 er praktisk klar.
 
 ## Status 10.10.2026 — IV-019 vedvarende AI-kontrollag fysisk accepteret og afsluttet
 
