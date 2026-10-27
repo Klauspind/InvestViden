@@ -1,3 +1,12 @@
+## Status 27.10.2026 — IV-020 eksplicit podcastaflevering teknisk klar
+
+- `VERIFICERET`: InvestViden har en eksplicit én-pakke-aflevering, som genbruger den eksisterende produceradapter og consumerlæser. Preview skriver ikke til afleveringsrod/database; aflevering er atomisk uden overskrivning og gentagelse er idempotent.
+- `VERIFICERET`: Linux/Python 3.12: **140/140 tests**, inklusive syntetisk Qt-adapter fra uændret 1.0.1-commit `366f0d7a11d04e17df55ad7a8cf2f5a674db09cf` → levering → isoleret consumer; ingen AI-transport. Native CI-resultater knyttes til PR-HEAD.
+- `VERIFICERET`: normal consumer kan oprette kladder for alle eligible eksisterende kilder i state, også uden for aflevering. Read-only `--check` viser nu antal kandidater; run viser kladder fra nye/eksisterende særskilt. Adfærden er bevaret, ikke snævrere end før.
+- Transskribering PR #51/main og 1.0.1-kandidaten er urørt. Ingen aktiv database, privat kilde, indstilling, installation, abonnementshistorik eller release er ændret.
+- `IKKE TESTET`: reel 1.0.1-pakke/ASR/CUDA og normal UI med ny kilde.
+- **Eneste næste todo — `KRÆVER BRUGERTEST`:** kør `scripts/verify_iv020_handoff.py` på én ny Qt-pakke med en ny lokal testrod; se [kort Windows-accept](iv-020-explicit-podcast-handoff.md). Stop ved FAIL. Ingen aktiv import af de 15 tidligere previewede episoder er autoriseret her.
+
 # Todo – InvestViden
 
 ## Status 27.10.2026 — IV-020 sikker klargøring til nye Transskribinator-podcasts

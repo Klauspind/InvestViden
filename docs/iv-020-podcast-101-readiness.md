@@ -1,3 +1,11 @@
+## Opdatering 27.10.2026 — eksplicit aflevering implementeret og syntetisk verificeret
+
+Brugerens efterfølgende IV-020-bestilling er nu implementeret som én eksplicit afleveringskommando i InvestViden, uden at ændre Transskribering eller 1.0.1-releasekandidaten. Fuld procedure, baselines, aktuelle testresultater og næste Windows-accept findes i [IV-020 eksplicit aflevering](iv-020-explicit-podcast-handoff.md).
+
+`VERIFICERET`: syntetisk Qt-adapter fra faktisk 1.0.1-kildecommit `366f0d7a11d04e17df55ad7a8cf2f5a674db09cf` → canonical → efterbehandlet episode-JSON → isoleret schema-4-consumer, inklusive idempotens. **KRÆVER BRUGERTEST:** én reel ny Qt-pakke via det nye acceptværktøj. De fysiske resultater nedenfor gælder fortsat kun det tidligere testede leveringsformat.
+
+**Før senere aktiv import:** normal consumer opretter manglende jobkladder over hele state-databasen, også for ældre allow-kilder uden for afleveringen. Det nye read-only check viser `draft_candidates_existing_sources`; run opdeler nye/eksisterende kladder. Ingen aktiv import er autoriseret. De tidligere anbefalinger nedenfor er historisk readiness; den konkrete nye acceptvejledning ovenfor har forrang.
+
 # IV-020 — klargøring til nye podcasts fra Transskribinator 1.0.1
 
 Dato: 27.10.2026. Status: **read-only afstemning og isoleret enkelt-episode consumer-import PASS; fortsat ingen produktionsændring**.

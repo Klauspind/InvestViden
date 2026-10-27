@@ -1,3 +1,12 @@
+## 2026-10-27 — IV-020 eksplicit én-pakke-integration
+
+- Ny `scripts/deliver_transskribinator_episode.py`: eksplicit valgt pakke, eksisterende produceradapter, consumer-validering før atomisk publicering, read-only destinationspreview, konflikt-/overlapværn og idempotens. Ingen import/AI eller producerændring.
+- Nyt `scripts/verify_iv020_handoff.py`: én-pakke-accept med eksklusiv ny testrod, aflevering/gentagelse, ny schema-4-consumer, integritet/backup og ingen eksterne AI-kald.
+- Consumer-check viser alle eksisterende kladdekandidater i state; run opdeler nye/eksisterende. Den brede recoveryadfærd er bevidst uændret og synlig før senere aktiv import.
+- 10 sikkerhedstests, 2 opt-in tværrepo-kontrakttests og 1 consumerregression tilføjet. Native Windows-job kører sikkerheds-/consumertests; normal Python 3.10/3.12 CI består som gate. Tværrepo-tests er opt-in uden nye credentials.
+- `VERIFICERET`: **140/140 tests** i Linux/Python 3.12 mod faktisk uændret 1.0.1-kildecommit `366f0d7a11d04e17df55ad7a8cf2f5a674db09cf`, med syntetisk Qt-adapter→aflevering→consumer og fake inference. PR-HEAD-CI-status findes på integrations-PR'en.
+- Readiness-PR #41's fysiske resultater bevares; ny guide `docs/iv-020-explicit-podcast-handoff.md`. `KRÆVER BRUGERTEST`: én reel 1.0.1-Qt-pakke på Windows. Ingen aktiv database, installation, subscription/history, settings, originalmedie, transskription, release eller AI-politik ændret.
+
 ## 2026-10-27 — IV-020 readiness til nye Transskribinator-episoder
 
 - `VERIFICERET` efter workstationens `-Check`: 30 episode-JSON, 0 ugyldige, 975 consumerkilder, 2 kladdejobs, schema 4/integritet `ok`, ingen ekstern AI og ingen legacydatabase. Denne read-only kontrol afklarer ikke om alle 30 leveringer er registreret.
