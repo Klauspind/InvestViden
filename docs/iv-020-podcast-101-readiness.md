@@ -49,7 +49,9 @@ Brugeren kørte `START_INVESTVIDEN_CONSUMER.ps1 -Check` på sin workstation og d
 
 **AFKLARING:** `sources=975` er antal kildeversioner i hele consumerdatabasen; `delivery_episodes=30` er antal JSON-episoder i leveringsmappen. De to størrelser må ikke trækkes direkte fra hinanden. `draft_jobs=2` viser aktuelt antal kladder, men siger ikke hvor mange af de 30 leveringer der er importeret, AI-behandlet eller har en anden episodeversion.
 
-**Mindste næste trin:** Afstem de 30 leveringers **renderede teksthashes** mod `source_versions.sha256` ved en rent read-only SQL-/Python-kontrol. Vis kun aggregerede antal for `allerede registreret`, `ikke fundet ved hash` og `ugyldig`; et hash-mismatch er ikke i sig selv en sikker ny import (kan være episodekonflikt). Ingen `run` uden `-Check` mod den aktive consumerstate, ingen ny AI-kørsel og ingen schemaændring. Fortsæt derefter kun med én isoleret podcast, når 1.0.1 er brugeraccepteret.
+**VERIFICERET ved næste skrivebeskyttede hash-afstemning:** 15 af de 30 renderede leveringer matcher eksisterende `source_versions.sha256`, 15 matcher ikke og 0 giver læse-/renderfejl. En hash uden match er ikke automatisk en ny episode og kan eksempelvis være en anden transskriptionsversion.
+
+**Mindste næste trin:** Kør den eksisterende `plan_input`-funktion via en SQLite `mode=ro`-forbindelse, og vis kun aggregerede `existing`, `new`, `conflict`, `duplicate`, `errors` og `total`. Dette er det egentlige consumer-preview uden `run` og uden ny AI-kørsel. Import i aktiv state afventer særskilt ejerbeslutning. Fortsæt derefter kun med én isoleret podcast, når 1.0.1 er brugeraccepteret.
 
 ## Mindste sikre Windows-accept
 
