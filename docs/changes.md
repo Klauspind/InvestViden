@@ -1,3 +1,10 @@
+## 2026-10-28 — IV-020 Windows-accept: 32 nye podcastleveringer importeret
+
+- `VERIFICERET` fra brugerens lokale `SYNKRONISER_PODCASTS.ps1 -ImportOnly`: `result ok=true`, 91 leveringer: 32 nye importeret, 30 eksisterende genkendt, 29 konflikter bevaret, 0 dubletter/afviste/karantænesatte nye.
+- 32 nye, lokale AI-jobkladder; ingen ekstra kladder fra ældre kilder; samlet 1.022 kilder, 71 AI-jobs, 76 jobitems og 174 historisk registrerede udsagn. `external_ai_calls=0` under import; ingen AI-behandling af de nye kilder påstås.
+- Pre-write og post-write-backupintegritet samt SQLite-integritet `ok`; originalkilder uændrede og beskyttet legacydatabase ikke brugt. Privat backupsti/hash/data ikke kopieret til GitHub.
+- `IKKE TESTET`: analyse af de nyimporterede 32 og konkret årsag til hver af 29 konflikter. `NÆSTE`: første konkrete analyse af udvalgte kilder, ikke nye features. Dokumentationsopdatering alene, ingen nye tests kørt efter den lokale brugeraccept; PR #42 er draft.
+
 ## 2026-10-28 — IV-020 selektiv import trods andre episodekonflikter
 
 - Rettet global blokering ved blandede leveringer. Sync vælger kun entydige `new` via consumerens nye opt-in; striks consumerstandard bevares. Gentagne identitets-/indholdsgrupper holdes helt tilbage, også første `new`. Eksisterende, konfliktende og duplikerede leveringer ændres ikke.
