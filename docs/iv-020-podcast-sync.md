@@ -112,6 +112,12 @@ AI-politikændring, scheduler eller automatisk jobbekræftelse. D-005 og D-008 b
 ingen ny ADR. Consumerens eksisterende grænser (500 filer/100 MB pr. plan) gælder
 fortsat og giver fejl frem for delvis skjult import ved større afleveringsmapper.
 
+## Fysisk Windows-import 28.10.2026 — PASS
+
+Brugeren opdaterede PR #42-grenen til `ed6d635` og kørte `SYNKRONISER_PODCASTS.ps1 -ImportOnly` mod den eksisterende 91-episoders afleveringsmappe og normale persistente schema-4 consumerstate. **VERIFICERET fra lokal kørsel:** `ok=true`, `new_imported=32`, `existing=30`, `conflicts=29`, `duplicates=0`, `quarantined_new=0`, `rejected=0`. 32 lokale, ubekræftede Mistral-kladder blev oprettet fra nye kilder; 0 fra ældre kilder. `total_sources=1022`, `total_ai_jobs=71`, `total_ai_job_items=76`, `claims=174` (samlet historisk antal, **ikke** resultater fra disse 32). `preimport_backup.integrity=ok`, `backup_integrity=ok`, `database_integrity=ok`, `original_sources_unchanged=true`, `external_ai_calls=0`.
+
+**Status:** Integrationsimportens Windows-accept PASS. De 29 konflikter er **ikke** løst, overskrevet eller slettet; fordelingen på konkrete konfliktårsager er `IKKE TESTET`. AI-udtræk og faktisk researchbrug er `IKKE TESTET`. BRUG → OBSERVÉR → EVALUÉR prioriteres frem for yderligere generel integreringsudvikling; PR #42 er stadig draft og ikke merged.
+
 ## Verifikation
 
 `VERIFICERET` for rettelsen i Linux/Python 3.12.14: 16 relevante syntetiske tests bestået,
