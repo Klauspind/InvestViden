@@ -119,6 +119,16 @@ Resultat `PASS`:
 
 **Næste handling kræver særskilt ejergodkendelse:** normal import af de tidligere previewede 15 nye episoder til den persistente consumerstate. Kræv inden skrivning en verificeret sikkerhedskopi og gentaget episode-preview, og stop ved nye konflikter eller ændret kladdescope. PR #42 forbliver draft og intet merges automatisk.
 
+## Kontrolleret persistent import 28.10.2026 — PASS
+
+Efter forudgående read-only klassifikation af 30 leveringer (`15 existing`, `15 new`, `0 conflict`, `0 duplicate`) og `draft_candidates_existing_sources=0`, gav brugeren udtrykkelig godkendelse til at importere de 15 i den normale persistente consumerstate. Den lokale procedure tog og verificerede en konsistent **pre-write SQLite-backup**, gentog preview og startede den eksisterende consumer. Rapporten viste:
+
+- `result=PASS`, `new_imported=15`, `existing=15`, `new_local_drafts=15`, `drafts_from_older_sources=0`.
+- `total_sources=990`, `preimport_backup=VERIFIED`, `database_integrity=ok`.
+- `external_ai_calls=0`, `persistent_consumer_updated=true`, `legacy_database_used=false`.
+
+**VERIFICERET:** den godkendte import blev rapporteret bestået med 15 nye kildeversioner og 15 lokale, ubekræftede AI-kladder. **IKKE TESTET:** rigtig AI-udtræk og efterfølgende investeringsanalyse af disse kilder; ingen menneskelige approvalstatusser ændret. Private filstier og backups opbevares kun lokalt. PR #42 er ikke merged som følge af den fysiske accept.
+
 ## Senere almindelig aflevering
 
 Efter fysisk accept kan samme valgte pakke afleveres med én kommando; vælg
