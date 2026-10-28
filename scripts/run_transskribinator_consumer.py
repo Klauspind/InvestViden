@@ -11,6 +11,8 @@ import argparse
 import json
 import sqlite3
 import sys
+from collections import Counter
+from contextlib import closing
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
@@ -84,8 +86,8 @@ def _validate_delivery(delivery_root: Path) -> dict[str, int]:
     }
 
 
-def _sources_without_job(kb: KnowledgeBase) -> list[str]:
-    rows = kb.conn.execute(
+def _sources_without_job(conn: sqlite3.Connection) -> list[str]:
+    rows = conn.execute(
         """SELECT sv.id
              FROM source_versions sv
              JOIN sources s ON s.id=sv.logical_source_id
@@ -131,20 +133,44 @@ def inspect(delivery_root: Path, state_root: Path) -> dict[str, object]:
         "state_database_exists": state_db.is_file(),
         "external_ai_calls": 0,
         "active_database_used": False,
+        "draft_scope": "all_eligible_sources_in_state",
+        "draft_candidates_existing_sources": 0,
     }
     if state_db.is_file():
         if state_db.resolve() == PROTECTED_DB:
             raise ValidationError("Consumeren maa ikke bruge den beskyttede legacy-database")
         uri = "file:" + state_db.resolve().as_posix() + "?mode=ro"
-        with sqlite3.connect(uri, uri=True) as conn:
+        with closing(sqlite3.connect(uri, uri=True)) as conn:
+            conn.row_factory = sqlite3.Row
             result["database_schema"] = current_schema_version(conn)
             result["database_integrity"] = str(conn.execute("PRAGMA integrity_check").fetchone()[0])
             result["sources"] = int(conn.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
             result["draft_jobs"] = int(conn.execute("SELECT COUNT(*) FROM ai_jobs WHERE status='draft'").fetchone()[0])
+            result["draft_candidates_existing_sources"] = len(_sources_without_job(conn))
     return result
 
 
-def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
+def select_new_inputs(plan: dict) -> tuple[list[int], dict]:
+    """Select only unambiguous new episodes; never pick a first-seen winner."""
+    items = plan["items"]
+    counts = Counter(item.status for item in items)
+    identities = Counter(item.provenance["episode_key"] for item in items)
+    hashes = Counter(item.content for item in items)
+    selected = []
+    held = 0
+    for index, item in enumerate(items):
+        if item.status != "new":
+            continue
+        if identities[item.provenance["episode_key"]] > 1 or hashes[item.content] > 1:
+            held += 1
+        else:
+            selected.append(index)
+    return selected, {"new_eligible": len(selected), "existing": counts["existing"],
+                      "conflicts": counts["conflict"] + held, "duplicates": counts["duplicate"],
+                      "quarantined_new": held, "rejected": len(plan["errors"])}
+
+
+def run(delivery_root: Path, state_root: Path, *, skip_conflicts: bool = False) -> dict[str, object]:
     delivery, state = _validate_paths(delivery_root, state_root)
     delivery_status = _validate_delivery(delivery)
     if delivery_status["episodes"] == 0:
@@ -168,12 +194,15 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
         counts = {"new": 0, "existing": 0, "duplicate": 0, "conflict": 0}
         for item in plan["items"]:
             counts[item.status] = counts.get(item.status, 0) + 1
-        if counts.get("conflict", 0):
+        if counts.get("conflict", 0) and not skip_conflicts:
             raise ValidationError("Consumer-preview indeholder episodekonflikt")
-        if counts.get("duplicate", 0):
+        if counts.get("duplicate", 0) and not skip_conflicts:
             raise ValidationError("Consumer-preview indeholder dubletlevering")
 
         selected = [index for index, item in enumerate(plan["items"]) if item.status == "new"]
+        selection = {}
+        if skip_conflicts:
+            selected, selection = select_new_inputs(plan)
         imported_ids: list[str] = []
         backup_integrity = None
         if selected:
@@ -187,7 +216,7 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
             if backup_integrity != "ok":
                 raise ValidationError("Consumer-backup blev ikke verificeret")
 
-        source_ids = _sources_without_job(kb)
+        source_ids = _sources_without_job(kb.conn)
         _draft_preflight(kb, incoming, source_ids)
 
         draft_jobs_created = 0
@@ -224,6 +253,9 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
             "new_imported": len(imported_ids),
             "existing": counts.get("existing", 0),
             "draft_jobs_created": draft_jobs_created,
+            "draft_scope": "all_eligible_sources_in_state",
+            "draft_jobs_from_new_sources": len(set(source_ids) & set(imported_ids)),
+            "draft_jobs_from_existing_sources": len(set(source_ids) - set(imported_ids)),
             "total_sources": total_sources,
             "total_ai_jobs": total_jobs,
             "total_ai_job_items": total_job_items,
@@ -233,6 +265,7 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
             "original_sources_unchanged": True,
             "external_ai_calls": 0,
             "active_database_used": False,
+            **selection,
         }
 
 
@@ -261,3 +294,4 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
+

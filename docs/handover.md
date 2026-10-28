@@ -1,3 +1,73 @@
+## 28.10.2026 — IV-020 32 nye episoder importeret, fysisk Windows-PASS
+
+Brugeren opdaterede lokal PR #42-featuregren til `ed6d635` og kørte den nye `SYNKRONISER_PODCASTS.ps1 -ImportOnly` mod den normale consumer-konfiguration. **VERIFICERET via lokal, dataminimeret JSON-rapport:** `ok=true`, `delivery_episodes=91`, `new_imported=32`, `existing=30`, `new_eligible=32`, `conflicts=29`, `duplicates=0`, `quarantined_new=0`, `rejected=0`. Nye episoder er importeret uden at overskrive eksisterende/konfliktende leveringer.
+
+`draft_jobs_created=32`, `draft_jobs_from_new_sources=32`, `draft_jobs_from_existing_sources=0`; `total_sources=1022`, `total_ai_jobs=71`, `total_ai_job_items=76`, `claims=174`. De 174 er samlet bestandsstatus og dokumenterer **ikke** AI-udtræk fra den aktuelle import; importkørslen havde `external_ai_calls=0`. `database_schema=4`, `database_integrity=ok`, `preimport_backup.integrity=ok`, `backup_integrity=ok`, `original_sources_unchanged=true`; beskyttet legacydatabase blev ikke brugt. Ingen private stier, data eller backuphashes ført til GitHub.
+
+**Næste:** Parker de 29 urørte konflikter (typer ikke individuelt diagnosticeret), undgå yderligere generel integrationsudvikling og afprøv én reel, kildebaseret watchlist-/porteføljeanalyse på få nyere podcasts. AI-jobkladder kræver stadig D-005's eksplicitte kilde-/hash-/pris-/sendebekræftelse før ekstern model. Udført import er ikke det samme som aktiv menneskeligt godkendt viden. Ingen merge af PR #42.
+
+## 28.10.2026 — IV-020 sikker import fra blandet aflevering
+
+Brugeren rapporterede 61 nye afleveringer, 11 ignorerede profiler og 0 afviste, men importpreflight stoppede. Read-only plan: 91 filer med 30 `existing`, 32 `new`, 29 `conflict`, 0 dubletter/fejl; normal state senest 990 kilder. Ingen import af de 32 er verificeret. Rettelsesbaseline er PR #42's HEAD `a0cc56cb745ad54424eda17184128aece33bf51c`.
+
+`-ImportOnly` genbruger de eksisterende JSON-filer uden producentscan/adapterkald. Sync bruger nu consumerens opt-in selektion af entydige `new`; eksisterende/konflikter/dubletter forbliver urørte. Hele gentagne episodeidentitets-/indholdsgrupper holdes tilbage, inklusive en første `new`, så filrækkefølge ikke vælger en version. Verificeret pre-write-backup og apply-/hash-/provenance-/policy-/kladdeflow bevares. Direkte consumerkald er fortsat strikse som standard; gamle job-/recoveryregler er uændrede.
+
+Årsager er dokumenteret i [synkroniseringsguiden](iv-020-podcast-sync.md): DB-provenance-nøgle, gentagen leveringsidentitet eller legacy-match på dato/udgiver/titellighed. Renderet hash indeholder også JSON-hash og metadata, så ens talte ord er ikke nødvendigvis samme kildeversion. Ingen af disse regler lempes; ingen ny datamodelbeslutning eller migration.
+
+`VERIFICERET`: 16 målrettede syntetiske tests består på Linux/Python 3.12.14, én PowerShell-parser-skip lokalt. 30/32/29 giver 32 importerede/32 nye kladder, genkørsel 0 med 62 eksisterende/29 konflikter; gamle rækker, politikker, kladder og alle leveringsbytes bevares. Tre nye regressioner omfatter også gentagne identiteter, legacy-titelmatch og afvisninger. Tidligere testtal er historik.
+
+**Næste:** normal `SYNKRONISER_PODCASTS.ps1 -ImportOnly`, derefter analysebrug. Faktiske private data/import og de 29 konflikters konkrete årsager er `IKKE TESTET`; eventuelle første `new` i gentagelsesgrupper reducerer det sikre antal. Ingen ny omfattende acceptserie, ingen producent-/schemaændring eller ekstern AI. PR #42 forbliver draft uden merge. Nyeste status har forrang for ældre næste-todo-tekst nedenfor.
+
+## 28.10.2026 — IV-020 én lokal kommando til nye podcasts
+
+`SYNKRONISER_PODCASTS.ps1` og `scripts/sync_transskribinator_podcasts.py` scanner en eksplicit datarod efter færdige, gyldige `podcast-legacy/1`-pakker. De genbruger den accepterede `deliver` pr. pakke og eksisterende consumer. Afleveringer tælles som nye/eksisterende; konflikter overskrives aldrig. Afviste pakker blokerer import, mens allerede vellykkede afleveringer kan genbruges ved retry. Standard åbner ingen consumerdatabase; `-Import` bruger normal eksisterende schema 4 efter plan-/integritetskontrol og pre-write-backup ved ændringer.
+
+`VERIFICERET`: 23 relevante syntetiske tests består på Linux/Python 3.12.14; én PowerShell-parsertest skipped lokalt. Windows-CI er udvidet med samme synkroniseringstests. Ingen producent-/schema-/AI-politik-/schedulerændring. Consumerens eksisterende recovery over alle eligible kilder er bevaret og synlig i resultatet. Tidligere fulde testtal gælder deres daværende commits.
+
+**Næste:** [én normal Windows-kommando med den faktiske datarod](iv-020-podcast-sync.md), derefter BRUG → OBSERVÉR → EVALUÉR. Faktisk installeret app og private pakker er `IKKE TESTET` i denne iteration; den accepterede enkeltpakkevej genbruges uden ny omfattende acceptproces. PR #42 forbliver draft uden merge. Ældre næste-todo-formuleringer nedenfor er historik.
+
+## 28.10.2026 — Udgivelsesdatoer i Mistral-job
+
+Afgrænset visningsrettelse på PR #42's verificerede HEAD `2d783ba`: registreret udgivelsesdato i kildevalg og ved jobhistorikkens kilder, inklusive eksisterende kladder. `ai_job()` medtager dato og eksisterende provenance/oprindeligt navn fra jobbets konkrete kildeversion. Gyldig podcast-provenance kan bruges i visningen; filnavnsdato er et tydeligt ikke verificeret tip. Ukendt dato bruger aldrig importdato i sorteringen. Ingen backfill/schemaændring.
+
+`VERIFICERET`: 20/20 målrettede syntetiske tests i Linux/Python 3.12.14, heraf fem nye for datoer, sortering før limit og HTTP-visning af 15 drafts med uændret databasehash og ingen transport. Eksisterende kilde-/pris-/policy-/bekræftelses-/køflow består med mocktransport. Tidligere fulde testtal gælder deres daværende commits; ingen bred lokal testserie gentaget.
+
+**Næste — `KRÆVER BRUGERTEST`:** [opdatér koden og genstart normal Windows-UI](mistral-publication-dates.md), og se de 15 drafts under Jobhistorik. Faktiske historiske metadata, native Windows og privat database er ikke testet i denne iteration. PR #42 forbliver draft uden merge; ingen Transskribinator-ændring. Denne UI-test er den aktuelle næste todo foran ældre statusafsnit.
+
+## 28.10.2026 — IV-020 de 15 nye podcasts importeret i persistent consumer (PASS)
+
+Efter at 30 eksisterende episode-JSON blev afstemt (`existing=15`, `new=15`, 0 konflikter/dubletter) og 0 historiske AI-kladdekandidater blev fundet, **godkendte brugeren udtrykkeligt** en kontrolleret skrivende import af de 15 i normal schema-4 consumerstate. En lokal PowerShell-kørsel lavede en konsistent SQLite-backup **før** import, verificerede `integrity_check`, `foreign_key_check` og kildeantal, gentog forhåndsvisningen og udførte derefter consumeren fra den separate PR #42-kode.
+
+**VERIFICERET af brugerrapporten:** `result=PASS`, `new_imported=15`, `existing=15`, `new_local_drafts=15`, `drafts_from_older_sources=0`, `total_sources=990`, `preimport_backup=VERIFIED`, `database_integrity=ok`, `external_ai_calls=0`, `persistent_consumer_updated=true`, `legacy_database_used=false`. De 15 nye job er kun lokale, ubekræftede kladder. Ingen AI-inference, reviewstatuspromovering, schemaændring eller skrivning i den beskyttede legacydatabase. Selve private backupfilen, kildeindhold og lokale stier er ikke kopieret til GitHub.
+
+**IKKE TESTET:** AI-behandling af de 15 kilder og normal UI-/portefølje-/watchlistanalyse. **NÆSTE:** Vælg én konkret analyse og brug eksisterende udtræks-/ugepakke-flow. Ved eksternt modelkald kræves D-005-kildevalg, version/hash, prisestimat/loft og særskilt brugerbekræftelse. Undgå nye integrations-/sikkerhedstests uden konkrete fejl. PR #42 er fortsat draft og ingen merge er godkendt.
+
+## 28.10.2026 — IV-020 eksplicit aflevering: fysisk Windows-PASS
+
+Minimal integration er implementeret i InvestViden: `scripts/deliver_transskribinator_episode.py` genbruger den valgte Transskribinator-apps uændrede `deliver_one`, validerer via `read_episode` og afleverer kun én eksplicit valgt podcastpakke. `--check` bruger kun midlertidig afledning. Atomisk no-clobber-publicering, semantisk gentagelseskontrol, canonical hashes og segmentregnskab bevares. Kommandoen åbner ingen database eller AI-transport.
+
+`scripts/verify_iv020_handoff.py` kræver en ny lokal testrod og afprøver aflevering/gentagelse samt import/gentagelse i en ny schema-4-state. Fuld kort Windows-procedure og grænser: [IV-020 aflevering](iv-020-explicit-podcast-handoff.md). De tidligere fysiske PASS-resultater fra PR #41 er bevaret i readinessdokumentet og må ikke omtales som praktisk 1.0.1-end-to-end.
+
+`VERIFICERET` i Linux/Python 3.12: **140/140 tests** med to opt-in kontrakttests på faktisk, uændret 1.0.1-kilde `366f0d7a11d04e17df55ad7a8cf2f5a674db09cf`; fake inference og syntetiske kilder. Main er fortsat `ffd82aa`, kandidat-PR #51 er åben/ikke merged; ingen producerændringer eller releasehandlinger. Native CI-status dokumenteres på integrations-PR'en.
+
+**Vigtigt før senere aktiv import:** consumerens eksisterende recoveryvælger arbejder over hele state-databasen, ikke kun nye episoder. `--check` viser `draft_candidates_existing_sources`/`draft_scope`; run opdeler kladder fra nye/eksisterende. Disse kandidater har policy allow, men oprettelse sender ingen tekst. Den tidligere `active_database_used=false`-markør beskytter legacydatabasen; den er ikke i sig selv bevis for isoleret consumerstate.
+
+**VERIFICERET fysisk på workstation 28.10.2026:** Brugeren valgte én reel færdig canonical podcastpakke og kørte `verify_iv020_handoff.py` med installeret 1.0.1-appen og ny isoleret testrod. Rapporten gav `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `package_unchanged=true`, `delivery_unchanged=true`, `external_ai_calls=0`, `active_database_used=false`. Ingen aktive consumerdata blev skrevet til. Da pakken lå i en genbrugt datarod er selve 1.0.1-transskriptionskørslen **IKKE TESTET**.
+
+**VERIFICERET 28.10.2026:** brugerens nye consumer read-only `--check` på normal lokal persistente state gav `ok=true`, `delivery_episodes=30`, `invalid_delivery_json=0`, `database_schema=4`, `database_integrity=ok`, `sources=975`, `draft_jobs=2`, `draft_scope=all_eligible_sources_in_state`, `draft_candidates_existing_sources=0`, `external_ai_calls=0`. Dermed er der ingen allerede registrerede eligible kilder uden job, som normal consumer ville lave ekstra kladder for på dette tidspunkt. `active_database_used=false` er kun legacybeskyttelse, ikke et bevis for at normal consumerdatabase er urørt ved en fremtidig `run`.
+
+**Næste eneste todo — `AFKLARING`:** indhent særskilt brugerbeslutning om normal import af de 15 episoder. Før en sådan skrivende operation: verificér særskilt backup af persistent consumerstate, re-preview `new/existing/conflict/duplicate` og kontrollér at candidate-count fortsat 0. Ingen import, PR-merge, rydning, AI-transport eller nye automations er endnu autoriseret. Normal UI og reel investeringsanalyse **IKKE TESTET**. Ingen ny arkitektur eller ADR nødvendig; gældende producer-/consumerkontrakter og D-005 består.
+
+## 27.10.2026 — IV-020 klargøring til ny podcastproduktion (trin 1 fysisk PASS)
+
+Brugeren har gennemført første fysiske read-only consumer-check: `ok=true`, 30 episode-JSON-filer, 0 ugyldige, 975 kilder i schema-4-databasen, SQLite-integritet `ok`, 2 kladdejobs, 0 eksterne AI-kald og ingen brug af beskyttet legacydatabase. Dette verificerer afleveringsmappens læsbarhed og databaseintegritet, **ikke** hvor mange episoder der er importeret. Den efterfølgende lokale read-only hash-afstemning fandt **15 eksisterende teksthashmatches, 15 uden match, 0 læse-/renderfejl** blandt de 30 afleverede episoder. Ingen produktionsskrivning er godkendt. Den efterfølgende `plan_input` via read-only SQLite gav **`total=30`, `existing=15`, `new=15`, `conflict=0`, `duplicate=0`, `errors=0`**. De 15 er nye efter den dokumenterede importkontrol, men ingen er importeret endnu. **VERIFICERET efterfølgende fysisk isoleret importtest:** én af de 15 `new`-leveringer kopieret til isoleret lokal testmappe. Første kørsel `new_imported=1`, `draft_jobs_created=1`; anden kørsel `new_imported=0`, `existing=1`, `draft_jobs_created=0`. Backupintegritet og SQLiteintegritet `ok`, original uændret, 0 AI-kald og ingen brug af aktiv consumerdatabase. Consumerens enkelt-episode-/idempotenskontrakt er dermed praktisk accepteret **for eksisterende leveringsformat**, men ikke 1.0.1-Qt-aflevering.
+
+**Næste:** Afgrænset integrationseftersyn i GitHub/Work af manuel Qt canonical→kontrolleret episode-JSON, på egen branch og uden automatisk releaseændring/merge. Eventuel import af de 15 episoder i aktiv database kræver særskilt brugerbeslutning. Ingen aktiv database eller egentlig 1.0.1-Qt end-to-end er testet/ændret.
+
+Ny interesse for at benytte den kommende Transskribinator-3000 1.0.1 til løbende InvestViden-analyser. Den eksisterende kontrakt er undersøgt på repositoryniveau: `tools/podcast_delivery.py` kan lave kontrollerede legacy-formede episode-JSON-derivater fra verificerede canonical pakker, og InvestVidens IV-009-consumer kan importere sådanne episodederivater idempotent og oprette ubekræftede Mistral-kladdder. Men L2's manuelle Qt-podcastkørsel slutter efter canonical pakke og starter ikke delivery-adapteren; det gamle `podcast_morning`-flow gør. Den praktiske kæde er derfor **IKKE TESTET** for den nye Qt-/releaseversion.
+
+`docs/iv-020-podcast-101-readiness.md` beskriver én isoleret pilotepisode, datarisiko, kontraktgates og testplan. Den første handling er et read-only check af den eksisterende consumerkonfiguration. Hverken aktive databaser, workstation, API-kald, scheduler eller private data er ændret. Ingen beslutning om automatisk afleveringshandling eller AI-kørsel er taget. Transskribinator 1.0.1 er endnu ikke verificeret som frigivet/installeret i denne InvestViden-iteration.
+
 # Handover – InvestViden
 
 ## 10.10.2026 — IV-019 vedvarende progressiv AI-kontrol fysisk accepteret

@@ -7,6 +7,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from contextlib import closing
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -210,11 +211,48 @@ class TransskribinatorConsumerTest(unittest.TestCase):
         self.assertFalse(failure["ok"])
         self.assertEqual("ValidationError", failure["error_type"])
 
-        with sqlite3.connect(self.state / "knowledgebase.sqlite") as conn:
+        with closing(sqlite3.connect(self.state / "knowledgebase.sqlite")) as conn:
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM ai_jobs").fetchone()[0])
             self.assertEqual(1, conn.execute("SELECT COUNT(*) FROM ai_job_items").fetchone()[0])
 
+    def test_check_exposes_old_sources_outside_delivery_and_run_reports_draft_scope(self):
+        self.write_episode("new.json", episode_data("new", "New", "New synthetic text.", "trpkg-new"))
+        self.state.mkdir()
+        source = self.root / "older.txt"
+        source.write_text("Older allowed source outside the delivery folder.", encoding="utf-8")
+        with KnowledgeBase(self.state / "knowledgebase.sqlite") as kb:
+            kb.initialize()
+            old_id, _ = kb.import_source(source, "note", ai_permission="allow",
+                                        source_store=self.state / "workspace/sources")
+            source.write_text("Blocked older source.", encoding="utf-8")
+            blocked_id, _ = kb.import_source(source, "note", ai_permission="blocked",
+                                            source_store=self.state / "workspace/sources")
+        database = self.state / "knowledgebase.sqlite"
+        before = database.read_bytes()
+        check = self.run_script("--check")
+        self.assertEqual(0, check.returncode, check.stdout + check.stderr)
+        preview = json.loads(check.stdout)
+        self.assertEqual("all_eligible_sources_in_state", preview["draft_scope"])
+        self.assertEqual(1, preview["draft_candidates_existing_sources"])
+        self.assertEqual(before, database.read_bytes())
+
+        run = self.run_script()
+        self.assertEqual(0, run.returncode, run.stdout + run.stderr)
+        result = json.loads(run.stdout)
+        self.assertEqual(1, result["new_imported"])
+        self.assertEqual(2, result["draft_jobs_created"])
+        self.assertEqual(1, result["draft_jobs_from_new_sources"])
+        self.assertEqual(1, result["draft_jobs_from_existing_sources"])
+        with closing(sqlite3.connect(database)) as conn:
+            ids = {r[0] for r in conn.execute("SELECT source_version_id FROM ai_job_items")}
+            self.assertIn(old_id, ids)
+            self.assertNotIn(blocked_id, ids)
+            self.assertEqual(0, conn.execute("SELECT COALESCE(SUM(attempt_count),0) FROM ai_job_items").fetchone()[0])
+        repeat = self.run_script("--check")
+        self.assertEqual(0, json.loads(repeat.stdout)["draft_candidates_existing_sources"])
+
 
 if __name__ == "__main__":
     unittest.main()
+

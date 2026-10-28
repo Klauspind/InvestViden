@@ -237,10 +237,13 @@ class KnowledgeBase:
             raise KeyError(job_id)
         result = dict(row)
         result["items"] = [dict(item) for item in self.conn.execute(
-            """SELECT i.*, sv.title, sv.sha256, s.ai_permission
+            """SELECT i.*, sv.title, sv.sha256, sv.published_at,
+                      sv.source_type, sv.original_path, p.metadata_json AS provenance_json,
+                      s.ai_permission
                FROM ai_job_items i
                JOIN source_versions sv ON sv.id=i.source_version_id
                JOIN sources s ON s.id=sv.logical_source_id
+               LEFT JOIN source_provenance p ON p.source_id=sv.id
                WHERE i.job_id=? ORDER BY i.rowid""", (job_id,)
         )]
         result["actual_cost_usd"] = sum(float(item["actual_cost_usd"] or 0) for item in result["items"])
