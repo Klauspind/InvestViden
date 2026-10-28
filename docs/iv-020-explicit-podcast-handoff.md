@@ -115,7 +115,9 @@ Resultat `PASS`:
 
 **VERIFICERET:** Reelt pakkeformat accepteret af installeret 1.0.1-adapter → ny aflevering → isoleret schema-4-consumer med idempotens og uændrede kildebytes. **IKKE TESTET:** om den valgte pakke blev transskriberet *med* version 1.0.1, normal UI/analyser, daglig brugeraflevering til aktiv leveringsrod, aktiv databaseimport af de 15 tidligere opdagede nye episoder. Brugerens konkrete private pakkesti og filindhold er ikke gemt i GitHub.
 
-**Næste kun-læsehandling:** kør den nyudvidede `run_transskribinator_consumer.py --check` mod eksisterende consumer-konfiguration for at se `draft_candidates_existing_sources`. Dette er nødvendigt før beslutning om aktiv import, fordi `run` ellers også kan oprette AI-kladder for ældre kilder uden for den aktuelle aflevering. Ingen aktiv skrivning eller merge automatisk.
+**VERIFICERET ved næste kun-læsehandling 28.10.2026:** den nyudvidede consumer `--check` mod den eksisterende konfiguration gav `ok=true`, 30 leveringer (0 ugyldige), schema 4/integritet `ok`, 975 kilder, 2 allerede eksisterende AI-jobkladder, `draft_scope=all_eligible_sources_in_state`, `draft_candidates_existing_sources=0` og 0 eksterne AI-kald. Ingen aktiv skrivning. Dette eliminerer den aktuelle risiko for ekstra kladder fra *allerede registrerede* kilder, men siger ikke noget om nye leveringer, der først importeres efter check.
+
+**Næste handling kræver særskilt ejergodkendelse:** normal import af de tidligere previewede 15 nye episoder til den persistente consumerstate. Kræv inden skrivning en verificeret sikkerhedskopi og gentaget episode-preview, og stop ved nye konflikter eller ændret kladdescope. PR #42 forbliver draft og intet merges automatisk.
 
 ## Senere almindelig aflevering
 
