@@ -1,3 +1,10 @@
+## Status 28.10.2026 — IV-020 selektiv import fysisk PASS: 32 episoder
+
+- `VERIFICERET` på Windows med `SYNKRONISER_PODCASTS.ps1 -ImportOnly` efter ff-only pull af PR #42-commit `ed6d635`: `ok=true`, 91 leveringer, `new_imported=32`, `existing=30`, `conflicts=29`, `duplicates=0`, `quarantined_new=0`, `rejected=0`, `new_eligible=32`. Alle 32 blev importeret; konflikterne blev ikke overskrevet.
+- `VERIFICERET`: `draft_jobs_created=32`, alle fra nye kilder, 0 fra ældre; `total_sources=1022`, `total_ai_jobs=71`, `total_ai_job_items=76`, `claims=174` (samlet historisk status, **ikke** nygenererede udsagn). `preimport_backup.integrity=ok`, `backup_integrity=ok`, `database_integrity=ok`, `original_sources_unchanged=true`, `external_ai_calls=0`, `active_database_used=false` (beskyttet legacydatabase). Privat backupsti/hash ikke gemt her.
+- `IKKE TESTET`: egentligt AI-udtræk/porteføljeanalyse af de 32 nyimporterede kilder; de 29 konflikters konkrete individuelle årsager. Konflikter er parkeret, ikke slettet eller løst.
+- **Næste eneste todo: BRUG → OBSERVÉR → EVALUÉR**. Vælg én konkret investeringscase (fx Meta eller TORM) og analyser 1–3 relevante, nyere kilder via eksisterende D-005-gatede flow, uden massebehandling, nye features eller gentagne generelle tests. Eksterne AI-kald kræver særskilt pris-/kildeversion-/sendegodkendelse. PR #42 forbliver draft, ingen merge er autoriseret.
+
 ## Status 28.10.2026 — IV-020 blandede leveringer: selektiv import
 
 - `BRUGERRAPPORT`: Windows oprettede 61 leveringer, ignorerede 11 ikke-podcastpakker og afviste 0. Import stoppede før skrivning; read-only plan viste 30 eksisterende, 32 nye, 29 konflikter, 0 dubletter/fejl. Senest 990 kilder i normal state. Dette er ikke en bestået import af de 32.
