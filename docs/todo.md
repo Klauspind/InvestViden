@@ -1,11 +1,13 @@
-## Status 27.10.2026 — IV-020 eksplicit podcastaflevering teknisk klar
+## Status 28.10.2026 — IV-020 eksplicit podcastaflevering fysisk accepteret på reel pakke
 
 - `VERIFICERET`: InvestViden har en eksplicit én-pakke-aflevering, som genbruger den eksisterende produceradapter og consumerlæser. Preview skriver ikke til afleveringsrod/database; aflevering er atomisk uden overskrivning og gentagelse er idempotent.
 - `VERIFICERET`: Linux/Python 3.12: **140/140 tests**, inklusive syntetisk Qt-adapter fra uændret 1.0.1-commit `366f0d7a11d04e17df55ad7a8cf2f5a674db09cf` → levering → isoleret consumer; ingen AI-transport. Native CI-resultater knyttes til PR-HEAD.
 - `VERIFICERET`: normal consumer kan oprette kladder for alle eligible eksisterende kilder i state, også uden for aflevering. Read-only `--check` viser nu antal kandidater; run viser kladder fra nye/eksisterende særskilt. Adfærden er bevaret, ikke snævrere end før.
 - Transskribering PR #51/main og 1.0.1-kandidaten er urørt. Ingen aktiv database, privat kilde, indstilling, installation, abonnementshistorik eller release er ændret.
 - `IKKE TESTET`: reel 1.0.1-pakke/ASR/CUDA og normal UI med ny kilde.
-- **Eneste næste todo — `KRÆVER BRUGERTEST`:** kør `scripts/verify_iv020_handoff.py` på én ny Qt-pakke med en ny lokal testrod; se [kort Windows-accept](iv-020-explicit-podcast-handoff.md). Stop ved FAIL. Ingen aktiv import af de 15 tidligere previewede episoder er autoriseret her.
+- `VERIFICERET` på workstation 28.10.2026: `verify_iv020_handoff.py` på en rigtig valgt, færdig podcastpakke mod installeret 1.0.1-app og isoleret teststate gav `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, backup/DB-integritet `ok`, uændrede pakke-/afleveringsbytes, 0 AI-kald og ingen aktiv consumerdatabase.
+- `IKKE TESTET`: om netop denne pakkes transskriptionsjob blev kørt med 1.0.1 (datamappen genbruges), real ASR/CUDA, normal investerings-UI eller analyseresultat.
+- **Eneste næste todo — `KRÆVER BRUGERTEST`:** brug ny PR #42-consumer `--check` skrivebeskyttet mod aktiv state for at se `draft_candidates_existing_sources` før beslutning om import af de 15 nye episoder. Ingen aktiv import, PR-merge eller automatisk AI er autoriseret.
 
 # Todo – InvestViden
 
