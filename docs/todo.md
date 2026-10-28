@@ -7,7 +7,8 @@
 - `IKKE TESTET`: reel 1.0.1-pakke/ASR/CUDA og normal UI med ny kilde.
 - `VERIFICERET` på workstation 28.10.2026: `verify_iv020_handoff.py` på en rigtig valgt, færdig podcastpakke mod installeret 1.0.1-app og isoleret teststate gav `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, backup/DB-integritet `ok`, uændrede pakke-/afleveringsbytes, 0 AI-kald og ingen aktiv consumerdatabase.
 - `IKKE TESTET`: om netop denne pakkes transskriptionsjob blev kørt med 1.0.1 (datamappen genbruges), real ASR/CUDA, normal investerings-UI eller analyseresultat.
-- **Eneste næste todo — `KRÆVER BRUGERTEST`:** brug ny PR #42-consumer `--check` skrivebeskyttet mod aktiv state for at se `draft_candidates_existing_sources` før beslutning om import af de 15 nye episoder. Ingen aktiv import, PR-merge eller automatisk AI er autoriseret.
+- `VERIFICERET` ved fysisk read-only consumer `--check` på workstation 28.10.2026: `ok=true`, `mode=check`, `delivery_episodes=30`, `invalid_delivery_json=0`, `database_schema=4`, `database_integrity=ok`, `sources=975`, `draft_jobs=2`, `draft_scope=all_eligible_sources_in_state`, `draft_candidates_existing_sources=0`, `external_ai_calls=0`. Ingen kilder eller kladder importeret/oprettet af check.
+- **Eneste næste todo — `AFKLARING`/brugerbeslutning:** om de tidligere previewede 15 `new` episoder må importeres kontrolleret til **den normale persistente consumerdatabase**, efter særskilt verificeret backup og re-preview. Dette er en skrivende operation, og `active_database_used=false` betyder kun, at den beskyttede legacydatabase ikke er anvendt. PR #42 er fortsat draft; ingen merge, aktiv import eller automatisk AI er autoriseret.
 
 # Todo – InvestViden
 
