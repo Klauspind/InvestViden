@@ -1,4 +1,4 @@
-## 27.10.2026 — IV-020 eksplicit aflevering uden ændring af 1.0.1
+## 28.10.2026 — IV-020 eksplicit aflevering: fysisk Windows-PASS
 
 Minimal integration er implementeret i InvestViden: `scripts/deliver_transskribinator_episode.py` genbruger den valgte Transskribinator-apps uændrede `deliver_one`, validerer via `read_episode` og afleverer kun én eksplicit valgt podcastpakke. `--check` bruger kun midlertidig afledning. Atomisk no-clobber-publicering, semantisk gentagelseskontrol, canonical hashes og segmentregnskab bevares. Kommandoen åbner ingen database eller AI-transport.
 
@@ -8,7 +8,9 @@ Minimal integration er implementeret i InvestViden: `scripts/deliver_transskribi
 
 **Vigtigt før senere aktiv import:** consumerens eksisterende recoveryvælger arbejder over hele state-databasen, ikke kun nye episoder. `--check` viser `draft_candidates_existing_sources`/`draft_scope`; run opdeler kladder fra nye/eksisterende. Disse kandidater har policy allow, men oprettelse sender ingen tekst. Den tidligere `active_database_used=false`-markør beskytter legacydatabasen; den er ikke i sig selv bevis for isoleret consumerstate.
 
-`IKKE TESTET`: faktisk private 1.0.1-pakker, ASR/CUDA, analyse og normal UI. **Næste eneste todo: `KRÆVER BRUGERTEST`** af én ny Qt-pakke via acceptværktøjet. Ingen produktionsimport, oprydning eller nye automatiseringer er autoriseret. Ingen ny arkitektur eller ADR nødvendig; gældende producer-/consumerkontrakter og D-005 består.
+**VERIFICERET fysisk på workstation 28.10.2026:** Brugeren valgte én reel færdig canonical podcastpakke og kørte `verify_iv020_handoff.py` med installeret 1.0.1-appen og ny isoleret testrod. Rapporten gav `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `package_unchanged=true`, `delivery_unchanged=true`, `external_ai_calls=0`, `active_database_used=false`. Ingen aktive consumerdata blev skrevet til. Da pakken lå i en genbrugt datarod er selve 1.0.1-transskriptionskørslen **IKKE TESTET**.
+
+**Næste eneste todo: `KRÆVER BRUGERTEST`** af ny consumer read-only `--check` mod normal lokal state for at få omfang af `draft_candidates_existing_sources` før eventuel senere aktiv import af de 15 nye leveringer. Ingen import, PR-merge, rydning, AI-transport eller nye automations er autoriseret. Normal UI og reel investeringsanalyse **IKKE TESTET**. Ingen ny arkitektur eller ADR nødvendig; gældende producer-/consumerkontrakter og D-005 består.
 
 ## 27.10.2026 — IV-020 klargøring til ny podcastproduktion (trin 1 fysisk PASS)
 
