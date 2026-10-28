@@ -1,3 +1,10 @@
+## Status 28.10.2026 — IV-020 enkel podcastsynkronisering implementeret
+
+- `VERIFICERET`: ny `SYNKRONISER_PODCASTS.ps1 -DataRoot ... [-Import]` finder færdige podcastpakker, genbruger accepteret aflevering og viser nye/eksisterende/afviste. Standard afleverer kun; `-Import` genbruger normal consumer med verificeret pre-write-backup ved ændringer.
+- `VERIFICERET`: 23 relevante syntetiske tests består i Linux/Python 3.12.14; én PowerShell-parsertest skipped lokalt. Discovery, gentagelse, konflikter uden overskrivning, importtilvalg, backup, bevarede drafts og ingen AI-transport er dækket. Windows-CI er udvidet med samme synkroniseringstests.
+- Ingen Transskribinator-ændring, migration, originalfilændring, AI-politikændring eller scheduler. Eksisterende brede recovery-scope bevares og rapporteres; ældre lokale kladder kan blive oprettet for eligible `allow`-kilder uden job. Udgangspunkt PR #42 ved `05b8a4e`; ingen merge.
+- **Næste:** [brug den korte synkroniseringskommando](iv-020-podcast-sync.md) med den faktiske datarod. `IKKE TESTET`: normal Windows-brug med private pakker; ingen ny omfattende acceptproces. Ældre UI-datotest forbliver en brugsobservation, ikke en blokering for synkronisering.
+
 ## Status 28.10.2026 — Udgivelsesdato i Mistral-job implementeret
 
 - `VERIFICERET`: kildevalg og Jobhistorik viser `Udgivet: DD.MM.ÅÅÅÅ` eller `Udgivelsesdato ukendt`. Registreret provenance kan udfylde visningen; filnavnstip markeres ikke verificeret. Registrerede datoer sorteres før udaterede uden importdato-fallback.

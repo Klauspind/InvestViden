@@ -1,3 +1,9 @@
+## 2026-10-28 — IV-020 enkel synkronisering af færdige podcasts
+
+- Ny PowerShell-launcher og lille Python-orkestrering over accepteret aflevering og eksisterende consumer. Eksplicit datarod, discovery via færdigmarkør og producentvalidering; nye/eksisterende/afviste tælles. Idempotens og no-clobber-publicering genbruges.
+- Import kræver `-Import`, eksisterende schema 4 og fejlfri importplan; verificeret pre-write-backup ved ændringer. Eksisterende kladder, politikker og consumer-recovery-scope bevares; ingen ekstern AI, migration, Transskribinator-ændring eller scheduler.
+- `VERIFICERET`: 23 relevante syntetiske tests består i Linux/Python 3.12.14, én lokal PowerShell-parser-skip. Samme nye tests tilføjet eksisterende Windows-CI. Ingen bred lokal regression. Faktisk Windows-brug med private pakker er `IKKE TESTET`; [kort normal brug](iv-020-podcast-sync.md), ingen ny acceptserie.
+
 ## 2026-10-28 — Oprindelig udgivelsesdato i Mistral-job
 
 - Kildevalg og Jobhistorik viser `Udgivet: DD.MM.ÅÅÅÅ` eller `Udgivelsesdato ukendt`; `ai_job()` medtager dato og eksisterende provenance/oprindeligt navn fra kildeversionen.

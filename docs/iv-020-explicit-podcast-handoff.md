@@ -1,5 +1,9 @@
 # IV-020 — eksplicit aflevering af én Qt-podcast
 
+**Aktuel daglig brug:** [synkronisér alle nye færdige podcasts med én kommando](iv-020-podcast-sync.md).
+Den accepterede enkeltpakkevej nedenfor genbruges uændret. Ældre accept-/godkendelseskrav
+er historiske; importen af de 15 episoder er dokumenteret gennemført længere nede.
+
 Dato: 28.10.2026. **Teknisk VERIFICERET på syntetiske data og fysisk Windows-accept PASS på en reel færdig pakke; selve 1.0.1-transskriptionsjobbet er ikke dokumenteret.**
 
 ## Resultat og afgrænsning
@@ -139,8 +143,8 @@ afleveringsrod eksplicit. Denne kommando importerer stadig ikke i databasen:
   --producer-app (Join-Path $producerProgram 'app') --package $package --delivery-root 'VALGT_AFLEVERINGSMAPPE'
 ```
 
-Tilføj `--check` for preview. Aktiv import af de 15 tidligere identificerede
-episoder er ikke godkendt af denne leverance. En fremtidig Qt-knap er senere,
+Tilføj `--check` for preview. Importen af de 15 tidligere identificerede episoder
+er efterfølgende særskilt godkendt og gennemført som dokumenteret ovenfor. En fremtidig Qt-knap er senere,
 hvis reel brug viser behov; det kræver ikke at ændre 1.0.1-release nu.
 
 ## Testevidens og resterende grænser
@@ -168,5 +172,6 @@ en ny kilde. Den eksisterende postprocessor kan afvise pakker uden brugbare
 segmenter/kvalitetsfelter; ingen felter opfindes eller rådata omskrives for at
 omgå det. Ugyldig dato/profil/provenance eller en konflikt stopper før publicering.
 
-**KRÆVER BRUGERTEST:** den konkrete 1.0.1-pakke og Windows-destination som beskrevet.
-Næste konkrete todo er denne ene accept; derefter BRUG → OBSERVÉR → EVALUÉR.
+**HISTORISK acceptkrav:** den isolerede enkeltpakkeaccept er efterfølgende rapporteret
+PASS ovenfor. Aktuel næste handling er almindelig brug af synkroniseringskommandoen;
+der kræves ingen ny omfattende acceptproces.

@@ -1,3 +1,11 @@
+## 28.10.2026 — IV-020 én lokal kommando til nye podcasts
+
+`SYNKRONISER_PODCASTS.ps1` og `scripts/sync_transskribinator_podcasts.py` scanner en eksplicit datarod efter færdige, gyldige `podcast-legacy/1`-pakker. De genbruger den accepterede `deliver` pr. pakke og eksisterende consumer. Afleveringer tælles som nye/eksisterende; konflikter overskrives aldrig. Afviste pakker blokerer import, mens allerede vellykkede afleveringer kan genbruges ved retry. Standard åbner ingen consumerdatabase; `-Import` bruger normal eksisterende schema 4 efter plan-/integritetskontrol og pre-write-backup ved ændringer.
+
+`VERIFICERET`: 23 relevante syntetiske tests består på Linux/Python 3.12.14; én PowerShell-parsertest skipped lokalt. Windows-CI er udvidet med samme synkroniseringstests. Ingen producent-/schema-/AI-politik-/schedulerændring. Consumerens eksisterende recovery over alle eligible kilder er bevaret og synlig i resultatet. Tidligere fulde testtal gælder deres daværende commits.
+
+**Næste:** [én normal Windows-kommando med den faktiske datarod](iv-020-podcast-sync.md), derefter BRUG → OBSERVÉR → EVALUÉR. Faktisk installeret app og private pakker er `IKKE TESTET` i denne iteration; den accepterede enkeltpakkevej genbruges uden ny omfattende acceptproces. PR #42 forbliver draft uden merge. Ældre næste-todo-formuleringer nedenfor er historik.
+
 ## 28.10.2026 — Udgivelsesdatoer i Mistral-job
 
 Afgrænset visningsrettelse på PR #42's verificerede HEAD `2d783ba`: registreret udgivelsesdato i kildevalg og ved jobhistorikkens kilder, inklusive eksisterende kladder. `ai_job()` medtager dato og eksisterende provenance/oprindeligt navn fra jobbets konkrete kildeversion. Gyldig podcast-provenance kan bruges i visningen; filnavnsdato er et tydeligt ikke verificeret tip. Ukendt dato bruger aldrig importdato i sorteringen. Ingen backfill/schemaændring.
