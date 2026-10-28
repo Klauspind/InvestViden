@@ -1,3 +1,11 @@
+## Status 28.10.2026 — IV-020 aktiv consumerimport accepteret og fysisk gennemført
+
+- `BRUGERBESLUTNING`: brugeren gav udtrykkelig tilladelse til at importere de 15 tidligere previewede podcastleveringer i den normale persistente **schema-4 consumerdatabase**, med verificeret pre-write SQLite-backup og én automatisk konfliktkontrol. Ingen tilladelse til ekstern AI-transport eller automatisk godkendelse af AI-udsagn.
+- `VERIFICERET` fra brugerens lokale PowerShell-resultat: `result=PASS`, `new_imported=15`, `existing=15`, `new_local_drafts=15`, `drafts_from_older_sources=0`, `total_sources=990`, `preimport_backup=VERIFIED`, `database_integrity=ok`, `external_ai_calls=0`, `persistent_consumer_updated=true`, `legacy_database_used=false`.
+- `VERIFICERET`: tidligere read-only check rapporterede 0 historiske jobkandidater; samlet import blev udført med pre-write backup, gen-preview og kontrol af forventede antal, mens den beskyttede legacydatabase ikke blev brugt.
+- `IKKE TESTET`: normal InvestViden-UI med de 15 nyimporterede kilder, AI-udtræk af disse 15, og en reel ny portefølje-/watchlistanalyse. AI-jobkladder er **ikke** det samme som udtrukne investeringsudsagn.
+- **Eneste næste todo**: BRUG → OBSERVÉR → EVALUÉR. Vælg et konkret investeringsspørgsmål og afprøv den allerede eksisterende gatede AI-udtræks-/analysevej på et lille antal relevante podcasts; ekstern AI-transport kræver D-005's synlige kildevalg, prisloft og særskilte brugerbekræftelse. Ingen yderligere integration eller generel testserie uden konkret behov. PR #42 er fortsat en separat draft-integration og må ikke merges implicit.
+
 ## Status 28.10.2026 — IV-020 eksplicit podcastaflevering fysisk accepteret på reel pakke
 
 - `VERIFICERET`: InvestViden har en eksplicit én-pakke-aflevering, som genbruger den eksisterende produceradapter og consumerlæser. Preview skriver ikke til afleveringsrod/database; aflevering er atomisk uden overskrivning og gentagelse er idempotent.
@@ -8,7 +16,7 @@
 - `VERIFICERET` på workstation 28.10.2026: `verify_iv020_handoff.py` på en rigtig valgt, færdig podcastpakke mod installeret 1.0.1-app og isoleret teststate gav `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, backup/DB-integritet `ok`, uændrede pakke-/afleveringsbytes, 0 AI-kald og ingen aktiv consumerdatabase.
 - `IKKE TESTET`: om netop denne pakkes transskriptionsjob blev kørt med 1.0.1 (datamappen genbruges), real ASR/CUDA, normal investerings-UI eller analyseresultat.
 - `VERIFICERET` ved fysisk read-only consumer `--check` på workstation 28.10.2026: `ok=true`, `mode=check`, `delivery_episodes=30`, `invalid_delivery_json=0`, `database_schema=4`, `database_integrity=ok`, `sources=975`, `draft_jobs=2`, `draft_scope=all_eligible_sources_in_state`, `draft_candidates_existing_sources=0`, `external_ai_calls=0`. Ingen kilder eller kladder importeret/oprettet af check.
-- **Eneste næste todo — `AFKLARING`/brugerbeslutning:** om de tidligere previewede 15 `new` episoder må importeres kontrolleret til **den normale persistente consumerdatabase**, efter særskilt verificeret backup og re-preview. Dette er en skrivende operation, og `active_database_used=false` betyder kun, at den beskyttede legacydatabase ikke er anvendt. PR #42 er fortsat draft; ingen merge, aktiv import eller automatisk AI er autoriseret.
+- `HISTORISK`: dette gate krævede brugerbeslutning før import; den særskilte godkendelse og fysiske PASS fremgår af den nyere status ovenfor. PR #42 forbliver draft.
 
 # Todo – InvestViden
 
