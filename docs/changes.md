@@ -1,3 +1,10 @@
+## 2026-10-28 — IV-020 persistent consumerimport af 15 podcasts, fysisk PASS
+
+- Brugeren godkendte eksplicit import i normal persistent schema-4 consumerstate. Pre-write SQLite-backup og gentaget konflikt-preview udført af lokal PowerShell-procedure; 0 historiske draftkandidater i seneste read-only kontrol.
+- `VERIFICERET` fra lokalt resultat: `new_imported=15`, `existing=15`, `new_local_drafts=15`, `drafts_from_older_sources=0`, `total_sources=990`, `preimport_backup=VERIFIED`, `database_integrity=ok`, `external_ai_calls=0`, `persistent_consumer_updated=true`, `legacy_database_used=false`; samlet `result=PASS`.
+- Ingen aktivering af AI-transport eller automatisk menneskelig godkendelse. Ingen private kilder, SQLite-filer, backups eller secrets til GitHub. Ingen produktkode ændret, ingen ny CI kørt (kun dokumentationsopdatering).
+- `NÆSTE`: brug eksisterende gatede AI-kildeudtræk til én konkret portefølje-/watchlistanalyse; undgå flere generelle integrationstests. PR #42 fortsat draft.
+
 ## 2026-10-28 — IV-020 fysisk Windows-accept af én rigtig podcastpakke
 
 - `VERIFICERET` ved brugerens isolerede `verify_iv020_handoff.py`-kørsel mod installeret 1.0.1-app: `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `package_unchanged=true`, `delivery_unchanged=true`, `external_ai_calls=0`, `active_database_used=false`.
