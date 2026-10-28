@@ -1,3 +1,10 @@
+## Status 28.10.2026 — Udgivelsesdato i Mistral-job implementeret
+
+- `VERIFICERET`: kildevalg og Jobhistorik viser `Udgivet: DD.MM.ÅÅÅÅ` eller `Udgivelsesdato ukendt`. Registreret provenance kan udfylde visningen; filnavnstip markeres ikke verificeret. Registrerede datoer sorteres før udaterede uden importdato-fallback.
+- `VERIFICERET`: 20/20 målrettede syntetiske tests i Linux/Python 3.12.14, heraf fem nye datotests og HTTP-visning af 15 bevarede drafts med uændret databasehash og ingen AI-transport. Historiske fulde testtal gælder deres daværende commits.
+- Ingen produktionsdatabase, backfill, migration, eksternt AI-kald eller Transskribinator-ændring. Kildevalg, politik, pris og bekræftelse består. Udgangspunkt: PR #42 ved `2d783ba`; ingen automatisk merge.
+- **Eneste næste todo — `KRÆVER BRUGERTEST`:** opdatér Git-koden og genstart normal UI; kontrollér datoer for de 15 kladder under Jobhistorik. [Kort Windows-vejledning og datobegrænsninger](mistral-publication-dates.md). Faktiske historiske metadata er ikke undersøgt på workstationen.
+
 ## Status 28.10.2026 — IV-020 aktiv consumerimport accepteret og fysisk gennemført
 
 - `BRUGERBESLUTNING`: brugeren gav udtrykkelig tilladelse til at importere de 15 tidligere previewede podcastleveringer i den normale persistente **schema-4 consumerdatabase**, med verificeret pre-write SQLite-backup og én automatisk konfliktkontrol. Ingen tilladelse til ekstern AI-transport eller automatisk godkendelse af AI-udsagn.

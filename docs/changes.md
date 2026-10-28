@@ -1,3 +1,10 @@
+## 2026-10-28 — Oprindelig udgivelsesdato i Mistral-job
+
+- Kildevalg og Jobhistorik viser `Udgivet: DD.MM.ÅÅÅÅ` eller `Udgivelsesdato ukendt`; `ai_job()` medtager dato og eksisterende provenance/oprindeligt navn fra kildeversionen.
+- Read-only fallback til registreret podcast-provenance; filnavnsdato markeres ikke verificeret. Registrerede datoer sorteres nyeste først før limit; ukendt dato står sidst uden importdato-fallback.
+- `VERIFICERET`: 20/20 målrettede syntetiske tests i Linux/Python 3.12.14. Fem nye tests omfatter 15 eksisterende drafts i HTTP-UI, uændret databasehash og ingen transport. Berørte eksisterende Mistral-/operational-/navigation-/baggrundskøtests består med mocktransport.
+- Ingen produktionsdata, backfill, migration, AI-kald eller Transskribinator-ændring. Tidligere fulde tests er historik; native Windows og faktiske podcastmetadata kræver brugertest. [Metadataundersøgelse og kort opdatering](mistral-publication-dates.md). Ingen ny ADR.
+
 ## 2026-10-28 — IV-020 persistent consumerimport af 15 podcasts, fysisk PASS
 
 - Brugeren godkendte eksplicit import i normal persistent schema-4 consumerstate. Pre-write SQLite-backup og gentaget konflikt-preview udført af lokal PowerShell-procedure; 0 historiske draftkandidater i seneste read-only kontrol.

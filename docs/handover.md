@@ -1,3 +1,11 @@
+## 28.10.2026 — Udgivelsesdatoer i Mistral-job
+
+Afgrænset visningsrettelse på PR #42's verificerede HEAD `2d783ba`: registreret udgivelsesdato i kildevalg og ved jobhistorikkens kilder, inklusive eksisterende kladder. `ai_job()` medtager dato og eksisterende provenance/oprindeligt navn fra jobbets konkrete kildeversion. Gyldig podcast-provenance kan bruges i visningen; filnavnsdato er et tydeligt ikke verificeret tip. Ukendt dato bruger aldrig importdato i sorteringen. Ingen backfill/schemaændring.
+
+`VERIFICERET`: 20/20 målrettede syntetiske tests i Linux/Python 3.12.14, heraf fem nye for datoer, sortering før limit og HTTP-visning af 15 drafts med uændret databasehash og ingen transport. Eksisterende kilde-/pris-/policy-/bekræftelses-/køflow består med mocktransport. Tidligere fulde testtal gælder deres daværende commits; ingen bred lokal testserie gentaget.
+
+**Næste — `KRÆVER BRUGERTEST`:** [opdatér koden og genstart normal Windows-UI](mistral-publication-dates.md), og se de 15 drafts under Jobhistorik. Faktiske historiske metadata, native Windows og privat database er ikke testet i denne iteration. PR #42 forbliver draft uden merge; ingen Transskribinator-ændring. Denne UI-test er den aktuelle næste todo foran ældre statusafsnit.
+
 ## 28.10.2026 — IV-020 de 15 nye podcasts importeret i persistent consumer (PASS)
 
 Efter at 30 eksisterende episode-JSON blev afstemt (`existing=15`, `new=15`, 0 konflikter/dubletter) og 0 historiske AI-kladdekandidater blev fundet, **godkendte brugeren udtrykkeligt** en kontrolleret skrivende import af de 15 i normal schema-4 consumerstate. En lokal PowerShell-kørsel lavede en konsistent SQLite-backup **før** import, verificerede `integrity_check`, `foreign_key_check` og kildeantal, gentog forhåndsvisningen og udførte derefter consumeren fra den separate PR #42-kode.

@@ -4,6 +4,7 @@ import json
 import re
 import threading
 import webbrowser
+from datetime import date
 from pathlib import Path
 from typing import Any
 from urllib.parse import quote, urlencode
@@ -18,6 +19,7 @@ from .mistral_jobs import (
     execute_mistral_job,
 )
 from .repository import KnowledgeBase
+from .source_dates import source_date
 from .validation import ValidationError
 from .web_app import (
     LANE_LABELS,
@@ -59,9 +61,9 @@ def _source_matches(
             "(lower(COALESCE(sv.title,'')) LIKE ? OR lower(COALESCE(sv.publisher,'')) LIKE ? OR lower(sv.id) LIKE ?)"
         )
         parameters.extend([pattern, pattern, pattern])
-    parameters.append(limit)
     rows = kb.conn.execute(
         f"""SELECT sv.id, sv.title, sv.publisher, sv.published_at, sv.stored_path,
+                    sv.source_type, sv.original_path, p.metadata_json AS provenance_json,
                     sv.sha256, s.ai_permission, s.dataset,
                     (SELECT j.status
                        FROM ai_job_items i JOIN ai_jobs j ON j.id=i.job_id
@@ -69,12 +71,16 @@ def _source_matches(
                       ORDER BY j.created_at DESC, j.rowid DESC LIMIT 1) AS latest_job_status
                FROM source_versions sv
                JOIN sources s ON s.id=sv.logical_source_id
+               LEFT JOIN source_provenance p ON p.source_id=sv.id
               WHERE {' AND '.join(where)}
-              ORDER BY COALESCE(sv.published_at, sv.imported_at) DESC, sv.id
-              LIMIT ?""",
+              ORDER BY sv.id""",
         parameters,
     ).fetchall()
-    return [dict(row) for row in rows]
+    sources = [dict(row) for row in rows]
+    # Sort before limiting, including registered provenance dates. Import dates
+    # and filename hints must not make an undated episode look current.
+    sources.sort(key=lambda source: source_date(source)[0] or date.min, reverse=True)
+    return sources[:limit]
 
 
 class OperationalInvestVidenWebApp(InvestVidenWebApp):
@@ -138,13 +144,14 @@ def make_operational_handler(app: OperationalInvestVidenWebApp):
                     token_text = "Kildekopi ikke tilgængelig"
                     disabled = True
                 source_rows.append(f"""<tr><td>{'' if disabled else f'<input type="checkbox" name="source_id" value="{_escape(source["id"])}">'}</td>
-<td>{_escape(source['title'])}<br><small>{_escape(source['published_at'])} · {_escape(source['publisher'])}<br>{_escape(source['id'])}</small></td>
+<td>{_escape(source['title'])}<br><small>{_escape(source_date(source)[1])} · {_escape(source['publisher'])}<br>{_escape(source['id'])}</small></td>
 <td>{_escape(POLICIES[permission])}</td><td>{_escape(token_text)}</td></tr>""")
             job_cards = []
             for job in jobs:
                 items = "".join(
                     f"<li>{_escape(item['title'])} · {_escape(item['status'])} · forsøg {item['attempt_count']}"
-                    f"{(' · ' + _escape(item['error'])) if item['error'] else ''}</li>"
+                    f"{(' · ' + _escape(item['error'])) if item['error'] else ''}"
+                    f"<br><small>{_escape(source_date(item)[1])}</small></li>"
                     for item in job["items"]
                 )
                 actions = ""
@@ -166,6 +173,7 @@ def make_operational_handler(app: OperationalInvestVidenWebApp):
             body = f"""<h1>Mistral-job</h1>
 <p>Find de kilder, der skal behandles. Opret først en kladde, kontrollér kilder og pris, og bekræft særskilt. Først den efterfølgende send-knap bruger API.</p>
 <p class="muted">Der er {unprocessed_total} ubehandlede kilder i databasen. Listen viser højst 100 kilder ad gangen og kan filtreres på titel, udgiver eller source-id.</p>
+<p class="muted">Registrerede udgivelsesdatoer vises nyeste først; kilder uden dato står sidst. Dato fra filnavn er kun et tip og bruges ikke som udgivelsesdato i sorteringen.</p>
 <form class="search" method="get" action="/ai-jobs"><label>Find ubehandlet kilde<input type="search" name="q" value="{_escape(query)}" placeholder="fx Novo"></label><button>Søg</button></form>
 <p class="muted">Prissats {PRICING_VERSION}: input USD {INPUT_USD_PER_MILLION_TOKENS:.2f}/M tokens, output USD {OUTPUT_USD_PER_MILLION_TOKENS:.2f}/M tokens. Hårdt lokalt loft: USD 0,10.</p>
 <h2>Ny jobkladde · {len(sources)} viste kilder</h2><form method="post" action="/ai-jobs"><input type="hidden" name="csrf_token" value="{app.csrf_token}">
