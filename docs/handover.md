@@ -1,3 +1,11 @@
+## 28.10.2026 — IV-020 de 15 nye podcasts importeret i persistent consumer (PASS)
+
+Efter at 30 eksisterende episode-JSON blev afstemt (`existing=15`, `new=15`, 0 konflikter/dubletter) og 0 historiske AI-kladdekandidater blev fundet, **godkendte brugeren udtrykkeligt** en kontrolleret skrivende import af de 15 i normal schema-4 consumerstate. En lokal PowerShell-kørsel lavede en konsistent SQLite-backup **før** import, verificerede `integrity_check`, `foreign_key_check` og kildeantal, gentog forhåndsvisningen og udførte derefter consumeren fra den separate PR #42-kode.
+
+**VERIFICERET af brugerrapporten:** `result=PASS`, `new_imported=15`, `existing=15`, `new_local_drafts=15`, `drafts_from_older_sources=0`, `total_sources=990`, `preimport_backup=VERIFIED`, `database_integrity=ok`, `external_ai_calls=0`, `persistent_consumer_updated=true`, `legacy_database_used=false`. De 15 nye job er kun lokale, ubekræftede kladder. Ingen AI-inference, reviewstatuspromovering, schemaændring eller skrivning i den beskyttede legacydatabase. Selve private backupfilen, kildeindhold og lokale stier er ikke kopieret til GitHub.
+
+**IKKE TESTET:** AI-behandling af de 15 kilder og normal UI-/portefølje-/watchlistanalyse. **NÆSTE:** Vælg én konkret analyse og brug eksisterende udtræks-/ugepakke-flow. Ved eksternt modelkald kræves D-005-kildevalg, version/hash, prisestimat/loft og særskilt brugerbekræftelse. Undgå nye integrations-/sikkerhedstests uden konkrete fejl. PR #42 er fortsat draft og ingen merge er godkendt.
+
 ## 28.10.2026 — IV-020 eksplicit aflevering: fysisk Windows-PASS
 
 Minimal integration er implementeret i InvestViden: `scripts/deliver_transskribinator_episode.py` genbruger den valgte Transskribinator-apps uændrede `deliver_one`, validerer via `read_episode` og afleverer kun én eksplicit valgt podcastpakke. `--check` bruger kun midlertidig afledning. Atomisk no-clobber-publicering, semantisk gentagelseskontrol, canonical hashes og segmentregnskab bevares. Kommandoen åbner ingen database eller AI-transport.
