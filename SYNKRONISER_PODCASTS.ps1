@@ -1,9 +1,13 @@
+[CmdletBinding(DefaultParameterSetName = 'Sync')]
 param(
-    [Parameter(Mandatory = $true)]
+    [Parameter(Mandatory = $true, ParameterSetName = 'Sync')]
     [string]$DataRoot,
     [string]$ProducerProgram = (Join-Path $env:LOCALAPPDATA 'Programs\Transskribinator-3000-1.0.1'),
     [string]$DeliveryRoot,
-    [switch]$Import
+    [Parameter(ParameterSetName = 'Sync')]
+    [switch]$Import,
+    [Parameter(Mandatory = $true, ParameterSetName = 'ImportOnly')]
+    [switch]$ImportOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -26,18 +30,30 @@ if (-not (Test-Path -LiteralPath $pythonExe -PathType Leaf)) {
 }
 $argsList = @(
     '-I', '-B', (Join-Path $PSScriptRoot 'scripts\sync_transskribinator_podcasts.py'),
-    '--producer-app', (Join-Path $ProducerProgram 'app'),
-    '--data-root', $DataRoot,
     '--delivery-root', $DeliveryRoot,
     '--state-root', $stateRoot
 )
-if ($Import) { $argsList += '--import' }
+if ($ImportOnly) {
+    $argsList += '--import-only'
+} else {
+    $argsList += @('--producer-app', (Join-Path $ProducerProgram 'app'), '--data-root', $DataRoot)
+    if ($Import) { $argsList += '--import' }
+}
 
 Write-Host "Afleveringsmappe: $DeliveryRoot"
-if ($Import) {
+if ($Import -or $ImportOnly) {
     Write-Host "Import til normal consumerdatabase: $stateRoot\knowledgebase.sqlite"
 } else {
     Write-Host 'Kun aflevering. Databasen importeres kun med -Import.'
 }
-& $pythonExe @argsList
-if ($LASTEXITCODE -ne 0) { throw 'Synkronisering stoppede; se afviste pakker eller importfejl ovenfor.' }
+$json = & $pythonExe @argsList
+$exitCode = $LASTEXITCODE
+$json
+if ($json) {
+    $report = ($json -join "`n") | ConvertFrom-Json
+    if ($report.consumer) {
+        $counts = $report.consumer
+        Write-Host "Importerede: $($counts.new_imported) | Eksisterende: $($counts.existing) | Konflikter: $($counts.conflicts) | Dubletter: $($counts.duplicates) | Afvist: $($counts.rejected)"
+    }
+}
+if ($exitCode -ne 0) { throw 'Synkronisering stoppede; se afviste pakker eller importfejl ovenfor.' }

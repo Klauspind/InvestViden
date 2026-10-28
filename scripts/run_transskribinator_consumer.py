@@ -11,6 +11,7 @@ import argparse
 import json
 import sqlite3
 import sys
+from collections import Counter
 from contextlib import closing
 from pathlib import Path
 
@@ -149,7 +150,27 @@ def inspect(delivery_root: Path, state_root: Path) -> dict[str, object]:
     return result
 
 
-def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
+def select_new_inputs(plan: dict) -> tuple[list[int], dict]:
+    """Select only unambiguous new episodes; never pick a first-seen winner."""
+    items = plan["items"]
+    counts = Counter(item.status for item in items)
+    identities = Counter(item.provenance["episode_key"] for item in items)
+    hashes = Counter(item.content for item in items)
+    selected = []
+    held = 0
+    for index, item in enumerate(items):
+        if item.status != "new":
+            continue
+        if identities[item.provenance["episode_key"]] > 1 or hashes[item.content] > 1:
+            held += 1
+        else:
+            selected.append(index)
+    return selected, {"new_eligible": len(selected), "existing": counts["existing"],
+                      "conflicts": counts["conflict"] + held, "duplicates": counts["duplicate"],
+                      "quarantined_new": held, "rejected": len(plan["errors"])}
+
+
+def run(delivery_root: Path, state_root: Path, *, skip_conflicts: bool = False) -> dict[str, object]:
     delivery, state = _validate_paths(delivery_root, state_root)
     delivery_status = _validate_delivery(delivery)
     if delivery_status["episodes"] == 0:
@@ -173,12 +194,15 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
         counts = {"new": 0, "existing": 0, "duplicate": 0, "conflict": 0}
         for item in plan["items"]:
             counts[item.status] = counts.get(item.status, 0) + 1
-        if counts.get("conflict", 0):
+        if counts.get("conflict", 0) and not skip_conflicts:
             raise ValidationError("Consumer-preview indeholder episodekonflikt")
-        if counts.get("duplicate", 0):
+        if counts.get("duplicate", 0) and not skip_conflicts:
             raise ValidationError("Consumer-preview indeholder dubletlevering")
 
         selected = [index for index, item in enumerate(plan["items"]) if item.status == "new"]
+        selection = {}
+        if skip_conflicts:
+            selected, selection = select_new_inputs(plan)
         imported_ids: list[str] = []
         backup_integrity = None
         if selected:
@@ -241,6 +265,7 @@ def run(delivery_root: Path, state_root: Path) -> dict[str, object]:
             "original_sources_unchanged": True,
             "external_ai_calls": 0,
             "active_database_used": False,
+            **selection,
         }
 
 

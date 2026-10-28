@@ -1,5 +1,7 @@
 """Synthetic batch discovery plus the unchanged handoff and consumer."""
 import copy
+import hashlib
+from collections import Counter
 from contextlib import closing, nullcontext, redirect_stdout
 import importlib.util
 import io
@@ -23,6 +25,8 @@ syncer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(syncer)
 from investkb.repository import KnowledgeBase
 from investkb.mistral_jobs import create_mistral_job
+from investkb.intake import plan_input
+from investkb.podcast_sync import read_episode, render_episode
 
 
 class PodcastSyncTests(unittest.TestCase):
@@ -171,7 +175,7 @@ class PodcastSyncTests(unittest.TestCase):
         self.assertFalse(result["ok"])
         self.assertEqual(original, database.read_bytes())
 
-    def test_consumer_identity_conflict_blocks_before_database_write(self):
+    def test_consumer_identity_conflict_is_skipped_without_database_write(self):
         self.initialize()
         self.package("run-a", identifier="first", text="First version")
         self.assertTrue(self.sync(import_requested=True)["ok"])
@@ -180,9 +184,117 @@ class PodcastSyncTests(unittest.TestCase):
         payload = episode_data("first", "first", "Changed transcript", "trpkg-different")
         (self.delivery / "Synthetic/second.json").write_text(json.dumps(payload))
         result = self.sync(import_requested=True)
-        self.assertFalse(result["ok"])
-        self.assertIn("Consumer preview", result["import_error"])
+        self.assertTrue(result["ok"], result)
+        self.assertEqual((0, 1, 1), tuple(result["consumer"][key] for key in
+                                        ("new_imported", "existing", "conflicts")))
         self.assertEqual(original, (self.state / "knowledgebase.sqlite").read_bytes())
+
+    def delivery_file(self, name, payload):
+        self.delivery.mkdir(exist_ok=True)
+        path = self.delivery / name
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        return path
+
+    def test_import_only_mixed_30_existing_32_new_29_conflicts_and_repeat(self):
+        self.initialize()
+        originals = [episode_data(f"old-{i}", f"Original {i}", f"Original text {i}.", f"trpkg-old-{i}")
+                     for i in range(30)]
+        for i, payload in enumerate(originals):
+            self.delivery_file(f"old-{i:02}.json", payload)
+        self.assertEqual(30, syncer.import_only(self.delivery, self.state)["consumer"]["new_imported"])
+        database = self.state / "knowledgebase.sqlite"
+        with KnowledgeBase(database) as kb:
+            ids = [kb.source_by_episode_key(read_episode(self.delivery / f"old-{i:02}.json").episode_key)["id"]
+                   for i in range(30)]
+            for source_id, policy in zip(ids, ("ask", "local_only", "blocked")):
+                kb.set_source_permission(source_id, policy)
+            preserved = {table: [tuple(row) for row in kb.conn.execute(f"SELECT * FROM {table}")]
+                         for table in ("sources", "source_versions", "source_provenance", "ai_jobs", "ai_job_items")}
+        for i in range(32):
+            payload = episode_data(f"new-{i}", f"New {i}", f"New text {i}.", f"trpkg-new-{i}")
+            payload["source"]["published"] = "2026-10-01"
+            self.delivery_file(f"new-{i:02}.json", payload)
+        conflicts = []
+        for i in range(29):
+            payload = copy.deepcopy(originals[i])
+            payload["segments"][0]["text"] = f"Conflicting alternative {i}."
+            conflicts.append(self.delivery_file(f"conflict-{i:02}.json", payload))
+        with KnowledgeBase(database) as kb:
+            plan = plan_input(kb, syncer.consumer._root_config(self.delivery))
+            self.assertEqual(Counter(existing=30, new=32, conflict=29), Counter(item.status for item in plan["items"]))
+        files = {p: p.read_bytes() for p in self.delivery.rglob("*.json")}
+        output = io.StringIO()
+        with patch.object(syncer, "deliver", side_effect=AssertionError("No redelivery")), \
+                patch.object(syncer, "_packages", side_effect=AssertionError("No producer scan")), redirect_stdout(output):
+            code = syncer.main(["--import-only", "--delivery-root", str(self.delivery), "--state-root", str(self.state)])
+        result = json.loads(output.getvalue())["consumer"]
+        self.assertEqual(0, code, output.getvalue())
+        self.assertEqual((32, 30, 29, 0, 32), tuple(result[key] for key in
+                         ("new_imported", "existing", "conflicts", "rejected", "draft_jobs_created")))
+        with closing(sqlite3.connect(result["preimport_backup"]["path"])) as connection:
+            self.assertEqual(30, connection.execute("SELECT COUNT(*) FROM source_versions").fetchone()[0])
+            self.assertEqual("ok", connection.execute("PRAGMA integrity_check").fetchone()[0])
+        with KnowledgeBase(database) as kb:
+            for table, rows in preserved.items():
+                current = {tuple(row) for row in kb.conn.execute(f"SELECT * FROM {table}")}
+                self.assertTrue(set(rows).issubset(current), table)
+            for path in conflicts:
+                digest = hashlib.sha256(render_episode(read_episode(path)).encode("utf-8")).hexdigest()
+                self.assertIsNone(kb.source_by_hash(digest))
+            for path in self.delivery.glob("new-*.json"):
+                episode = read_episode(path)
+                row = kb.source_by_episode_key(episode.episode_key)
+                self.assertEqual(hashlib.sha256(render_episode(episode).encode("utf-8")).hexdigest(), row["sha256"])
+                provenance = kb.conn.execute("SELECT * FROM source_provenance WHERE source_id=?", (row["id"],)).fetchone()
+                self.assertEqual(episode.json_sha256, provenance["upstream_sha256"])
+            self.assertEqual(0, kb.conn.execute("SELECT SUM(attempt_count) FROM ai_job_items").fetchone()[0])
+        unchanged = database.read_bytes()
+        repeat = syncer.import_only(self.delivery, self.state)["consumer"]
+        self.assertEqual((0, 62, 29, 0), tuple(repeat[key] for key in
+                         ("new_imported", "existing", "conflicts", "draft_jobs_created")))
+        self.assertEqual("not_needed", repeat["preimport_backup"])
+        self.assertEqual(unchanged, database.read_bytes())
+        self.assertEqual(files, {path: path.read_bytes() for path in files})
+
+    def test_repeated_identity_quarantines_first_new_and_duplicates(self):
+        self.initialize()
+        first = episode_data("same", "Same", "First variant", "trpkg-first")
+        second = episode_data("same", "Same", "Second variant", "trpkg-second")
+        self.delivery_file("a.json", first)
+        self.delivery_file("b.json", second)
+        self.delivery_file("c.json", first)
+        self.delivery_file("safe.json", episode_data("safe", "Unrelated", "Safe text", "trpkg-safe"))
+        result = syncer.import_only(self.delivery, self.state)["consumer"]
+        self.assertEqual((1, 2, 1, 1), tuple(result[key] for key in
+                         ("new_imported", "conflicts", "duplicates", "quarantined_new")))
+        with KnowledgeBase(self.state / "knowledgebase.sqlite") as kb:
+            self.assertIsNone(kb.source_by_episode_key(read_episode(self.delivery / "a.json").episode_key))
+        repeat = syncer.import_only(self.delivery, self.state)["consumer"]
+        self.assertEqual((0, 2, 1), tuple(repeat[key] for key in ("new_imported", "conflicts", "duplicates")))
+        unchanged = (self.state / "knowledgebase.sqlite").read_bytes()
+        self.delivery_file("another.json", episode_data("another", "Another", "New safe text", "trpkg-another"))
+        (self.delivery / "unreadable.json").write_text("not valid JSON")
+        rejected = syncer.import_only(self.delivery, self.state)["consumer"]
+        self.assertFalse(rejected["ok"])
+        self.assertEqual((0, 1, 1), tuple(rejected[key] for key in ("new_imported", "new_eligible", "rejected")))
+        self.assertEqual(unchanged, (self.state / "knowledgebase.sqlite").read_bytes())
+
+    def test_legacy_title_match_remains_a_conflict_without_provenance_key_match(self):
+        self.initialize()
+        with KnowledgeBase(self.state / "knowledgebase.sqlite") as kb:
+            source = self.root / "legacy.txt"
+            source.write_text("Legacy transcript", encoding="utf-8")
+            kb.import_source(source, "podcast_transcript", title="Market outlook", publisher="Synthetic",
+                             published_at="2026-09-29", source_store=self.state / "sources", ai_permission="ask")
+        path = self.delivery_file("legacy-match.json", episode_data("fresh-id", "Market outlook for Europe",
+                                                                  "Different text", "trpkg-fresh"))
+        with KnowledgeBase(self.state / "knowledgebase.sqlite") as kb:
+            self.assertIsNone(kb.source_by_episode_key(read_episode(path).episode_key))
+            self.assertEqual("conflict", plan_input(kb, syncer.consumer._root_config(self.delivery))["items"][0].status)
+        unchanged = (self.state / "knowledgebase.sqlite").read_bytes()
+        result = syncer.import_only(self.delivery, self.state)["consumer"]
+        self.assertEqual((0, 1, 0), tuple(result[key] for key in ("new_imported", "conflicts", "draft_jobs_created")))
+        self.assertEqual(unchanged, (self.state / "knowledgebase.sqlite").read_bytes())
 
     def test_empty_root_is_a_noop_and_overlapping_paths_are_rejected(self):
         self.assertTrue(self.sync(import_requested=True)["ok"])

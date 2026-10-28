@@ -1,3 +1,10 @@
+## 2026-10-28 — IV-020 selektiv import trods andre episodekonflikter
+
+- Rettet global blokering ved blandede leveringer. Sync vælger kun entydige `new` via consumerens nye opt-in; striks consumerstandard bevares. Gentagne identitets-/indholdsgrupper holdes helt tilbage, også første `new`. Eksisterende, konfliktende og duplikerede leveringer ændres ikke.
+- `SYNKRONISER_PODCASTS.ps1 -ImportOnly` læser eksisterende afleveringer uden genaflevering/producerkald. Kort import-/eksisterende-/konflikt-/dublet-/afvisningsoptælling; bevaret pre-write-backup, hash, provenance, idempotens, politik og jobkladder.
+- `VERIFICERET`: 16 relevante syntetiske tests består i Linux/Python 3.12.14, én lokal PowerShell-parser-skip. Tre nye regressioner dækker især 30/32/29 med 32 importerede og 0 ved genkørsel, uændrede gamle rækker/leveringsbytes samt legacy/tvetydige identiteter/afvisninger. Ingen bred lokal acceptserie eller private data.
+- `BRUGERRAPPORT`: 61 afleveret, 11 andre profiler ignoreret, 0 afvist; preflight stoppede. Read-only 30 eksisterende/32 nye/29 konflikter/0 dubletter/0 fejl; senest 990 kilder. Faktisk import af de 32 er fortsat `IKKE TESTET`. [Præcis konfliktanalyse og normal brug](iv-020-podcast-sync.md). Ingen schema-/producent-/AI-politikændring eller eksterne AI-kald.
+
 ## 2026-10-28 — IV-020 enkel synkronisering af færdige podcasts
 
 - Ny PowerShell-launcher og lille Python-orkestrering over accepteret aflevering og eksisterende consumer. Eksplicit datarod, discovery via færdigmarkør og producentvalidering; nye/eksisterende/afviste tælles. Idempotens og no-clobber-publicering genbruges.

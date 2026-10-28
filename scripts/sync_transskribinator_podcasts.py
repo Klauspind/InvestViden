@@ -40,16 +40,29 @@ def _import_deliveries(delivery: Path, state: Path) -> dict:
         if current_schema_version(kb.conn) != 4 or consumer._integrity(kb) != "ok":
             raise ValueError("Consumer database must be intact schema 4; no migration performed")
         plan = plan_input(kb, consumer._root_config(delivery))
-        if plan["errors"] or any(item.status in {"conflict", "duplicate"} for item in plan["items"]):
-            raise ValueError("Consumer preview rejected errors, conflicts or duplicate deliveries")
+        selected, selection = consumer.select_new_inputs(plan)
+        if plan["errors"]:
+            return {"ok": False, "new_imported": 0, **selection,
+                    "errors": plan["errors"], "external_ai_calls": 0}
         backup = None
-        if any(item.status == "new" for item in plan["items"]) or consumer._sources_without_job(kb.conn):
+        if selected or consumer._sources_without_job(kb.conn):
             backup = kb.backup_database(state / "backups")
             if backup["integrity"] != "ok":
                 raise ValueError("Pre-import backup failed")
-    result = consumer.run(delivery, state)
+    result = consumer.run(delivery, state, skip_conflicts=True)
     result["preimport_backup"] = backup or "not_needed"
     return result
+
+
+def import_only(delivery_root: Path, state_root: Path) -> dict:
+    """Consume existing deliveries without loading/scanning the producer."""
+    delivery = delivery_root.expanduser().resolve(strict=True)
+    state = state_root.expanduser().resolve()
+    if _overlap(delivery, ROOT) or _overlap(state, ROOT):
+        raise ValueError("Delivery and state must be outside the repository")
+    result = _import_deliveries(delivery, state)
+    return {"schema_version": "investviden-podcast-sync-v1", "mode": "import_only",
+            "ok": result["ok"], "consumer": result, "external_ai_calls": 0}
 
 
 def sync(producer_app: Path, data_root: Path, delivery_root: Path,
@@ -94,6 +107,7 @@ def sync(producer_app: Path, data_root: Path, delivery_root: Path,
     if import_requested and result["ok"] and delivery.is_dir() and any(delivery.rglob("*.json")):
         try:
             result["consumer"] = _import_deliveries(delivery, state)
+            result["ok"] = result["consumer"]["ok"]
         except Exception as exc:
             result.update(ok=False, import_error=str(exc), error_type=type(exc).__name__)
     return result
@@ -101,15 +115,21 @@ def sync(producer_app: Path, data_root: Path, delivery_root: Path,
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--producer-app", type=Path, required=True)
-    parser.add_argument("--data-root", type=Path, required=True)
+    parser.add_argument("--producer-app", type=Path)
+    parser.add_argument("--data-root", type=Path)
     parser.add_argument("--delivery-root", type=Path, required=True)
     parser.add_argument("--state-root", type=Path)
     parser.add_argument("--import", dest="import_requested", action="store_true")
+    parser.add_argument("--import-only", action="store_true")
     args = parser.parse_args(argv)
+    if args.import_only and args.state_root is None:
+        parser.error("--import-only requires --state-root")
+    if not args.import_only and (args.producer_app is None or args.data_root is None):
+        parser.error("Delivery requires --producer-app and --data-root")
     try:
-        result = sync(args.producer_app, args.data_root, args.delivery_root,
-                      args.state_root, import_requested=args.import_requested)
+        result = import_only(args.delivery_root, args.state_root) if args.import_only else sync(
+            args.producer_app, args.data_root, args.delivery_root,
+            args.state_root, import_requested=args.import_requested)
     except Exception as exc:
         result = {"schema_version": "investviden-podcast-sync-v1", "ok": False,
                   "error": str(exc), "error_type": type(exc).__name__, "external_ai_calls": 0}

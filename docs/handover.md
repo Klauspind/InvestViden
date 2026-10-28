@@ -1,3 +1,15 @@
+## 28.10.2026 — IV-020 sikker import fra blandet aflevering
+
+Brugeren rapporterede 61 nye afleveringer, 11 ignorerede profiler og 0 afviste, men importpreflight stoppede. Read-only plan: 91 filer med 30 `existing`, 32 `new`, 29 `conflict`, 0 dubletter/fejl; normal state senest 990 kilder. Ingen import af de 32 er verificeret. Rettelsesbaseline er PR #42's HEAD `a0cc56cb745ad54424eda17184128aece33bf51c`.
+
+`-ImportOnly` genbruger de eksisterende JSON-filer uden producentscan/adapterkald. Sync bruger nu consumerens opt-in selektion af entydige `new`; eksisterende/konflikter/dubletter forbliver urørte. Hele gentagne episodeidentitets-/indholdsgrupper holdes tilbage, inklusive en første `new`, så filrækkefølge ikke vælger en version. Verificeret pre-write-backup og apply-/hash-/provenance-/policy-/kladdeflow bevares. Direkte consumerkald er fortsat strikse som standard; gamle job-/recoveryregler er uændrede.
+
+Årsager er dokumenteret i [synkroniseringsguiden](iv-020-podcast-sync.md): DB-provenance-nøgle, gentagen leveringsidentitet eller legacy-match på dato/udgiver/titellighed. Renderet hash indeholder også JSON-hash og metadata, så ens talte ord er ikke nødvendigvis samme kildeversion. Ingen af disse regler lempes; ingen ny datamodelbeslutning eller migration.
+
+`VERIFICERET`: 16 målrettede syntetiske tests består på Linux/Python 3.12.14, én PowerShell-parser-skip lokalt. 30/32/29 giver 32 importerede/32 nye kladder, genkørsel 0 med 62 eksisterende/29 konflikter; gamle rækker, politikker, kladder og alle leveringsbytes bevares. Tre nye regressioner omfatter også gentagne identiteter, legacy-titelmatch og afvisninger. Tidligere testtal er historik.
+
+**Næste:** normal `SYNKRONISER_PODCASTS.ps1 -ImportOnly`, derefter analysebrug. Faktiske private data/import og de 29 konflikters konkrete årsager er `IKKE TESTET`; eventuelle første `new` i gentagelsesgrupper reducerer det sikre antal. Ingen ny omfattende acceptserie, ingen producent-/schemaændring eller ekstern AI. PR #42 forbliver draft uden merge. Nyeste status har forrang for ældre næste-todo-tekst nedenfor.
+
 ## 28.10.2026 — IV-020 én lokal kommando til nye podcasts
 
 `SYNKRONISER_PODCASTS.ps1` og `scripts/sync_transskribinator_podcasts.py` scanner en eksplicit datarod efter færdige, gyldige `podcast-legacy/1`-pakker. De genbruger den accepterede `deliver` pr. pakke og eksisterende consumer. Afleveringer tælles som nye/eksisterende; konflikter overskrives aldrig. Afviste pakker blokerer import, mens allerede vellykkede afleveringer kan genbruges ved retry. Standard åbner ingen consumerdatabase; `-Import` bruger normal eksisterende schema 4 efter plan-/integritetskontrol og pre-write-backup ved ændringer.

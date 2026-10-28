@@ -1,3 +1,10 @@
+## Status 28.10.2026 — IV-020 blandede leveringer: selektiv import
+
+- `BRUGERRAPPORT`: Windows oprettede 61 leveringer, ignorerede 11 ikke-podcastpakker og afviste 0. Import stoppede før skrivning; read-only plan viste 30 eksisterende, 32 nye, 29 konflikter, 0 dubletter/fejl. Senest 990 kilder i normal state. Dette er ikke en bestået import af de 32.
+- `VERIFICERET`: selektiv import vælger entydige `new` og bevarer eksisterende/konflikter. En første `new` i en gentagen identitets-/indholdsgruppe holdes også tilbage. Legacy-titelmatch og hash-/identitetsregler lempes ikke; ingen model-/schemaændring.
+- `VERIFICERET`: 16 relevante syntetiske tests består i Linux/Python 3.12.14; én lokal PowerShell-parser-skip. 30/32/29-prøven importerer 32, genkørsel 0; gamle rækker/job/politikker og alle leveringsbytes bevares, pre-write-backup og provenance/hash er kontrolleret. Ingen private data eller AI-kald brugt.
+- **Næste:** efter kodeopdatering, kør `SYNKRONISER_PODCASTS.ps1 -ImportOnly` mod eksisterende aflevering uden genaflevering. [Årsagsanalyse og grænser](iv-020-podcast-sync.md). Faktisk import og fordeling af de 29 konflikttyper er `IKKE TESTET`; færre end 32 kan være entydige. Ingen ny acceptserie. PR #42 fortsat draft uden merge; baseline `a0cc56c`.
+
 ## Status 28.10.2026 — IV-020 enkel podcastsynkronisering implementeret
 
 - `VERIFICERET`: ny `SYNKRONISER_PODCASTS.ps1 -DataRoot ... [-Import]` finder færdige podcastpakker, genbruger accepteret aflevering og viser nye/eksisterende/afviste. Standard afleverer kun; `-Import` genbruger normal consumer med verificeret pre-write-backup ved ændringer.
