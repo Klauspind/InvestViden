@@ -1,3 +1,9 @@
+## 2026-10-28 — IV-020 fysisk Windows-accept af én rigtig podcastpakke
+
+- `VERIFICERET` ved brugerens isolerede `verify_iv020_handoff.py`-kørsel mod installeret 1.0.1-app: `result=PASS`, `first_delivered=1`, `repeat_skipped=1`, `first_imported=1`, `first_drafts=1`, `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`, `backup_integrity=ok`, `database_integrity=ok`, `package_unchanged=true`, `delivery_unchanged=true`, `external_ai_calls=0`, `active_database_used=false`.
+- Ingen installation, aktiv SQLite eller private kildebytes ændret af accepten. Pakken blev valgt fra en genbrugt datarod; at selve transskriptionen skete med 1.0.1 er **IKKE TESTET**.
+- `NÆSTE`: PR #42 forbliver draft; check read-only antal historiske kladdekandidater i aktiv consumerstate før beslutning om evt. import af 15 nye episoder. Ingen aktiv import eller merge er autoriseret.
+
 ## 2026-10-27 — IV-020 eksplicit én-pakke-integration
 
 - Native Windows-CI fandt to SQLite-håndtag i consumer-testenes assertions, som ikke blev lukket af SQLite-contextmanageren. Testene lukker nu eksplicit med `contextlib.closing` før temp-oprydning; ingen produktkontrol lempet. Den eksisterende consumer-checkforbindelse lukkes ligeledes eksplicit.
