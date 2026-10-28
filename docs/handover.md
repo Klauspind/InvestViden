@@ -1,3 +1,11 @@
+## 28.10.2026 — IV-020 32 nye episoder importeret, fysisk Windows-PASS
+
+Brugeren opdaterede lokal PR #42-featuregren til `ed6d635` og kørte den nye `SYNKRONISER_PODCASTS.ps1 -ImportOnly` mod den normale consumer-konfiguration. **VERIFICERET via lokal, dataminimeret JSON-rapport:** `ok=true`, `delivery_episodes=91`, `new_imported=32`, `existing=30`, `new_eligible=32`, `conflicts=29`, `duplicates=0`, `quarantined_new=0`, `rejected=0`. Nye episoder er importeret uden at overskrive eksisterende/konfliktende leveringer.
+
+`draft_jobs_created=32`, `draft_jobs_from_new_sources=32`, `draft_jobs_from_existing_sources=0`; `total_sources=1022`, `total_ai_jobs=71`, `total_ai_job_items=76`, `claims=174`. De 174 er samlet bestandsstatus og dokumenterer **ikke** AI-udtræk fra den aktuelle import; importkørslen havde `external_ai_calls=0`. `database_schema=4`, `database_integrity=ok`, `preimport_backup.integrity=ok`, `backup_integrity=ok`, `original_sources_unchanged=true`; beskyttet legacydatabase blev ikke brugt. Ingen private stier, data eller backuphashes ført til GitHub.
+
+**Næste:** Parker de 29 urørte konflikter (typer ikke individuelt diagnosticeret), undgå yderligere generel integrationsudvikling og afprøv én reel, kildebaseret watchlist-/porteføljeanalyse på få nyere podcasts. AI-jobkladder kræver stadig D-005's eksplicitte kilde-/hash-/pris-/sendebekræftelse før ekstern model. Udført import er ikke det samme som aktiv menneskeligt godkendt viden. Ingen merge af PR #42.
+
 ## 28.10.2026 — IV-020 sikker import fra blandet aflevering
 
 Brugeren rapporterede 61 nye afleveringer, 11 ignorerede profiler og 0 afviste, men importpreflight stoppede. Read-only plan: 91 filer med 30 `existing`, 32 `new`, 29 `conflict`, 0 dubletter/fejl; normal state senest 990 kilder. Ingen import af de 32 er verificeret. Rettelsesbaseline er PR #42's HEAD `a0cc56cb745ad54424eda17184128aece33bf51c`.
