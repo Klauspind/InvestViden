@@ -1,6 +1,6 @@
 # IV-020 — eksplicit aflevering af én Qt-podcast
 
-Dato: 27.10.2026. **Teknisk VERIFICERET på syntetiske data; KRÆVER BRUGERTEST på Windows.**
+Dato: 28.10.2026. **Teknisk VERIFICERET på syntetiske data og fysisk Windows-accept PASS på en reel færdig pakke; selve 1.0.1-transskriptionsjobbet er ikke dokumenteret.**
 
 ## Resultat og afgrænsning
 
@@ -101,6 +101,21 @@ konfiguration eller databaser, og importen sker kun i `<testRoot>\state`.
 Det kopierer ikke en aktiv database. Ingen oprydning, taskaktivering eller
 produktionsimport indgår. Rollback er at ophøre med at bruge featuregrenen;
 kildepakke, installeret produkt og eksisterende consumer er uændrede.
+
+## Fysisk Windows-accept 28.10.2026 — PASS
+
+Brugeren anvendte én virkelig færdig `run-*` podcastpakke fra den genbrugte lokale datarod og den eksisterende installerede Transskribinator-3000 1.0.1-app. Testkoden var verificeret mod PR #42-commit `5c53c01d05165b244627ab4ab71038569bdc8335`. Pakken blev afledt til **ny isoleret leveringsrod** og importeret til **ny isoleret consumerstate**; ingen normal/aktiv database blev åbnet i acceptkørslen.
+
+Resultat `PASS`:
+
+- Aflevering: `first_delivered=1`, `repeat_skipped=1`.
+- Import: `first_imported=1`, `first_drafts=1`; gentagelse `repeat_imported=0`, `repeat_drafts=0`, `repeat_existing=1`.
+- `backup_integrity=ok`, `database_integrity=ok`, `package_unchanged=true`, `delivery_unchanged=true`.
+- `external_ai_calls=0`, `active_database_used=false`.
+
+**VERIFICERET:** Reelt pakkeformat accepteret af installeret 1.0.1-adapter → ny aflevering → isoleret schema-4-consumer med idempotens og uændrede kildebytes. **IKKE TESTET:** om den valgte pakke blev transskriberet *med* version 1.0.1, normal UI/analyser, daglig brugeraflevering til aktiv leveringsrod, aktiv databaseimport af de 15 tidligere opdagede nye episoder. Brugerens konkrete private pakkesti og filindhold er ikke gemt i GitHub.
+
+**Næste kun-læsehandling:** kør den nyudvidede `run_transskribinator_consumer.py --check` mod eksisterende consumer-konfiguration for at se `draft_candidates_existing_sources`. Dette er nødvendigt før beslutning om aktiv import, fordi `run` ellers også kan oprette AI-kladder for ældre kilder uden for den aktuelle aflevering. Ingen aktiv skrivning eller merge automatisk.
 
 ## Senere almindelig aflevering
 
